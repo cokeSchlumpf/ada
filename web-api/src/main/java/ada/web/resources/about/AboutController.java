@@ -2,6 +2,7 @@ package ada.web.resources.about;
 
 import ada.web.resources.about.model.AboutApplication;
 import ada.web.resources.about.model.AboutUser;
+import org.reactivestreams.Publisher;
 
 import java.util.Map;
 
@@ -16,6 +17,13 @@ public interface AboutController {
      * @return base information about the system.
      */
     AboutApplication getAbout();
+
+    /**
+     * Simple sample method to show how to stream long running processes/ responses to a client.
+     *
+     * @return base information about the system as stream.
+     */
+    Publisher<String> getAboutStream();
 
     /**
      * @return information about the authenticated user.

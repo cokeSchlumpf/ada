@@ -1,7 +1,9 @@
 apply plugin: 'scala'
+apply plugin: 'io.franzbecker.gradle-lombok'
 
 dependencies {
-    compile 'org.scala-lang:scala-library:2.11.12'
+    compile libs['akka-streams']
+    compile libs['scala']
 
     compile project(':web-api')
 }
