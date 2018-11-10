@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
@@ -85,7 +86,45 @@ public class AboutResourceController {
             LOG.info("Finished streaming response");
 
             if (!Objects.isNull(exception)) {
-                LOG.error("Streaming response failed", exception);
+                LOG.debug("Streaming response failed", exception);
+                emitter.completeWithError(exception);
+            } else {
+                emitter.complete();
+            }
+        });
+
+        return emitter;
+    }
+
+    @RequestMapping(
+        method = RequestMethod.GET,
+        produces = {
+            MediaType.TEXT_EVENT_STREAM_VALUE
+        })
+    @ApiOperation(
+        value = "Returns version information of Ada instance",
+        notes = "The version information is added during build Process")
+    public SseEmitter getAboutEventStream() {
+        SseEmitter emitter = new SseEmitter();
+
+        CompletionStage<Done> done = Source
+            .fromPublisher(controller.getAboutStream())
+            .runWith(
+                Sink.foreach(s -> {
+                    SseEmitter.SseEventBuilder builder = SseEmitter
+                        .event()
+                        .data(s, MediaType.TEXT_PLAIN)
+                        .name("text");
+
+                    emitter.send(builder);
+                }),
+                this.materializer);
+
+        done.whenComplete((result, exception) -> {
+            LOG.info("Finished streaming response");
+
+            if (!Objects.isNull(exception)) {
+                LOG.debug("Streaming response failed", exception);
                 emitter.completeWithError(exception);
             } else {
                 emitter.complete();

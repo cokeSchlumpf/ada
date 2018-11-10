@@ -1,6 +1,6 @@
 package ada.configuration;
 
-import ada.web.resources.about.AboutControllerConfiguration;
+import ada.web.controllers.AboutControllerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;

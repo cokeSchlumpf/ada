@@ -1,7 +1,5 @@
 package ada.web.impl.resources.about
 
-import ada.web.api.resources.about.model.AboutUser
-import ada.web.api.resources.about.{AboutControllerConfiguration, AboutResource}
 import ada.web.controllers.{AboutControllerConfiguration, AboutResource}
 import ada.web.controllers.model.{AboutApplication, AboutUser}
 import akka.stream.Materializer
