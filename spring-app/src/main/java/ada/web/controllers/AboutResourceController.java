@@ -1,8 +1,8 @@
-package ada.web.resources.about;
+package ada.web.controllers;
 
-import ada.web.resources.about.model.AboutAnonymousUser;
-import ada.web.resources.about.model.AboutApplication;
-import ada.web.resources.about.model.AboutUser;
+import ada.web.controllers.model.AboutAnonymousUser;
+import ada.web.controllers.model.AboutApplication;
+import ada.web.controllers.model.AboutUser;
 import akka.Done;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
@@ -32,17 +32,17 @@ import java.util.concurrent.CompletionStage;
 @Api(
     tags = "About",
     description = "Provides general information about the running Ada instance")
-public class AboutControllerResource {
+public class AboutResourceController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AboutControllerResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AboutResourceController.class);
 
-    private final AboutController controller;
+    private final AboutResource controller;
 
     private final Materializer materializer;
 
     @SuppressWarnings("unused")
-    public AboutControllerResource(AboutControllerConfiguration configuration, ActorSystem system) {
-        AboutControllerFactory f = AboutControllerFactoryImpl.apply(
+    public AboutResourceController(AboutControllerConfiguration configuration, ActorSystem system) {
+        AboutResourceFactory f = AboutResourceFactoryImpl.apply(
             configuration,
             AboutAnonymousUser.apply(ImmutableList.of()),
             system);

@@ -1,6 +1,5 @@
 package ada.configuration;
 
-import ada.web.resources.about.AboutController;
 import ada.web.resources.about.AboutControllerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

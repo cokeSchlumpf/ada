@@ -1,17 +1,15 @@
-package ada.web.resources.about;
+package ada.web.controllers;
 
-import ada.web.resources.about.model.AboutApplication;
-import ada.web.resources.about.model.AboutUser;
+import ada.web.controllers.model.AboutApplication;
+import ada.web.controllers.model.AboutUser;
 import org.reactivestreams.Publisher;
-
-import java.util.Map;
 
 /**
  * A controller which reveals information about the current application instance.
  *
  * @author Michael Wellner (michael.wellner@de.ibm.com).
  */
-public interface AboutController {
+public interface AboutResource {
 
     /**
      * @return base information about the system.

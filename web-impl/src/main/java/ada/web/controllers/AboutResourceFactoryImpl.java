@@ -1,6 +1,7 @@
-package ada.web.resources.about;
+package ada.web.controllers;
 
-import ada.web.resources.about.model.AboutUser;
+import ada.web.controllers.model.AboutUser;
+import ada.web.impl.resources.about.AboutResourceImpl;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
@@ -13,7 +14,7 @@ import lombok.*;
 @EqualsAndHashCode
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public final class AboutControllerFactoryImpl implements AboutControllerFactory {
+public final class AboutResourceFactoryImpl implements AboutResourceFactory {
 
     public final AboutControllerConfiguration configuration;
 
@@ -21,13 +22,13 @@ public final class AboutControllerFactoryImpl implements AboutControllerFactory 
 
     public final Materializer materializer;
 
-    public static AboutControllerFactory apply(AboutControllerConfiguration configuration, AboutUser user, ActorSystem system) {
+    public static AboutResourceFactory apply(AboutControllerConfiguration configuration, AboutUser user, ActorSystem system) {
         return apply(configuration, user, ActorMaterializer.create(system));
     }
 
     @Override
-    public AboutController create() {
-        return AboutControllerImpl.apply(
+    public AboutResource create() {
+        return AboutResourceImpl.apply(
             this.configuration,
             this.user,
             this.materializer);

@@ -1,7 +1,7 @@
-package ada.web.resources.about;
+package ada.web.controllers;
 
-import ada.web.resources.about.model.AboutApplication;
-import ada.web.resources.about.model.AboutUser;
+import ada.web.controllers.model.AboutApplication;
+import ada.web.controllers.model.AboutUser;
 import org.reactivestreams.Publisher;
 
 /**
@@ -9,19 +9,19 @@ import org.reactivestreams.Publisher;
  *
  * @author Michael Wellner (michael.wellner@de.ibm.com)
  */
-public class AboutControllerImplJava implements AboutController {
+public class AboutResourceImplJava implements AboutResource {
 
     private final AboutControllerConfiguration configuration;
 
     private final AboutUser user;
 
-    private AboutControllerImplJava(AboutControllerConfiguration configuration, AboutUser user) {
+    private AboutResourceImplJava(AboutControllerConfiguration configuration, AboutUser user) {
         this.configuration = configuration;
         this.user = user;
     }
 
-    public static AboutControllerImplJava apply(AboutControllerConfiguration configuration, AboutUser user) {
-        return new AboutControllerImplJava(configuration, user);
+    public static AboutResourceImplJava apply(AboutControllerConfiguration configuration, AboutUser user) {
+        return new AboutResourceImplJava(configuration, user);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ada.web.resources.about.model;
+package ada.web.controllers.model;
 
 import java.util.List;
 

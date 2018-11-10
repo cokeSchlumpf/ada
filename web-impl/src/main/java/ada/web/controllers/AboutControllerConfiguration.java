@@ -1,4 +1,4 @@
-package ada.web.resources.about;
+package ada.web.controllers;
 
 import lombok.*;
 
