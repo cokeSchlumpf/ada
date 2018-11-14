@@ -1,4 +1,4 @@
-package ada.spring.web.controllers;
+package ada.spring.web.impl.controllers;
 
 import lombok.*;
 

@@ -1,6 +1,6 @@
 package ada.spring.configuration;
 
-import ada.web.controllers.AboutControllerConfiguration;
+import ada.spring.web.impl.controllers.AboutControllerConfiguration;
 import akka.actor.ActorSystem;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

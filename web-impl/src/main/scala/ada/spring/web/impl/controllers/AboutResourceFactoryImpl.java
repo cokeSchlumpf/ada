@@ -1,7 +1,9 @@
-package ada.web.controllers;
+package ada.spring.web.impl.controllers;
 
-import ada.spring.web.controllers.AboutControllerConfiguration;
+import ada.spring.web.impl.controllers.AboutControllerConfiguration;
 import ada.spring.web.impl.resources.about.AboutResourceImpl;
+import ada.web.controllers.AboutResource;
+import ada.web.controllers.AboutResourceFactory;
 import ada.web.controllers.model.AboutUser;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;

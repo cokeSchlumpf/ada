@@ -1,6 +1,6 @@
 package ada.spring.web.impl.resources.about
 
-import ada.spring.web.controllers.AboutControllerConfiguration
+import ada.spring.web.impl.controllers.AboutControllerConfiguration
 import ada.web.controllers.AboutResource
 import ada.web.controllers.model.{AboutApplication, AboutUser}
 import akka.stream.Materializer
