@@ -1,6 +1,7 @@
-package ada.web.impl.resources.about
+package ada.spring.web.impl.resources.about
 
-import ada.web.controllers.{AboutControllerConfiguration, AboutResource}
+import ada.spring.web.controllers.AboutControllerConfiguration
+import ada.web.controllers.AboutResource
 import ada.web.controllers.model.{AboutApplication, AboutUser}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}

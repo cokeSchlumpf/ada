@@ -4,8 +4,11 @@ apply plugin: 'io.franzbecker.gradle-lombok'
 dependencies {
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
+    api libs['akka-streams']
     api libs['guava']
 
     api 'info.picocli:picocli:3.5.1'
+
+    implementation project(':web-api')
 
 }

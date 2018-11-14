@@ -1,5 +1,8 @@
-package ada.web.controllers;
+package ada.spring.web.controllers;
 
+import ada.web.controllers.AboutResource;
+import ada.web.controllers.AboutResourceFactory;
+import ada.web.controllers.AboutResourceFactoryImpl;
 import ada.web.controllers.model.AboutAnonymousUser;
 import ada.web.controllers.model.AboutApplication;
 import ada.web.controllers.model.AboutUser;

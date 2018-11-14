@@ -1,4 +1,4 @@
-package ada.configuration;
+package ada.spring.configuration;
 
 import ada.web.controllers.AboutControllerConfiguration;
 import akka.actor.ActorSystem;
