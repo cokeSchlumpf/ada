@@ -8,15 +8,16 @@
  */
 rootProject.name = 'ada'
 
-include 'cli'
+include 'ada-cli'
+include 'ada-server'
+
+include 'client'
 
 include 'resources-api'
 include 'resources-impl'
 
 include 'runtime-api'
 include 'runtime-impl'
-
-include 'spring-app'
 
 include 'web-api'
 include 'web-impl'

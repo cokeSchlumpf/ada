@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+bootJar {
+    baseName = 'ada-cli'
+    version =  project.version
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter'
+    compile 'org.springframework.boot:spring-boot-starter-webflux'
+
+    compile libs['akka-streams']
+
+    compile project(':client')
+    compile project(':web-impl')
+
+    testCompile 'junit:junit'
+}
