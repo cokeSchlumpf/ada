@@ -1,39 +1,39 @@
 package ada.cli;
 
 import ada.cli.clients.AboutResourceClient;
-import ada.client.CliApplicationBuilder;
+import ada.client.Client;
+import ada.client.output.DefaultClientOutput;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
-    private final ActorSystem system;
-
-    private final ApplicationContext context;
-
-    public Application(ActorSystem system, ApplicationContext context) {
-        this.system = system;
-        this.context = context;
-    }
-
     public static void main(String... args) {
-        SpringApplication.run(Application.class, "about");
+        SpringApplication app = new SpringApplication(Application.class);
+        app.setBannerMode(Banner.Mode.OFF);
+
+        app
+            .run(args)
+            .close();
     }
 
     @Override
     public void run(String... args) {
-        ActorMaterializer mat = ActorMaterializer.create(system);
+        ActorSystem system = ActorSystem.create("ada-cli");
+        ActorMaterializer materializer = ActorMaterializer.create(system);
 
-        CliApplicationBuilder
-                .apply(mat)
-                .withAboutCommand(AboutResourceClient.apply(mat))
-                .withArguments(args)
-                .run();
+        ApplicationContext context = ApplicationContext.apply(
+                AboutResourceClient.apply(materializer),
+                materializer,
+                DefaultClientOutput.apply());
+
+        Client.apply(context).run(args);
+        system.terminate();
     }
 
 }

@@ -1,14 +1,15 @@
-apply plugin: 'java-library'
+apply plugin: 'scala'
 apply plugin: 'io.franzbecker.gradle-lombok'
 
 dependencies {
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api libs['akka-streams']
-    api libs['guava']
+    compile libs['akka-streams']
+    compile libs['guava']
+    compile libs['scala']
 
-    api 'info.picocli:picocli:3.5.1'
+    compile 'info.picocli:picocli:3.5.1'
 
-    implementation project(':web-api')
+    compile project(':web-api')
 
 }

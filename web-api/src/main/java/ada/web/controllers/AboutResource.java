@@ -17,7 +17,7 @@ public interface AboutResource {
     AboutApplication getAbout();
 
     /**
-     * Simple sample method to show how to stream long running processes/ responses to a client.
+     * Simple sample method to show how to stream long running processes/ responses to a ada.client.
      *
      * @return base information about the system as stream.
      */

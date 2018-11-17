@@ -12,11 +12,11 @@ import java.io.PrintStream;
 @Value
 @EqualsAndHashCode
 @AllArgsConstructor(staticName = "apply")
-public class DefaultCliOutput implements CliOutput {
+public class DefaultClientOutput implements ClientOutput {
 
     private final PrintStream out;
 
-    public static DefaultCliOutput apply() {
+    public static DefaultClientOutput apply() {
         return apply(System.out);
     }
 

@@ -5,7 +5,7 @@ import java.io.PrintStream;
 /**
  * @author Michael Wellner (michael.wellner@de.ibm.com)
  */
-public interface CliOutput {
+public interface ClientOutput {
 
     PrintStream getPrintStream();
 
