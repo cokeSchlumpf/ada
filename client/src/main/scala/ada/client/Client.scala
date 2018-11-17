@@ -8,8 +8,6 @@ case class Client private(out: ClientOutput, cli: CommandLine) {
 
   def run(arguments: Array[String]): Unit = run(arguments: _*)
 
-  def run(arguments: List[String]): Unit = run(arguments: _*)
-
   def run(arguments: String*): Unit = {
     try {
       cli.parseWithHandler(new CommandLine.RunLast, arguments.toArray)

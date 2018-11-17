@@ -18,8 +18,7 @@ public class Application implements CommandLineRunner {
         app.setBannerMode(Banner.Mode.OFF);
 
         app
-            .run(args)
-            .close();
+            .run(args);
     }
 
     @Override
@@ -28,12 +27,12 @@ public class Application implements CommandLineRunner {
         ActorMaterializer materializer = ActorMaterializer.create(system);
 
         ApplicationContext context = ApplicationContext.apply(
-                AboutResourceClient.apply(materializer),
-                materializer,
-                DefaultClientOutput.apply());
+            AboutResourceClient.apply(materializer),
+            materializer,
+            DefaultClientOutput.apply());
 
-        Client.apply(context).run(args);
-        system.terminate();
+        Client.apply(context).run(new String[]{"about"});
+        // system.terminate();
     }
 
 }

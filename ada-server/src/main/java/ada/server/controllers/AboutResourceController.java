@@ -1,4 +1,4 @@
-package ada.server.web.controllers;
+package ada.server.controllers;
 
 import ada.server.web.impl.controllers.AboutControllerConfiguration;
 import ada.web.controllers.AboutResource;
@@ -33,7 +33,6 @@ import java.util.concurrent.CompletionStage;
  */
 @RestController
 @RequestMapping("api/v1/about")
-@SuppressWarnings("unused")
 @Api(
     tags = "About",
     description = "Provides general information about the running Ada instance")
@@ -59,8 +58,7 @@ public class AboutResourceController {
     @RequestMapping(
         method = RequestMethod.GET,
         produces = {
-            MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE
+            MediaType.APPLICATION_JSON_VALUE
         })
     @ApiOperation(
         value = "Returns version information of Ada instance",

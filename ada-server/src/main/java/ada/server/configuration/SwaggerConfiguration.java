@@ -30,7 +30,7 @@ public class SwaggerConfiguration {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.basePackage("ada.web.resources"))
+            .apis(RequestHandlerSelectors.basePackage("ada.controllers"))
             .paths(PathSelectors.ant("/api/v1/**"))
             .build()
             .apiInfo(apiInfo());
