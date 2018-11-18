@@ -1,19 +1,26 @@
 package ada.client.commands.about
 
-import ada.client.output.ClientOutput
+import ada.client.CommandContext
 import ada.web.controllers.AboutResource
 import akka.stream.Materializer
 import akka.stream.scaladsl.Source
 
-case class AboutCommandImpl (
+import scala.concurrent.ExecutionContext
+
+case class AboutCommandImpl(
                              resource: AboutResource,
-                             out: ClientOutput,
-                             materializer: Materializer) extends AboutCommand {
+                             context: CommandContext)(
+                             implicit materializer: Materializer,
+                             ec: ExecutionContext) extends AboutCommand {
 
   override def run(): Unit = {
-    Source
+    val done = Source
       .fromPublisher(resource.getAboutStream)
-      .runForeach(System.out.println)(materializer)
+      .runForeach(context.getOutput.println)
+
+    done.onComplete({
+      case _ => context.terminate()
+    })
   }
 
 }
@@ -21,10 +28,11 @@ case class AboutCommandImpl (
 object AboutCommandFactory {
 
   def create(resource: AboutResource,
-            out: ClientOutput,
-            materializer: Materializer): AboutCommand = {
+             out: CommandContext)(
+              implicit materializer: Materializer,
+              ec: ExecutionContext): AboutCommand = {
 
-    val cmd = AboutCommandImpl(resource, out, materializer)
+    val cmd = AboutCommandImpl(resource, out)
     AboutCommandPicoDecorator.apply(cmd)
   }
 

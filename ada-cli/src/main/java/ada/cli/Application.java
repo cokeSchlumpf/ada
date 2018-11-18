@@ -13,12 +13,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 
+    private final AboutResourceClient aboutResource;
+
+    public Application(AboutResourceClient aboutResource) {
+        this.aboutResource = aboutResource;
+    }
+
     public static void main(String... args) {
         SpringApplication app = new SpringApplication(Application.class);
         app.setBannerMode(Banner.Mode.OFF);
-
-        app
-            .run(args);
+        app.run("about");
     }
 
     @Override
@@ -27,12 +31,14 @@ public class Application implements CommandLineRunner {
         ActorMaterializer materializer = ActorMaterializer.create(system);
 
         ApplicationContext context = ApplicationContext.apply(
-            AboutResourceClient.apply(materializer),
+            system,
+            aboutResource,
             materializer,
             DefaultClientOutput.apply());
 
-        Client.apply(context).run(new String[]{"about"});
-        // system.terminate();
+        Client
+            .apply(context)
+            .run(args);
     }
 
 }
