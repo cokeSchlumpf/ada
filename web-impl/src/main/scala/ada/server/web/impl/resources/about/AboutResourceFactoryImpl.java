@@ -1,4 +1,4 @@
-package ada.server.web.impl.controllers;
+package ada.server.web.impl.resources.about;
 
 import ada.server.web.impl.resources.about.AboutResourceImpl;
 import ada.web.controllers.AboutResource;

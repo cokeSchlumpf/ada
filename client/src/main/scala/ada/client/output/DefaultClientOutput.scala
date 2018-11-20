@@ -13,6 +13,10 @@ final case class DefaultClientOutput(ps: PrintStream) extends ClientOutput {
 
   override def println(message: String): Unit = System.out.println(message)
 
+  override def print(message: String, args: Object*): Unit = print(String.format(message, args))
+
+  override def print(message: String): Unit = System.out.print(message)
+
 }
 
 object DefaultClientOutput {

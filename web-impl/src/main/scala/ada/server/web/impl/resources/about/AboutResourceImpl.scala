@@ -1,15 +1,11 @@
 package ada.server.web.impl.resources.about
 
-import ada.server.web.impl.controllers.AboutControllerConfiguration
 import ada.web.controllers.AboutResource
 import ada.web.controllers.model.{AboutApplication, AboutUser}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
 import org.reactivestreams.Publisher
 
-/**
-  * @author Michael Wellner (michael.wellner@de.ibm.com)
-  */
 case class AboutResourceImpl(
   config: AboutControllerConfiguration,
   user: AboutUser)(implicit materializer: Materializer) extends AboutResource {

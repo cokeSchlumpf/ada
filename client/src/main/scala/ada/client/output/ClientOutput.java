@@ -13,4 +13,8 @@ public interface ClientOutput {
 
     void println(String message);
 
+    void print(String message, Object... args);
+
+    void print(String message);
+
 }

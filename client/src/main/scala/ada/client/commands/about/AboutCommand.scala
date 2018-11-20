@@ -16,7 +16,7 @@ case class AboutCommandImpl(
   override def run(): Unit = {
     val done = Source
       .fromPublisher(resource.getAboutStream)
-      .runForeach(context.getOutput.println)
+      .runForeach(context.getOutput.print)
 
     done.onComplete({
       case _ => context.terminate()
