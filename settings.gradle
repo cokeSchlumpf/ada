@@ -13,6 +13,9 @@ include 'ada-server'
 
 include 'client'
 
+include 'datarepo-api'
+include 'datarepo-impl'
+
 include 'resources-api'
 include 'resources-impl'
 

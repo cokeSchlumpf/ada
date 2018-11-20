@@ -1,0 +1,14 @@
+apply plugin: 'scala'
+apply plugin: 'io.franzbecker.gradle-lombok'
+
+dependencies {
+    
+    compile libs['guava']
+    compile libs['reactive-streams']
+    compile libs['scala']
+
+    compile 'info.picocli:picocli:3.5.1'
+
+    compile project(':web-api')
+
+}
