@@ -1,0 +1,19 @@
+pythagoras:
+  name: "ada-server"
+  build: 0.0.42
+
+server:
+  address: "0.0.0.0"
+  port: 8080
+
+management:
+  health.defaults.enabled: true
+  health.diskspace.enabled: false
+
+  endpoint.health.sensitive: false
+  endpoint.health.show-details: "ALWAYS"
+
+  endpoints.web.base-path: "/"
+  endpoints.web.path-mapping.health: "/api/v1/health"
+
+  security.enabled: false

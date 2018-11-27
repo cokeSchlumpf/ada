@@ -1,10 +1,7 @@
-apply plugin: 'java-library'
-apply plugin: 'io.franzbecker.gradle-lombok'
-
 dependencies {
+    compile libs['guava']
+    compile libs['reactive-streams']
+    compile libs['jackson-annotations']
 
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api libs['guava']
-    api libs['reactive-streams']
-
+    compile project(':resources-api')
 }

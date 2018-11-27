@@ -13,14 +13,16 @@ include 'ada-server'
 
 include 'client'
 
-include 'datarepo-api'
-include 'datarepo-impl'
-
+/*
+include 'dvcs-api'
+include 'dvcs-impl'
+*/
 include 'resources-api'
 include 'resources-impl'
-
+/*
 include 'runtime-api'
 include 'runtime-impl'
+*/
 
 include 'web-api'
 include 'web-impl'

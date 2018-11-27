@@ -1,27 +1,65 @@
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id 'io.franzbecker.gradle-lombok' version '1.14' apply false
 }
 
 allprojects {
     repositories {
-        jcenter() 
+        jcenter()
     }
 }
 
 subprojects {
-    version = '1.0.0'
 
     ext {
+        /*
+         * Versions should be equal in each sub-project
+         */
         versions = [
-            'akka': '2.5.11',
-            'scala': '2.12'
+                'ada'  : System.getenv("BUILD_NUMBER") ?: '0.0.42',
+                'akka' : '2.5.11',
+                'scala': '2.12'
         ]
 
+        /*
+         * Dependency Management
+         */
         libs = [
-            'akka-streams': "com.typesafe.akka:akka-stream_${versions['scala']}:${versions['akka']}",
-            'guava': 'com.google.guava:guava:27.0-jre',
-            'reactive-streams': 'org.reactivestreams:reactive-streams:1.0.2',
-            'scala': "org.scala-lang:scala-library:${versions['scala']}.7"
+                'akka'                   : "com.typesafe.akka:akka-actor_${versions['scala']}:${versions['akka']}",
+                'akka-streams'           : "com.typesafe.akka:akka-stream_${versions['scala']}:${versions['akka']}",
+                'assertj-core'           : 'org.assertj:assertj-core:3.9.1',
+                'easymock'               : 'org.easymock:easymock:4.0.1',
+                'jackson-annotations'    : 'com.fasterxml.jackson.core:jackson-annotations:2.9.7',
+                'jackson-datatype-guava' : 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.7',
+                'jackson-datatype-jdk8'  : 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.7',
+                'jackson-jdatatype-sr310': 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7',
+                'guava'                  : 'com.google.guava:guava:27.0-jre',
+                'reactive-streams'       : 'org.reactivestreams:reactive-streams:1.0.2',
+                'wiremock'               : 'com.github.tomakehurst:wiremock:2.19.0'
         ]
     }
+
+    /*
+     * We only have Java modules
+     */
+    apply plugin: 'java'
+    apply plugin: 'io.franzbecker.gradle-lombok'
+
+    /*
+     * Common properties
+     */
+    group 'com.ibm.ada'
+    version versions['ada']
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    /*
+     * Common dependencies
+     */
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.7.25'
+
+        testCompile 'junit:junit:4.12'
+    }
+
 }

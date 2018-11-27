@@ -4,31 +4,23 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.0.RELEASE")
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE'
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'org.springframework.boot'
+apply plugin: "application"
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'io.franzbecker.gradle-lombok'
-
-bootJar {
-    baseName = 'ada-cli'
-    version =  project.version
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter'
-    compile 'org.springframework.boot:spring-boot-starter-webflux'
+    compile project(":client")
+    compile libs['jackson-annotations']
+    compile libs['jackson-datatype-guava']
+    compile libs['jackson-datatype-jdk8']
 
-    compile libs['akka-streams']
+    compile 'info.picocli:picocli:3.5.1'
+    compile 'org.springframework.boot:spring-boot-starter-webflux:2.0.5.RELEASE'
 
-    compile project(':client')
-    compile project(':web-impl')
+    testCompile libs['assertj-core']
+    testCompile libs['wiremock']
 
-    testCompile 'junit:junit'
 }

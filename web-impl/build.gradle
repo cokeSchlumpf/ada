@@ -1,9 +1,9 @@
-apply plugin: 'scala'
-apply plugin: 'io.franzbecker.gradle-lombok'
-
 dependencies {
-    compile libs['akka-streams']
-    compile libs['scala']
 
-    compile project(':web-api')
+    compile libs['akka-streams']
+
+    compile project(":web-api")
+
+    testCompile libs['assertj-core']
+
 }

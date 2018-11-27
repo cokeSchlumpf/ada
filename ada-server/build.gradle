@@ -1,40 +1,31 @@
+def jarFileName = "ada-server.jar"
+
 buildscript {
     repositories {
         jcenter()
     }
 
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE'
     }
 }
 
-apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-repositories {
-    maven {
-        url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/'
-    }
-}
-
 bootJar {
-    baseName = 'ada-server'
-    version =  project.version
+    archiveName = jarFileName
 }
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 dependencies {
-    compile 'io.springfox:springfox-swagger2:3.0.0-SNAPSHOT'
-    compile 'io.springfox:springfox-swagger-ui:3.0.0-SNAPSHOT'
-    compile 'io.springfox:springfox-spring-webflux:3.0.0-SNAPSHOT'
-
+    compile 'io.springfox:springfox-swagger2:2.9.2'
+    compile 'io.springfox:springfox-swagger-ui:2.9.2'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-webflux'
 
-    compile project(':runtime-impl')
+    compile libs['jackson-datatype-guava']
+
     compile project(':web-impl')
 
-    testCompile 'junit:junit'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
 }

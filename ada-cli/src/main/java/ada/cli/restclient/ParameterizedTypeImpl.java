@@ -10,11 +10,16 @@ final class ParameterizedTypeImpl implements ParameterizedType {
     private final Type[] actualTypeArguments;
     private final Type owner;
 
-    public ParameterizedTypeImpl(Type rawType, Type[] actualTypeArguments, Type owner) {
+    private ParameterizedTypeImpl(Type rawType, Type[] actualTypeArguments, Type owner) {
         this.rawType = rawType;
         this.actualTypeArguments = actualTypeArguments;
         this.owner = owner;
     }
+
+    static ParameterizedTypeImpl apply(Type rawType, Type[] actualTypeArguments, Type owner) {
+        return new ParameterizedTypeImpl(rawType, actualTypeArguments, owner);
+    }
+
 
     public Type getRawType() {
         return rawType;
@@ -53,4 +58,5 @@ final class ParameterizedTypeImpl implements ParameterizedType {
             ^ (owner == null ? 0 : owner.hashCode())
             ^ (rawType == null ? 0 : rawType.hashCode());
     }
+
 }
