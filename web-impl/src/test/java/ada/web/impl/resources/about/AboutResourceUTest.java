@@ -43,7 +43,7 @@ public class AboutResourceUTest {
 
     @Before
     public void before() {
-        system = ActorSystem.create("pyt-test");
+        system = ActorSystem.create("ada-test");
         mat = ActorMaterializer.create(system);
     }
 

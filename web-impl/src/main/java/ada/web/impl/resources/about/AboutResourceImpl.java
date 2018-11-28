@@ -32,7 +32,7 @@ class AboutResourceImpl implements AboutResource {
     @Override
     public Publisher<String> getApplicationAsStream() {
         String about = String.format(
-            getPythagorasAsciiArt(),
+            getAdaAsciiArt(),
             config.getBuild(),
             config.getName());
 
@@ -73,9 +73,15 @@ class AboutResourceImpl implements AboutResource {
         return compliments[new Random().nextInt(compliments.length)];
     }
 
-    private String getPythagorasAsciiArt() {
-        // TODO
-        return "ADA";
+    private String getAdaAsciiArt() {
+        return "              _       \n" +
+            "     /\\      | |      \n" +
+            "    /  \\   __| | __ _ \n" +
+            "   / /\\ \\ / _` |/ _` |\n" +
+            "  / ____ \\ (_| | (_| |\n" +
+            " /_/    \\_\\__,_|\\__,_| v%s\n" +
+            "                      \n" +
+            " instance name: %s";
     }
 
     private String getRolesAsString(Iterable<String> roles) {

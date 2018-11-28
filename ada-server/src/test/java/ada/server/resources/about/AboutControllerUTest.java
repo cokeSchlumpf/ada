@@ -52,7 +52,7 @@ public class AboutControllerUTest {
     private int port = 0;
 
     @TestConfiguration
-    public static class TestPythagorasConfiguration {
+    public static class TestAdaConfiguration {
 
         @Bean
         @Primary

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "pythagoras")
+@ConfigurationProperties(prefix = "ada")
 public class ApplicationConfiguration {
 
     private String build;

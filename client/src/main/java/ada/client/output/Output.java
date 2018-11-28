@@ -1,5 +1,7 @@
 package ada.client.output;
 
+import java.io.PrintStream;
+
 public interface Output {
 
     void exception(Throwable e);
@@ -11,5 +13,7 @@ public interface Output {
     void separator();
 
     void table(String[] headers, String[][] content);
+
+    PrintStream getStream();
 
 }

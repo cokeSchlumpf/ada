@@ -1,4 +1,4 @@
-package ada.cli;
+package ada.cli.configuration.picocli;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

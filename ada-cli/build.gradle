@@ -8,7 +8,7 @@ buildscript {
     }
 }
 
-apply plugin: "application"
+apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 dependencies {
@@ -18,9 +18,10 @@ dependencies {
     compile libs['jackson-datatype-jdk8']
 
     compile 'info.picocli:picocli:3.5.1'
-    compile 'org.springframework.boot:spring-boot-starter-webflux:2.0.5.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-webflux'
 
     testCompile libs['assertj-core']
     testCompile libs['wiremock']
 
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
 }

@@ -13,7 +13,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "about",
     mixinStandardHelpOptions = true,
-    description = "Shows information about Pythagoras")
+    description = "Shows information about Ada")
 @Component
 public class AboutCommandAnnotations implements AboutCommand, Runnable {
 
@@ -24,7 +24,7 @@ public class AboutCommandAnnotations implements AboutCommand, Runnable {
 
     @CommandLine.Option(
         names = {"-c", "--client", "--cli"},
-        description = "Show information about the Pythagoras CLI client"
+        description = "Show information about the Ada CLI client"
     )
     private boolean client = false;
 
@@ -60,7 +60,7 @@ public class AboutCommandAnnotations implements AboutCommand, Runnable {
 
         if (client) {
             output.separator();
-            output.message("Pythagoras Client Interface");
+            output.message("Ada Command Line Interface");
             output.message("Build: %s", configuration.getBuild());
         }
 

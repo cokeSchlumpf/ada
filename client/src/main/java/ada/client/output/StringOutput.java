@@ -68,6 +68,11 @@ public final class StringOutput implements Output {
     }
 
     @Override
+    public PrintStream getStream() {
+        return out.getStream();
+    }
+
+    @Override
     public String toString() {
         try {
             return baos.toString(StandardCharsets.UTF_8.toString());

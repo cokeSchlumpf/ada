@@ -42,4 +42,9 @@ public class PrintStreamOutput implements Output {
         // TODO: implement when required
     }
 
+    @Override
+    public PrintStream getStream() {
+        return printStream;
+    }
+
 }

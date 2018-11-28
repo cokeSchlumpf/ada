@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 public class AboutCommandUTest {
 
-    private final static String name = "pyt-test";
+    private final static String name = "ada-test";
 
     private final static String build = "0.0.42";
 

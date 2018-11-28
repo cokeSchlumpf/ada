@@ -29,7 +29,7 @@ public class AboutControllerAnnotations implements AuthenticatedResource {
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(
-        value = "Returns version information of Pythagoras instance",
+        value = "Returns version information of Ada instance",
         notes = "The version information is added during build Process")
     public Application getApplicationAsObject() {
         return impl.getApplicationAsObject();
@@ -39,7 +39,7 @@ public class AboutControllerAnnotations implements AuthenticatedResource {
         method = RequestMethod.GET,
         produces = {MediaType.TEXT_EVENT_STREAM_VALUE})
     @ApiOperation(
-        value = "Returns version information of Pythagoras instance provided as string stream for printing",
+        value = "Returns version information of Ada instance provided as string stream for printing",
         notes = "The version information is added during build Process")
     public Flux<ServerSentEvent<String>> getApplicationAsStream() {
         return impl.getApplicationAsStream();
@@ -51,7 +51,7 @@ public class AboutControllerAnnotations implements AuthenticatedResource {
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(
         value = "Returns information about the authenticated user",
-        notes = "The user is authenticated when sending a request to Pythagoras")
+        notes = "The user is authenticated when sending a request to Ada")
     public User getUserAsObject(ServerWebExchange exchange) {
         return impl.getUserAsObject(getUser(exchange));
     }
@@ -62,7 +62,7 @@ public class AboutControllerAnnotations implements AuthenticatedResource {
         produces = {MediaType.TEXT_EVENT_STREAM_VALUE})
     @ApiOperation(
         value = "Returns information about the authenticated user provided as string stream for printing",
-        notes = "The user is authenticated when sending a request to Pythagoras")
+        notes = "The user is authenticated when sending a request to Ada")
     public Flux<ServerSentEvent<String>> getUserAsStream(ServerWebExchange exchange) {
         return impl.getUserAsStream(getUser(exchange));
     }
