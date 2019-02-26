@@ -1,0 +1,7 @@
+apply plugin: 'io.franzbecker.gradle-lombok'
+
+dependencies {
+
+    compile libs['reactive-streams']
+
+}

@@ -8,6 +8,8 @@
  */
 rootProject.name = 'ada'
 
+include 'ada-core'
+
 include 'ada-cli'
 include 'ada-server'
 
