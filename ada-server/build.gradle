@@ -1,5 +1,3 @@
-def jarFileName = "ada-server.jar"
-
 buildscript {
     repositories {
         jcenter()
@@ -13,19 +11,13 @@ buildscript {
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
-bootJar {
-    archiveName = jarFileName
-}
-
 dependencies {
+    compile project(":ada-api")
+
     compile 'io.springfox:springfox-swagger2:2.9.2'
-    compile 'io.springfox:springfox-swagger-ui:2.9.2'
-    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    //compile 'io.springfox:springfox-swagger-ui:2.9.2'
+    //compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile 'org.springframework.boot:spring-boot-starter-webflux'
 
-    compile libs['jackson-datatype-guava']
-
-    compile project(':web-impl')
-
-    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    // testCompile 'org.springframework.boot:spring-boot-starter-test'
 }

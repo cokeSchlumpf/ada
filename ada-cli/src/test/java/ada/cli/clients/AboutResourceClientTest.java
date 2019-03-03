@@ -131,7 +131,7 @@ public class AboutResourceClientTest {
     }
 
     private void prepareGetUserStub() {
-        String user = "{\"class\":\"ada.web.api.resources.about.model.AnonymousUser\",\"roles\":[\"role1\"]}";
+        String user = "{\"class\":\"ada.web.api.resources.about.model.Anonymous\",\"roles\":[\"role1\"]}";
 
         stubFor(get(urlEqualTo("/api/v1/about/user"))
             .withHeader(

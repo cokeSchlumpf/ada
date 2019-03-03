@@ -1,5 +1,0 @@
-apply plugin: 'java'
-
-dependencies {
-    compile 'org.scala-lang:scala-library:2.11.12'
-}

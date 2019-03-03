@@ -1,6 +1,5 @@
 package ada.cli.testutil;
 
-import ada.cli.clients.AboutResourceClient;
 import ada.cli.configuration.AdaConfiguration;
 import ada.cli.configuration.SpringConfiguration;
 import org.springframework.context.annotation.Configuration;

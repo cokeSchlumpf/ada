@@ -8,23 +8,6 @@
  */
 rootProject.name = 'ada'
 
-include 'ada-core'
-
+include 'ada-api'
 include 'ada-cli'
 include 'ada-server'
-
-include 'client'
-
-/*
-include 'dvcs-api'
-include 'dvcs-impl'
-*/
-include 'resources-api'
-include 'resources-impl'
-/*
-include 'runtime-api'
-include 'runtime-impl'
-*/
-
-include 'web-api'
-include 'web-impl'

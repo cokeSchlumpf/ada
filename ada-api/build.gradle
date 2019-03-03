@@ -1,0 +1,9 @@
+dependencies {
+
+    compile libs['jackson-annotations']
+    compile libs['jackson-databind']
+    compile libs['reactive-streams']
+
+    testCompile libs['assertj-core']
+
+}

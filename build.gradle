@@ -24,15 +24,15 @@ subprojects {
          * Dependency Management
          */
         libs = [
-                'akka'                   : "com.typesafe.akka:akka-actor_${versions['scala']}:${versions['akka']}",
+                'akka-actor'             : "com.typesafe.akka:akka-actor_${versions['scala']}:${versions['akka']}",
+                'akka-actor-typed'       : "com.typesafe.akka:akka-actor-typed_${versions['scala']}:${versions['akka']}",
                 'akka-streams'           : "com.typesafe.akka:akka-stream_${versions['scala']}:${versions['akka']}",
                 'assertj-core'           : 'org.assertj:assertj-core:3.9.1',
                 'easymock'               : 'org.easymock:easymock:4.0.1',
                 'jackson-annotations'    : 'com.fasterxml.jackson.core:jackson-annotations:2.9.7',
-                'jackson-datatype-guava' : 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.7',
+                'jackson-databind'       : 'com.fasterxml.jackson.core:jackson-databind:2.9.7',
                 'jackson-datatype-jdk8'  : 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.7',
                 'jackson-jdatatype-sr310': 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7',
-                'guava'                  : 'com.google.guava:guava:27.0-jre',
                 'reactive-streams'       : 'org.reactivestreams:reactive-streams:1.0.2',
                 'wiremock'               : 'com.github.tomakehurst:wiremock:2.19.0'
         ]
@@ -57,6 +57,7 @@ subprojects {
      * Common dependencies
      */
     dependencies {
+        compile 'com.google.guava:guava:27.0-jre'
         compile 'org.slf4j:slf4j-api:1.7.25'
 
         testCompile 'junit:junit:4.12'

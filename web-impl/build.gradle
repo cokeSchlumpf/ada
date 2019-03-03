@@ -1,9 +1,0 @@
-dependencies {
-
-    compile libs['akka-streams']
-
-    compile project(":web-api")
-
-    testCompile libs['assertj-core']
-
-}
