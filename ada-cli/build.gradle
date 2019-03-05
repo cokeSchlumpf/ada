@@ -20,10 +20,13 @@ dependencies {
     compile 'info.picocli:picocli:3.5.1'
     compile 'org.springframework.boot:spring-boot-starter-webflux'
 
-    /*
+
+    testCompile project(":ada-server")
+    testCompile libs['akka-streams']
     testCompile libs['assertj-core']
     testCompile libs['wiremock']
 
+    /*
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     */
 }

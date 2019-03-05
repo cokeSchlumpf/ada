@@ -1,13 +1,13 @@
 package ada.server.api.repositories;
 
-import ada.server.api.AuthenticatedResource;
+import ada.server.api.AuthenticatedApiResource;
 import com.ibm.ada.api.repository.Repositories;
 import com.ibm.ada.api.repository.Repository;
-import com.ibm.ada.exceptions.RepositoryNotFoundException;
-import com.ibm.ada.model.*;
-import com.ibm.ada.model.auth.AuthorizationRequest;
-import com.ibm.ada.model.auth.User;
-import com.ibm.ada.model.versions.PatchVersion;
+import com.ibm.ada.api.exceptions.RepositoryNotFoundException;
+import com.ibm.ada.api.model.*;
+import com.ibm.ada.api.model.auth.AuthorizationRequest;
+import com.ibm.ada.api.model.auth.User;
+import com.ibm.ada.api.model.versions.PatchVersion;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 @Api("Repositories")
 @RestController
 @RequestMapping("api/v1/repositories")
-public class RepositoriesController implements AuthenticatedResource {
+public class RepositoriesController implements AuthenticatedApiResource {
 
     private final Repositories repositories;
 

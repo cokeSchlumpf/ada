@@ -1,10 +1,10 @@
 package ada.server.repository.filesystem;
 
 import com.ibm.ada.api.repository.RepositoryAdministration;
-import com.ibm.ada.exceptions.NotAuthorizedException;
-import com.ibm.ada.model.auth.AuthorizationRequest;
-import com.ibm.ada.model.RepositoryDetails;
-import com.ibm.ada.model.auth.User;
+import com.ibm.ada.api.exceptions.NotAuthorizedException;
+import com.ibm.ada.api.model.auth.AuthorizationRequest;
+import com.ibm.ada.api.model.RepositoryDetails;
+import com.ibm.ada.api.model.auth.User;
 
 import java.util.concurrent.CompletionStage;
 

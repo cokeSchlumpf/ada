@@ -31,8 +31,10 @@ subprojects {
                 'easymock'               : 'org.easymock:easymock:4.0.1',
                 'jackson-annotations'    : 'com.fasterxml.jackson.core:jackson-annotations:2.9.7',
                 'jackson-databind'       : 'com.fasterxml.jackson.core:jackson-databind:2.9.7',
+                'jackson-dataformat-yaml': 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7',
+                'jackson-datatype-guava' : 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.7',
                 'jackson-datatype-jdk8'  : 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.7',
-                'jackson-jdatatype-sr310': 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7',
+                'jackson-datatype-sr310' : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7',
                 'reactive-streams'       : 'org.reactivestreams:reactive-streams:1.0.2',
                 'wiremock'               : 'com.github.tomakehurst:wiremock:2.19.0'
         ]

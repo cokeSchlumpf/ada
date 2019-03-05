@@ -1,14 +1,14 @@
 package ada.cli.commands;
 
-import ada.cli.commands.about.AboutCommandAnnotations;
+import ada.cli.commands.about.AboutCommand;
 import picocli.CommandLine;
 
 @CommandLine.Command(
     name = "ada",
-    mixinStandardHelpOptions = true,
     description = "Ada Command Line Interface for Data Scientists",
     subcommands = {
-        AboutCommandAnnotations.class
+        AboutCommand.class
     })
-public class AdaCommand {
+public class AdaCommand extends StandardOptions {
+
 }

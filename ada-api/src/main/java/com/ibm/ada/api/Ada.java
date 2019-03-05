@@ -1,14 +1,14 @@
 package com.ibm.ada.api;
 
-import com.ibm.ada.model.AboutTO;
-import com.ibm.ada.model.auth.User;
+import com.ibm.ada.api.model.About;
+import com.ibm.ada.api.model.auth.User;
 
 /**
  * Some basic interface to fetch information about Ada.
  */
 public interface Ada {
 
-    AboutTO about();
+    About about();
 
     User authenticatedUser();
 

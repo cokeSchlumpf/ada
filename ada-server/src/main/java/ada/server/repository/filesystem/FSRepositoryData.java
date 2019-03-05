@@ -1,15 +1,15 @@
 package ada.server.repository.filesystem;
 
 import com.ibm.ada.api.repository.RepositoryData;
-import com.ibm.ada.exceptions.LockedException;
-import com.ibm.ada.exceptions.NotAuthorizedException;
-import com.ibm.ada.exceptions.UncommittedChangesException;
-import com.ibm.ada.model.Record;
-import com.ibm.ada.model.Schema;
-import com.ibm.ada.model.TransferResult;
-import com.ibm.ada.model.auth.User;
-import com.ibm.ada.model.versions.PatchVersion;
-import com.ibm.ada.model.versions.Version;
+import com.ibm.ada.api.exceptions.LockedException;
+import com.ibm.ada.api.exceptions.NotAuthorizedException;
+import com.ibm.ada.api.exceptions.UncommittedChangesException;
+import com.ibm.ada.api.model.Record;
+import com.ibm.ada.api.model.Schema;
+import com.ibm.ada.api.model.TransferResult;
+import com.ibm.ada.api.model.auth.User;
+import com.ibm.ada.api.model.versions.PatchVersion;
+import com.ibm.ada.api.model.versions.Version;
 import org.reactivestreams.Publisher;
 
 import java.util.Optional;

@@ -1,6 +1,5 @@
 package ada.server.configuration;
 
-import ada.web.api.resources.about.AboutResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import org.springframework.context.annotation.Bean;
@@ -18,12 +17,6 @@ import springfox.documentation.spring.web.plugins.Docket;
  */
 @Configuration
 public class SpringConfiguration {
-
-    private final AboutResource about;
-
-    public SpringConfiguration(AboutResource about) {
-        this.about = about;
-    }
 
     @Bean
     public ObjectMapper getObjectMapper() {
@@ -46,8 +39,8 @@ public class SpringConfiguration {
         String description = "Ada REST API Documentation. Ada is a Data Science and Analytics platform blueprint.";
 
         return new ApiInfoBuilder()
-            .title(about.getApplicationAsObject().name)
-            .version(about.getApplicationAsObject().build)
+            .title("ada")
+            .version("0.0.42")
             .contact(new Contact("Michael Wellner", null, "michael.wellner@de.ibm.com"))
             .description(description)
             .build();

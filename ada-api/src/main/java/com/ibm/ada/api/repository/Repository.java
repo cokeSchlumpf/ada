@@ -1,6 +1,6 @@
 package com.ibm.ada.api.repository;
 
-import com.ibm.ada.model.RepositoryDetails;
+import com.ibm.ada.api.model.RepositoryDetails;
 
 public interface Repository {
 

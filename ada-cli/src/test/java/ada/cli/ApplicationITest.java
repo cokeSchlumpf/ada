@@ -1,19 +1,30 @@
 package ada.cli;
 
+import ada.server.AdaServer;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ApplicationITest {
 
-    // TODO: Add test for wrong command
-    // TODO: Add test for unused AboutResourceClient methods
-    // TODO: Test for user und config
-    // TODO: Test for equals und hashcode Parameterized Type
+    private AdaServer server;
 
+    @Before
+    public void before() {
+        server = AdaServer.apply();
+        server.start();
+    }
+
+    @After
+    public void after() {
+        if (server != null) {
+            server.stop();
+        }
+    }
 
     @Test
     public void test() {
-        Application.main("about", "-u", "-c");
+        Application.main("about");
     }
-
 
 }

@@ -1,37 +1,23 @@
 package ada.server.configuration;
 
-import ada.web.impl.resources.about.AboutConfiguration;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * This class contains configuration values which can be read/ set by Spring from application.yml file.
  */
+@Getter
+@Setter
 @Configuration
 @ConfigurationProperties(prefix = "ada")
-public class ApplicationConfiguration implements AboutConfiguration {
+public class ApplicationConfiguration {
 
     private String name;
+
+    private String environment;
+
     private String build;
-
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getBuild() {
-        return build;
-    }
-
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setBuild(String build) {
-        this.build = build;
-    }
 
 }

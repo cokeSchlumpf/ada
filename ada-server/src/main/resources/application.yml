@@ -1,5 +1,6 @@
 ada:
   name: "ada-server"
+  environment: "dev"
   build: 0.0.42
 
 server:
