@@ -1,4 +1,4 @@
-package ada.cli.clients;
+package ada.cli.commands.repository;
 
 import com.ibm.ada.api.repository.Repository;
 import com.ibm.ada.api.repository.RepositoryAdministration;

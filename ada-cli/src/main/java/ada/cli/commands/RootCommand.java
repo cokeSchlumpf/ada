@@ -9,6 +9,6 @@ import picocli.CommandLine;
     subcommands = {
         AboutCommand.class
     })
-public class AdaCommand extends StandardOptions {
+public class RootCommand extends StandardOptions {
 
 }

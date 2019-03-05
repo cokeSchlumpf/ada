@@ -1,6 +1,5 @@
 package ada.server;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -24,7 +23,7 @@ public class AdaServer {
     }
 
     public void run() {
-        ctx = SpringApplication.run(Application.class, args);
+        ctx = org.springframework.boot.SpringApplication.run(SpringApplication.class, args);
     }
 
     public void start() {

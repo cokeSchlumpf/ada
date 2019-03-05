@@ -1,4 +1,4 @@
-package ada.cli;
+package ada.cli.commands;
 
 import ada.cli.commands.about.AboutCommand;
 import ada.cli.consoles.CommandLineConsole;
@@ -22,7 +22,7 @@ public class CommandFactory implements CommandLine.IFactory {
         }
     }
 
-    CommandLineConsole console() {
+    public CommandLineConsole console() {
         return console;
     }
 

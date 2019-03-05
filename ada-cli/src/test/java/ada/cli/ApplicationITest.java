@@ -24,7 +24,7 @@ public class ApplicationITest {
 
     @Test
     public void test() {
-        Application.main("about");
+        AdaCLI.main("about");
     }
 
 }

@@ -1,6 +1,8 @@
 package ada.cli;
 
-import ada.cli.commands.AdaCommand;
+import ada.cli.commands.RootCommand;
+import ada.cli.commands.CommandFactory;
+import ada.cli.consoles.CommandLineConsole;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -13,13 +15,21 @@ import static picocli.CommandLine.Help.Ansi.AUTO;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class CommandLineRunner {
+public class AdaCLI {
 
     private final CommandFactory commandFactory;
 
+    public static void main(String... args) {
+        CommandLineConsole console = CommandLineConsole.apply();
+        CommandFactory commands = CommandFactory.apply(console);
+        AdaCLI runner = AdaCLI.apply(commands);
+
+        runner.run(args);
+    }
+
     public void run(String ...args) {
         final PrintStream ps = commandFactory.console().printStream();
-        final CommandLine cli = new CommandLine(new AdaCommand(), commandFactory);
+        final CommandLine cli = new CommandLine(new RootCommand(), commandFactory);
 
         try {
             cli.parseWithHandlers(
