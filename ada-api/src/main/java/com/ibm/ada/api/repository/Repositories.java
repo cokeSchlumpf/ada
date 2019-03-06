@@ -1,8 +1,8 @@
 package com.ibm.ada.api.repository;
 
 import com.ibm.ada.api.exceptions.RepositoryNotFoundException;
-import com.ibm.ada.api.model.RepositoryName;
-import com.ibm.ada.api.model.auth.User;
+import com.ibm.ada.model.RepositoryName;
+import com.ibm.ada.model.auth.User;
 
 import java.util.stream.Stream;
 

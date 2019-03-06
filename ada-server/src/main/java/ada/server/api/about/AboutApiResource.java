@@ -1,7 +1,7 @@
 package ada.server.api.about;
 
 import ada.server.configuration.ApplicationConfiguration;
-import com.ibm.ada.api.model.About;
+import com.ibm.ada.model.About;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

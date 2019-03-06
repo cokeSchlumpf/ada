@@ -1,8 +1,8 @@
 package ada.server.api;
 
 import com.google.common.collect.ImmutableSet;
-import com.ibm.ada.api.model.auth.Role;
-import com.ibm.ada.api.model.auth.User;
+import com.ibm.ada.model.auth.Role;
+import com.ibm.ada.model.auth.User;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.util.Optional;

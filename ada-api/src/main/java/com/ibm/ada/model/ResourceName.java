@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model;
+package com.ibm.ada.model;
 
 public class ResourceName {
 }

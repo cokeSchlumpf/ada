@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model.versions;
+package com.ibm.ada.model.versions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.ada.api.exceptions.InvalidVersionStringException;

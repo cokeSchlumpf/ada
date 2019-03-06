@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model.auth;
+package com.ibm.ada.model.auth;
 
 public class AuthorizationRequest {
 }

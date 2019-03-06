@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model.auth;
+package com.ibm.ada.model.auth;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;

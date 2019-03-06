@@ -57,7 +57,7 @@ public class RestClientUTest {
         /*
          * Test client
          */
-        RestClient client = RestClientImpl.apply("http://localhost:" + PORT, new ObjectMapper());
+        RestClient client = RestClientSpringImpl.apply("http://localhost:" + PORT, new ObjectMapper());
 
         assertThat(client.get("/my/resource", MyClass.class))
             .isNotNull()
@@ -84,7 +84,7 @@ public class RestClientUTest {
         /*
          * Test client
          */
-        RestClient client = RestClientImpl.apply("http://localhost:" + PORT, new ObjectMapper());
+        RestClient client = RestClientSpringImpl.apply("http://localhost:" + PORT, new ObjectMapper());
 
         Publisher<MyClass> publisher = client.events("/my/resource", MyClass.class);
 

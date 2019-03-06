@@ -3,7 +3,7 @@ package ada.cli.commands.repository;
 import com.ibm.ada.api.repository.Repository;
 import com.ibm.ada.api.repository.RepositoryAdministration;
 import com.ibm.ada.api.repository.RepositoryData;
-import com.ibm.ada.api.model.RepositoryDetails;
+import com.ibm.ada.model.RepositoryDetails;
 
 public class RepositoriesClient implements Repository {
 

@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model;
+package com.ibm.ada.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.ada.api.exceptions.InvalidResourceNameException;

@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model.auth;
+package com.ibm.ada.model.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

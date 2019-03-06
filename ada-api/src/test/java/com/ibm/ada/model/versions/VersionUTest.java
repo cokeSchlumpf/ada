@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model.versions;
+package com.ibm.ada.model.versions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

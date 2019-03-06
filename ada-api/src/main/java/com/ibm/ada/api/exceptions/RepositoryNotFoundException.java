@@ -1,6 +1,6 @@
 package com.ibm.ada.api.exceptions;
 
-import com.ibm.ada.api.model.RepositoryName;
+import com.ibm.ada.model.RepositoryName;
 
 public class RepositoryNotFoundException extends Exception {
 

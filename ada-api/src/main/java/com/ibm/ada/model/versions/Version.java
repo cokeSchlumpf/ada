@@ -1,4 +1,4 @@
-package com.ibm.ada.api.model.versions;
+package com.ibm.ada.model.versions;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
