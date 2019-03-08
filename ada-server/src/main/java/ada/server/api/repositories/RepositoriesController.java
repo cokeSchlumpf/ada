@@ -51,7 +51,7 @@ public class RepositoriesController implements AuthenticatedApiResource {
         method = RequestMethod.POST,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation("Changes the owner of a repository")
-    public CompletableFuture<RepositoryDetails> changeRepositoryOwner(
+    public CompletableFuture<RepositoryDetails> changeOwner(
         @PathVariable("name") String name,
         @RequestBody AuthorizationRequest newOwner,
         ServerWebExchange exchange) {
@@ -75,7 +75,7 @@ public class RepositoriesController implements AuthenticatedApiResource {
         method = RequestMethod.PUT,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation("Changes the owner of a repository")
-    public CompletableFuture<RepositoryDetails> grantRepositoryAccess(
+    public CompletableFuture<RepositoryDetails> grantAccess(
         @PathVariable("name") String name,
         @RequestBody AuthorizationRequest newAccess) {
 
@@ -88,7 +88,7 @@ public class RepositoriesController implements AuthenticatedApiResource {
         method = RequestMethod.PUT,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation("Creates a new repository")
-    public CompletableFuture<RepositoryDetails> createRepository(@PathVariable("name") String name) {
+    public CompletableFuture<RepositoryDetails> create(@PathVariable("name") String name) {
         // TODO
         return null;
     }
@@ -98,7 +98,7 @@ public class RepositoriesController implements AuthenticatedApiResource {
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation("Deletes a repository")
-    public CompletableFuture<Void> deleteRepository(@PathVariable("name") String name) {
+    public CompletableFuture<Void> delete(@PathVariable("name") String name) {
         // TODO
         return null;
     }
@@ -170,7 +170,7 @@ public class RepositoriesController implements AuthenticatedApiResource {
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation("Returns a list of available repositories")
-    public CompletableFuture<RepositoryDetails> revokeRepositoryAccess(
+    public CompletableFuture<RepositoryDetails> revokeAccess(
         @PathVariable("name") String name,
         @RequestBody AuthorizationRequest revokeAccess) {
         // TODO

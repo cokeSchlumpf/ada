@@ -1,6 +1,8 @@
 package ada.cli.commands;
 
 import ada.cli.commands.about.AboutCommand;
+import ada.cli.commands.repository.CommitCommand;
+import ada.cli.commands.repository.RepositoryCommand;
 import ada.cli.consoles.CommandLineConsole;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -17,6 +19,10 @@ public class CommandFactory implements CommandLine.IFactory {
     public <K> K create(Class<K> cls) throws Exception {
         if (cls.equals(AboutCommand.class)) {
             return (K) AboutCommand.apply(console);
+        } else if (cls.equals(RepositoryCommand.class)) {
+            return (K) RepositoryCommand.apply(console);
+        } else if (cls.equals(CommitCommand.class)) {
+            return (K) CommitCommand.apply(console);
         } else {
             throw InstantiationException.apply(cls);
         }

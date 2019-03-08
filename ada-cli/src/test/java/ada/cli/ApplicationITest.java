@@ -24,7 +24,7 @@ public class ApplicationITest {
 
     @Test
     public void test() {
-        AdaCLI.main("about");
+        AdaCLI.main("repo", "foo", "commit", "hello world!");
     }
 
 }

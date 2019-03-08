@@ -2,34 +2,47 @@ package ada.cli.restclient;
 
 import org.reactivestreams.Publisher;
 
+import java.util.concurrent.CompletionStage;
+
 public interface RestClient {
 
+    <T> ResponseBody<T> get(String uri, Class<T> responseType);
 
-    <T> Publisher<T> getAsPublisher(String uri, Class<T> cls) throws Exception;
+    <T> ResponseBody<T> delete(String uri, Class<T> responseType);
 
-    <T> T getAsType(String uri, Class<T> cls) throws Exception;
+    <T, B> ResponseBody<T> delete(String uri, Class<T> responseType, B request);
 
+    <T, B> ResponseBody<T> delete(String uri, Class<T> responseType, Publisher<B> request, Class<B> requestType);
 
-    <T> Publisher<T> deleteAsPublisher(String uri, Class<T> cls) throws Exception;
+    <T> ResponseBody<T> patch(String uri, Class<T> responseType);
 
-    <T> T deleteAsType(String uri, Class<T> cls) throws Exception;
+    <T> ResponseBody<T> post(String uri, Class<T> responseType);
 
+    <T, B> ResponseBody<T> post(String uri, Class<T> responseType, B request);
 
-    <T, B> Publisher<T> postAsPublisher(String uri, B body, Class<T> cls) throws Exception;
+    <T, B> ResponseBody<T> post(String uri, Class<T> responseType, Publisher<B> request, Class<B> requestType);
 
-    <T, B> Publisher<T> postAsPublisher(String uri, Publisher<B> body, Class<B> bodyCls, Class<T> responseCls) throws Exception;
+    <T> ResponseBody<T> put(String uri, Class<T> responseType);
 
-    <T, B> T postAsType(String uri, B body, Class<T> cls) throws Exception;
+    <T, B> ResponseBody<T> put(String uri, Class<T> responseType, B request);
 
-    <T, B> T postAsType(String uri, Publisher<B> body, Class<B> bodyCls, Class<T> responseCls) throws Exception;
+    <T, B> ResponseBody<T> put(String uri, Class<T> responseType, Publisher<B> request, Class<B> requestType);
 
+    interface ResponseBody<T> {
 
-    <T, B> Publisher<T> putAsPublisher(String uri, B body, Class<T> cls) throws Exception;
+        T await();
 
-    <T, B> Publisher<T> putAsPublisher(String uri, Publisher<B> body, Class<B> bodyCls, Class<T> responseCls) throws Exception;
+        <E1 extends Throwable> T await(Class<E1> e1) throws E1;
 
-    <T, B> T putAsType(String uri, B body, Class<T> cls) throws Exception;
+        <E1 extends Throwable, E2 extends Throwable> T await(Class<E1> e1, Class<E2> e2) throws E1, E2;
 
-    <T, B> T putAsType(String uri, Publisher<B> body, Class<B> bodyCls, Class<T> responseCls) throws Exception;
+        <E1 extends Throwable, E2 extends Throwable, E3 extends Throwable>
+        T await(Class<E1> e1, Class<E2> e2, Class<E3> e3) throws E1, E2, E3;
+
+        CompletionStage<T> future();
+
+        Publisher<T> publisher();
+
+    }
 
 }
