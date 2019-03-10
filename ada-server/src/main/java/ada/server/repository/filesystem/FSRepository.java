@@ -3,7 +3,7 @@ package ada.server.repository.filesystem;
 import com.ibm.ada.api.repository.Repository;
 import com.ibm.ada.api.repository.RepositoryAdministration;
 import com.ibm.ada.api.repository.RepositoryData;
-import com.ibm.ada.model.RepositoryDetails;
+import com.ibm.ada.model.repository.RepositoryDetails;
 
 public class FSRepository implements Repository {
 

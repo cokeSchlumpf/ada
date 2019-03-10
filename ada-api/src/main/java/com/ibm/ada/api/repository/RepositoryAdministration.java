@@ -2,7 +2,7 @@ package com.ibm.ada.api.repository;
 
 import com.ibm.ada.api.exceptions.NotAuthorizedException;
 import com.ibm.ada.model.auth.AuthorizationRequest;
-import com.ibm.ada.model.RepositoryDetails;
+import com.ibm.ada.model.repository.RepositoryDetails;
 import com.ibm.ada.model.auth.User;
 
 import java.util.concurrent.CompletionStage;

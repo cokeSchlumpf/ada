@@ -1,6 +1,6 @@
 package com.ibm.ada.api.exceptions;
 
-import com.ibm.ada.model.RepositoryName;
+import com.ibm.ada.model.ResourceName;
 
 public class RepositoryNotFoundException extends Exception {
 
@@ -8,7 +8,7 @@ public class RepositoryNotFoundException extends Exception {
         super(message);
     }
 
-    public static RepositoryNotFoundException apply(RepositoryName name) {
+    public static RepositoryNotFoundException apply(ResourceName name) {
         String message = String.format("No repository found with name '%s'", name.getValue());
         return new RepositoryNotFoundException(message);
     }

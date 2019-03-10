@@ -4,8 +4,8 @@ import ada.cli.restclient.RestClient;
 import com.ibm.ada.api.repository.Repository;
 import com.ibm.ada.api.repository.RepositoryAdministration;
 import com.ibm.ada.api.repository.RepositoryData;
-import com.ibm.ada.model.RepositoryDetails;
-import com.ibm.ada.model.RepositoryName;
+import com.ibm.ada.model.repository.RepositoryDetails;
+import com.ibm.ada.model.ResourceName;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(staticName = "apply")
@@ -13,12 +13,12 @@ public final class RepositoryClient implements Repository {
 
     private final RestClient client;
 
-    private final RepositoryName name;
+    private final ResourceName name;
 
     private RepositoryDetails details;
 
     public static RepositoryClient apply(RestClient client, String name) {
-        return apply(client, RepositoryName.apply(name), null);
+        return apply(client, ResourceName.apply(name), null);
     }
 
     public static RepositoryClient apply(RestClient client, RepositoryDetails details) {

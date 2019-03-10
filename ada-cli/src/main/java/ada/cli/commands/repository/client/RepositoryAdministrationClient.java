@@ -1,10 +1,9 @@
 package ada.cli.commands.repository.client;
 
 import ada.cli.restclient.RestClient;
-import com.ibm.ada.api.exceptions.NotAuthorizedException;
 import com.ibm.ada.api.repository.RepositoryAdministration;
-import com.ibm.ada.model.RepositoryDetails;
-import com.ibm.ada.model.RepositoryName;
+import com.ibm.ada.model.repository.RepositoryDetails;
+import com.ibm.ada.model.ResourceName;
 import com.ibm.ada.model.auth.AuthorizationRequest;
 import com.ibm.ada.model.auth.User;
 import lombok.AllArgsConstructor;
@@ -16,7 +15,7 @@ public final class RepositoryAdministrationClient implements RepositoryAdministr
 
     private final RestClient client;
 
-    private final RepositoryName name;
+    private final ResourceName name;
 
     @Override
     public CompletionStage<RepositoryDetails> changeOwner(User executor, AuthorizationRequest auth) {

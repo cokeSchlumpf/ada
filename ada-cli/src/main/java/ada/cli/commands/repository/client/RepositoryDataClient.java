@@ -2,10 +2,10 @@ package ada.cli.commands.repository.client;
 
 import ada.cli.restclient.RestClient;
 import com.ibm.ada.api.repository.RepositoryData;
-import com.ibm.ada.model.Record;
-import com.ibm.ada.model.RepositoryName;
-import com.ibm.ada.model.Schema;
-import com.ibm.ada.model.TransferResult;
+import com.ibm.ada.model.repository.Record;
+import com.ibm.ada.model.ResourceName;
+import com.ibm.ada.model.repository.Schema;
+import com.ibm.ada.model.repository.TransferResult;
 import com.ibm.ada.model.auth.User;
 import com.ibm.ada.model.versions.PatchVersion;
 import com.ibm.ada.model.versions.Version;
@@ -20,7 +20,7 @@ public final class RepositoryDataClient implements RepositoryData {
 
     private final RestClient client;
 
-    private final RepositoryName name;
+    private final ResourceName name;
 
     @Override
     public CompletionStage<TransferResult> append(User executor, Schema schema, Publisher<Record> data) {

@@ -7,6 +7,9 @@ import com.ibm.ada.api.exceptions.RepositoryNotFoundException;
 import com.ibm.ada.model.*;
 import com.ibm.ada.model.auth.AuthorizationRequest;
 import com.ibm.ada.model.auth.User;
+import com.ibm.ada.model.repository.Record;
+import com.ibm.ada.model.repository.RepositoryDetails;
+import com.ibm.ada.model.repository.TransferResult;
 import com.ibm.ada.model.versions.PatchVersion;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +43,7 @@ public class RepositoriesController implements AuthenticatedApiResource {
         ServerWebExchange exchange) throws RepositoryNotFoundException {
 
         User user = getUser(exchange);
-        Repository repository = repositories.getRepository(user, RepositoryName.apply(name));
+        Repository repository = repositories.getRepository(user, ResourceName.apply(name));
         // TODO
 
         return null;

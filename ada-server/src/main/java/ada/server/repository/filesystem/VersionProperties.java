@@ -1,6 +1,6 @@
 package ada.server.repository.filesystem;
 
-import com.ibm.ada.model.Schema;
+import com.ibm.ada.model.repository.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Wither;

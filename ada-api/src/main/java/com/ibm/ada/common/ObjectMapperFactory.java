@@ -1,5 +1,6 @@
 package com.ibm.ada.common;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -24,6 +25,12 @@ public final class ObjectMapperFactory {
         om.registerModule(new GuavaModule());
         om.registerModule(new Jdk8Module());
         om.registerModule(new JavaTimeModule());
+
+        om.getSerializationConfig().getDefaultVisibilityChecker()
+            .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+            .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+            .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+            .withCreatorVisibility(JsonAutoDetect.Visibility.ANY);
 
         return om;
     }

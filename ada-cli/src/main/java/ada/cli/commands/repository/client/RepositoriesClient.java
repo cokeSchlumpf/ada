@@ -4,8 +4,8 @@ import ada.cli.restclient.RestClient;
 import com.ibm.ada.api.exceptions.RepositoryNotFoundException;
 import com.ibm.ada.api.repository.Repositories;
 import com.ibm.ada.api.repository.Repository;
-import com.ibm.ada.model.RepositoryDetails;
-import com.ibm.ada.model.RepositoryName;
+import com.ibm.ada.model.repository.RepositoryDetails;
+import com.ibm.ada.model.ResourceName;
 import com.ibm.ada.model.auth.User;
 import lombok.AllArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -18,7 +18,7 @@ public final class RepositoriesClient implements Repositories {
     private final RestClient client;
 
     @Override
-    public Repository createRepository(User executor, RepositoryName name) {
+    public Repository createRepository(User executor, ResourceName name) {
         String uri = String.format("/api/v1/repositories/%s", name.getValue());
 
         RepositoryDetails details = client
@@ -29,7 +29,7 @@ public final class RepositoriesClient implements Repositories {
     }
 
     @Override
-    public Repository getRepository(User executor, RepositoryName name) throws RepositoryNotFoundException {
+    public Repository getRepository(User executor, ResourceName name) throws RepositoryNotFoundException {
         String uri = String.format("/api/v1/repositories/%s", name.getValue());
 
         RepositoryDetails details = client

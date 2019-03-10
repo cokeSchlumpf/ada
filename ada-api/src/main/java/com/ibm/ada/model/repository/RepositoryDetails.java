@@ -1,5 +1,6 @@
-package com.ibm.ada.model;
+package com.ibm.ada.model.repository;
 
+import com.ibm.ada.model.ResourceName;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -7,6 +8,6 @@ import lombok.Value;
 @AllArgsConstructor(staticName = "apply")
 public final class RepositoryDetails {
 
-    private final RepositoryName name;
+    private final ResourceName name;
 
 }
