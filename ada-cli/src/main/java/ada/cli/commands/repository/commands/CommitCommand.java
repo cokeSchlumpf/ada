@@ -1,4 +1,4 @@
-package ada.cli.commands.repository;
+package ada.cli.commands.repository.commands;
 
 import ada.cli.commands.StandardOptions;
 import ada.cli.consoles.CommandLineConsole;
@@ -10,6 +10,9 @@ import picocli.CommandLine;
 public class CommitCommand extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
+
+    @CommandLine.ParentCommand
+    private RepositoryCommand repositoryCommand;
 
     @CommandLine.Parameters(index = "0", description = "The commit message")
     private String message;
@@ -24,7 +27,7 @@ public class CommitCommand extends StandardOptions implements Runnable {
 
     @Override
     public void run() {
-        console.message("Commit with message '" + message);
+        console.message("Commit with message '" + message + "' of '" + repositoryCommand.getName() +"'");
     }
 
 }

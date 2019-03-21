@@ -18,12 +18,8 @@ import java.net.URI;
 import java.nio.file.*;
 import java.util.Iterator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * A wrapper object around {@link java.nio.file.Path} which ensures that the path is relative.
- *
- * // TODO: Implement check logic.
  */
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -33,8 +29,25 @@ public final class RelativePath implements Path {
 
     private final Path path;
 
+    public static RelativePath apply(Path path, Path relativeTo) {
+        if (path.isAbsolute()) {
+            throw InvalidPathException.apply(path);
+        }
+
+        relativeTo = relativeTo.toAbsolutePath().normalize();
+        Path pathAbsolute = relativeTo.resolve(path).normalize();
+
+        if (!pathAbsolute.startsWith(relativeTo)) {
+            throw InvalidPathException.apply(path, relativeTo);
+        }
+        return new RelativePath(path);
+    }
+
     public static RelativePath apply(Path path) {
-        assertThat(path.isAbsolute()).describedAs("provided path must be relative").isFalse();
+        if (path.isAbsolute()) {
+            throw InvalidPathException.apply(path);
+        }
+
         return new RelativePath(path);
     }
 
@@ -194,6 +207,28 @@ public final class RelativePath implements Path {
         @Override
         public RelativePath deserialize(JsonParser p, DeserializationContext ignore) throws IOException {
             return RelativePath.apply(Paths.get(p.readValueAs(String.class)));
+        }
+
+    }
+
+    public static class InvalidPathException extends RuntimeException {
+
+        private InvalidPathException(String message) {
+            super(message);
+        }
+
+        public static InvalidPathException apply(Path path) {
+            String message = String.format("Provided path '%s' is not relative.", path);
+            return new InvalidPathException(message);
+        }
+
+        public static InvalidPathException apply(Path path, Path childrenOf) {
+            String message = String.format(
+                "Provided path '%s' must be children of '%s'.",
+                path.toAbsolutePath(),
+                childrenOf.toAbsolutePath());
+
+            return new InvalidPathException(message);
         }
 
     }

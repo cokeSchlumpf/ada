@@ -1,6 +1,6 @@
 package ada.cli.commands.repository.model;
 
-import com.ibm.ada.model.repository.Commit;
+import com.ibm.ada.model.repository.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,6 @@ public class Fetched {
 
     private final Date date;
 
-    private final Commit commit;
+    private final Schema schema;
 
 }

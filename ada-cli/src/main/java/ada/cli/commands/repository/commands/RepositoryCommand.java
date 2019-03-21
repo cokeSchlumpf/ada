@@ -1,4 +1,4 @@
-package ada.cli.commands.repository;
+package ada.cli.commands.repository.commands;
 
 import ada.cli.commands.StandardOptions;
 import ada.cli.consoles.CommandLineConsole;
@@ -8,7 +8,10 @@ import picocli.CommandLine;
     name = "repo",
     description = "work with a data repository",
     subcommands = {
-        CommitCommand.class
+        InitCommand.class,
+        CommitCommand.class,
+        PushCommand.class,
+        StatusCommand.class
     })
 public class RepositoryCommand extends StandardOptions implements Runnable {
 
@@ -30,4 +33,7 @@ public class RepositoryCommand extends StandardOptions implements Runnable {
         console.message("Some information about %s", name);
     }
 
+    public String getName() {
+        return name;
+    }
 }

@@ -2,7 +2,6 @@ package com.ibm.ada.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.ada.common.ObjectMapperFactory;
-import org.junit.ComparisonFailure;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ public class RelativePathUTest {
     @Test
     public void testAbsolute() {
         assertThatThrownBy(() -> RelativePath.apply(Paths.get("hallo").toAbsolutePath()))
-            .isInstanceOf(ComparisonFailure.class);
+            .isInstanceOf(RelativePath.InvalidPathException.class);
     }
 
     @Test
@@ -30,6 +29,15 @@ public class RelativePathUTest {
 
         assertThat(json).contains("hallo");
         assertThat(om.readValue(json, RelativePath.class)).isEqualTo(rp);
+    }
+
+    @Test
+    public void testChild() {
+        RelativePath.apply(Paths.get("foo.txt"), Paths.get(""));
+
+        assertThatThrownBy(() -> RelativePath.apply(Paths.get("../foo.txt"), Paths.get("")))
+            .isInstanceOf(RelativePath.InvalidPathException.class)
+            .hasMessageContaining("must be children of");
     }
 
 }

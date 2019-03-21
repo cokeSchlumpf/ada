@@ -1,8 +1,7 @@
 package ada.cli.commands;
 
 import ada.cli.commands.about.AboutCommand;
-import ada.cli.commands.repository.CommitCommand;
-import ada.cli.commands.repository.RepositoryCommand;
+import ada.cli.commands.repository.commands.*;
 import ada.cli.consoles.CommandLineConsole;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -19,10 +18,20 @@ public class CommandFactory implements CommandLine.IFactory {
     public <K> K create(Class<K> cls) throws Exception {
         if (cls.equals(AboutCommand.class)) {
             return (K) AboutCommand.apply(console);
-        } else if (cls.equals(RepositoryCommand.class)) {
-            return (K) RepositoryCommand.apply(console);
         } else if (cls.equals(CommitCommand.class)) {
             return (K) CommitCommand.apply(console);
+        } else if (cls.equals(InitCommand.class)) {
+            return (K) InitCommand.apply();
+        } else if (cls.equals(InitCSVCommand.class)) {
+            return (K) InitCSVCommand.apply(console);
+        } else if (cls.equals(InitMetaCommand.class)) {
+            return (K) InitMetaCommand.apply(console);
+        } else if (cls.equals(PushCommand.class)) {
+            return (K) PushCommand.apply(console);
+        } else if (cls.equals(RepositoryCommand.class)) {
+            return (K) RepositoryCommand.apply(console);
+        } else if (cls.equals(StatusCommand.class)) {
+            return (K) StatusCommand.apply(console);
         } else {
             throw InstantiationException.apply(cls);
         }

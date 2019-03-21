@@ -25,6 +25,10 @@ public class ApplicationITest {
     @Test
     public void test() {
         AdaCLI.main("repo", "foo", "commit", "hello world!");
+
+        System.out.println("---");
+
+        AdaCLI.main("repo", "foo", "init", "csv", "foo.csv");
     }
 
 }

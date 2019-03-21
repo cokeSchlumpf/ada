@@ -1,0 +1,48 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE'
+    }
+}
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+dependencies {
+    compile libs['akka-streams']
+    compile libs['jackson-annotations']
+    compile libs['jackson-datatype-jdk8']
+
+    compile project(':ada-commons')
+
+    compile 'org.apache.avro:avro:1.8.2'
+    compile 'com.lightbend.akka:akka-stream-alpakka-csv_2.12:1.0-RC1'
+    compile 'info.picocli:picocli:3.5.1'
+
+    testCompile libs['akka-streams']
+    testCompile libs['assertj-core']
+    testCompile libs['wiremock']
+
+    testCompile 'io.cucumber:cucumber-java:4.2.5'
+    testCompile 'io.cucumber:cucumber-picocontainer:4.2.6'
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testRuntime
+    }
+}
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'ada.vcs.client.features', 'src/test/resources']
+        }
+    }
+}
