@@ -1,6 +1,7 @@
 package ada.vcs.client.datatypes;
 
 import ada.commons.Either;
+import ada.commons.NameFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
@@ -19,12 +20,14 @@ public final class EnumDetector implements DataTypeDetector {
 
     private final Proximity proximity;
 
+    private final NameFactory nf;
+
     private boolean isOptional;
 
     private List<String> symbols;
 
     public static EnumDetector apply(int maxSymbols) {
-        return apply(maxSymbols, Proximity.apply(), false, Lists.newArrayList());
+        return apply(maxSymbols, Proximity.apply(), NameFactory.apply(NameFactory.Defaults.LOWERCASE_UNDERSCORED), false, Lists.newArrayList());
     }
 
     public static EnumDetector apply() {
@@ -44,7 +47,12 @@ public final class EnumDetector implements DataTypeDetector {
             return;
         }
 
-        value = value.trim();
+        try {
+            value = nf.create(value.trim());
+        } catch (NameFactory.InvalidNameException e) {
+            proximity.countInvalidValue();
+            return;
+        }
 
         if (symbols.contains(value)) {
             proximity.countCorrectValue();
@@ -58,17 +66,21 @@ public final class EnumDetector implements DataTypeDetector {
 
     @Override
     public DataType type() {
-        EnumTypeHelper h = EnumTypeHelper.apply(isOptional, Optional.ofNullable(symbols).orElse(Lists.newArrayList()));
+        EnumTypeHelper h = EnumTypeHelper.apply(isOptional, Optional.ofNullable(symbols).orElse(Lists.newArrayList()), nf);
         String values = String.join(", ", h.symbols);
 
         return DetectedDataType.apply("Enumeration", h, h, String.format("Values: %s", values));
     }
 
-    public static Either<Object, Exception> parse(String value, List<String> symbols) {
+    public static Either<Object, Exception> parse(String value, List<String> symbols, NameFactory nf) {
         if (isNullValue(value)) {
             return Either.left(null);
         } else {
-            value = value.trim();
+            try {
+                value = nf.create(value.trim());
+            } catch (Exception e) {
+                return Either.right(e);
+            }
 
             if (symbols.contains(value)) {
                 return Either.left(value);
@@ -88,10 +100,12 @@ public final class EnumDetector implements DataTypeDetector {
 
         private final boolean isOptional;
 
-        private ImmutableList<String> symbols;
+        private final ImmutableList<String> symbols;
 
-        static EnumTypeHelper apply(boolean isOptional, List<String> symbols) {
-            return apply(isOptional, ImmutableList.copyOf(symbols));
+        private final NameFactory nf;
+
+        static EnumTypeHelper apply(boolean isOptional, List<String> symbols, NameFactory nf) {
+            return apply(isOptional, ImmutableList.copyOf(symbols), nf);
         }
 
         @Override
@@ -114,7 +128,7 @@ public final class EnumDetector implements DataTypeDetector {
 
         @Override
         public Either<Object, Exception> parse(String value) {
-            return EnumDetector.parse(value, symbols);
+            return EnumDetector.parse(value, symbols, nf);
         }
 
     }

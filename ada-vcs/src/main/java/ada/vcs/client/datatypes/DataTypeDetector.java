@@ -8,4 +8,8 @@ public interface DataTypeDetector {
 
     DataType type();
 
+    static DataTypeDetector apply() {
+        return DataTypeDetectorImpl.apply();
+    }
+
 }
