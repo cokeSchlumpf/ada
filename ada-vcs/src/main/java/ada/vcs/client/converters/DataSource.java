@@ -1,11 +1,13 @@
 package ada.vcs.client.converters;
 
-import akka.Done;
-
-import java.util.concurrent.CompletionStage;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.reactivestreams.Publisher;
 
 public interface DataSource {
 
-    CompletionStage<Done> get(boolean incremental);
+    Schema schema();
+
+    Publisher<GenericRecord> records();
 
 }

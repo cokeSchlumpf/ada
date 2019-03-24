@@ -8,12 +8,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
-public class CSVSourceUTest {
+public class CSVSourceBuilderUTest {
 
     private ActorSystem system;
 
@@ -34,7 +33,7 @@ public class CSVSourceUTest {
     public void test() throws ExecutionException, InterruptedException {
 
         Path p = Paths.get("/Users/michael/Workspaces/notebook/Beispieldaten/sample-10000000.csv");
-        CSVSource s = CSVSource.apply(
+        CSVSourceBuilder s = CSVSourceBuilder.apply(
             p, Lists.newArrayList(), ';', '"', '\\', ActorMaterializer.create(system));
 
         Stopwatch sw = Stopwatch.createStarted();
