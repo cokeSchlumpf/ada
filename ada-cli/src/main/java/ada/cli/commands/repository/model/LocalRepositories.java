@@ -2,7 +2,6 @@ package ada.cli.commands.repository.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.ibm.ada.model.ResourceName;
 import lombok.AccessLevel;

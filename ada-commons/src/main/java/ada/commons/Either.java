@@ -6,7 +6,6 @@ import lombok.Value;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public abstract class Either<L, R> {
 
@@ -46,7 +45,7 @@ public abstract class Either<L, R> {
 
     @SuppressWarnings("unchecked")
     public <T> Either<L, T> mapRight(Function<? super R, ? extends T> lFunc) {
-        return this.<Either<L, T>>map(t -> (Either<L, T>) this, t -> Right.apply(lFunc.apply(t)));
+        return this.map(t -> (Either<L, T>) this, t -> Right.apply(lFunc.apply(t)));
     }
 
     public void apply(Consumer<? super L> lFunc, Consumer<? super R> rFunc) {
@@ -60,6 +59,10 @@ public abstract class Either<L, R> {
         };
     }
 
+    public abstract boolean isLeft();
+
+    public abstract boolean isRight();
+
     @Value
     @EqualsAndHashCode(callSuper = false)
     @AllArgsConstructor(staticName = "apply")
@@ -70,6 +73,16 @@ public abstract class Either<L, R> {
         @Override
         public <T> T map(Function<? super L, ? extends T> lFunc, Function<? super R, ? extends T> rFunc) {
             return lFunc.apply(left);
+        }
+
+        @Override
+        public boolean isLeft() {
+            return true;
+        }
+
+        @Override
+        public boolean isRight() {
+            return false;
         }
 
     }
@@ -84,6 +97,16 @@ public abstract class Either<L, R> {
         @Override
         public <T> T map(Function<? super L, ? extends T> lFunc, Function<? super R, ? extends T> rFunc) {
             return rFunc.apply(right);
+        }
+
+        @Override
+        public boolean isLeft() {
+            return false;
+        }
+
+        @Override
+        public boolean isRight() {
+            return true;
         }
 
     }

@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public final class BooleanDetector implements DataTypeDetector {
+public final class BooleanDetector implements DataTypeDetector<BooleanDetector> {
 
     private final List<Pair<String, String>> formats;
 
@@ -42,7 +42,7 @@ public final class BooleanDetector implements DataTypeDetector {
     }
 
     @Override
-    public Proximity proximity() {
+    public Proximity getProximity() {
         return proximity;
     }
 
@@ -72,12 +72,19 @@ public final class BooleanDetector implements DataTypeDetector {
     }
 
     @Override
-    public DataType type() {
+    public BooleanDetector withOptional(boolean isOptional) {
+        this.isOptional = isOptional;
+        return this;
+    }
+
+    @Override
+    public Field type(String name) {
         BooleanDataTypeHelper h = BooleanDataTypeHelper.apply(
+            name,
             isOptional,
             Optional.ofNullable(format).orElse(defaultFormat));
 
-        return DetectedDataType.apply("Boolean", h, h);
+        return DetectedField.apply(name, "Boolean", h, h);
     }
 
     private static Either<Object, Exception> parse(String value, Pair<String, String> format) {
@@ -102,14 +109,16 @@ public final class BooleanDetector implements DataTypeDetector {
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class BooleanDataTypeHelper implements DetectedDataType.Builder, DetectedDataType.Parser {
+    private static class BooleanDataTypeHelper implements DetectedField.Builder, DetectedField.Parser {
+
+        private String fieldName;
 
         private boolean isOptional;
 
         private Pair<String, String> format;
 
         @Override
-        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build(String fieldName) {
+        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build() {
             if (isOptional) {
                 return builder -> builder.optionalBoolean(fieldName);
             } else {
@@ -119,7 +128,15 @@ public final class BooleanDetector implements DataTypeDetector {
 
         @Override
         public Either<Object, Exception> parse(String value) {
-            return BooleanDetector.parse(value, format);
+            boolean isNull = isNullValue(value);
+
+            if (isNull && isOptional) {
+                return Either.left(null);
+            } else if (isNull) {
+                return Either.right(DetectedField.NotOptionalException.apply(fieldName));
+            } else {
+                return BooleanDetector.parse(value, format);
+            }
         }
 
     }

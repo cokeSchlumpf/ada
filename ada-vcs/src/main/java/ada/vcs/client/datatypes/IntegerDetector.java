@@ -9,7 +9,7 @@ import org.apache.avro.SchemaBuilder;
 import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public final class IntegerDetector implements DataTypeDetector {
+public final class IntegerDetector implements DataTypeDetector<IntegerDetector> {
 
     private boolean isOptional;
 
@@ -20,7 +20,7 @@ public final class IntegerDetector implements DataTypeDetector {
     }
 
     @Override
-    public Proximity proximity() {
+    public Proximity getProximity() {
         return proximity;
     }
 
@@ -38,17 +38,19 @@ public final class IntegerDetector implements DataTypeDetector {
     }
 
     @Override
-    public DataType type() {
-        IntegerTypeHelper h = IntegerTypeHelper.apply(isOptional);
-        return DetectedDataType.apply("Integer", h, h);
+    public IntegerDetector withOptional(boolean isOptional) {
+        this.isOptional = isOptional;
+        return this;
+    }
+
+    @Override
+    public Field type(String fieldName) {
+        IntegerTypeHelper h = IntegerTypeHelper.apply(fieldName, isOptional);
+        return DetectedField.apply(fieldName, "Integer", h, h);
     }
 
     private static Either<Object, Exception> parse(String value) {
-        if (isNullValue(value)) {
-            return Either.left(null);
-        } else {
-            return Either.result(() -> Integer.valueOf(value));
-        }
+        return Either.result(() -> Integer.valueOf(value));
     }
 
     private static boolean isNullValue(String value) {
@@ -56,12 +58,14 @@ public final class IntegerDetector implements DataTypeDetector {
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class IntegerTypeHelper implements DetectedDataType.Builder, DetectedDataType.Parser {
+    private static class IntegerTypeHelper implements DetectedField.Builder, DetectedField.Parser {
+
+        private final String fieldName;
 
         private final boolean isOptional;
 
         @Override
-        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build(String fieldName) {
+        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build() {
             if (isOptional) {
                 return builder -> builder.optionalInt(fieldName);
             } else {
@@ -71,7 +75,15 @@ public final class IntegerDetector implements DataTypeDetector {
 
         @Override
         public Either<Object, Exception> parse(String value) {
-            return IntegerDetector.parse(value);
+            boolean isNull = isNullValue(value);
+
+            if (isNull && isOptional) {
+                return Either.left(null);
+            } else if (isNull) {
+                return Either.right(DetectedField.NotOptionalException.apply(fieldName));
+            } else {
+                return IntegerDetector.parse(value);
+            }
         }
 
     }

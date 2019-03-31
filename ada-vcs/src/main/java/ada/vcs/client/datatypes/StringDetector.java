@@ -9,7 +9,7 @@ import org.apache.avro.SchemaBuilder;
 import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public final class StringDetector implements DataTypeDetector {
+public final class StringDetector implements DataTypeDetector<StringDetector> {
 
     private boolean isOptional;
 
@@ -20,7 +20,7 @@ public final class StringDetector implements DataTypeDetector {
     }
 
     @Override
-    public Proximity proximity() {
+    public Proximity getProximity() {
         return proximity;
     }
 
@@ -35,17 +35,19 @@ public final class StringDetector implements DataTypeDetector {
     }
 
     @Override
-    public DataType type() {
-        StringTypeHelper h = StringTypeHelper.apply(isOptional);
-        return DetectedDataType.apply("String", h, h);
+    public StringDetector withOptional(boolean isOptional) {
+        this.isOptional = isOptional;
+        return this;
+    }
+
+    @Override
+    public Field type(String fieldName) {
+        StringTypeHelper h = StringTypeHelper.apply(fieldName, isOptional);
+        return DetectedField.apply(fieldName, "String", h, h);
     }
 
     private static Either<Object, Exception> parse(String value) {
-        if (isNullValue(value)) {
-            return Either.left(null);
-        } else {
-            return Either.left(value);
-        }
+        return Either.left(value);
     }
 
     private static boolean isNullValue(String value) {
@@ -53,12 +55,14 @@ public final class StringDetector implements DataTypeDetector {
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class StringTypeHelper implements DetectedDataType.Builder, DetectedDataType.Parser {
+    private static class StringTypeHelper implements DetectedField.Builder, DetectedField.Parser {
+
+        private final String fieldName;
 
         private final boolean isOptional;
 
         @Override
-        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build(String fieldName) {
+        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build() {
             if (isOptional) {
                 return builder -> builder.optionalString(fieldName);
             } else {
@@ -68,7 +72,15 @@ public final class StringDetector implements DataTypeDetector {
 
         @Override
         public Either<Object, Exception> parse(String value) {
-            return StringDetector.parse(value);
+            boolean isNull = isNullValue(value);
+
+            if (isNull && isOptional) {
+                return Either.left(null);
+            } else if (isNull) {
+                return Either.right(DetectedField.NotOptionalException.apply(fieldName));
+            } else {
+                return StringDetector.parse(value);
+            }
         }
 
     }

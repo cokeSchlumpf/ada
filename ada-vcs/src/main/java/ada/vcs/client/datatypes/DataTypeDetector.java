@@ -1,15 +1,13 @@
 package ada.vcs.client.datatypes;
 
-public interface DataTypeDetector {
+public interface DataTypeDetector<T extends DataTypeDetector<T>> {
 
-    Proximity proximity();
+    Proximity getProximity();
 
     void hint(String value);
 
-    DataType type();
+    T withOptional(boolean isOptional);
 
-    static DataTypeDetector apply() {
-        return DataTypeDetectorImpl.apply();
-    }
+    Field type(String fieldName);
 
 }

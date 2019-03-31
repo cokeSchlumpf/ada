@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public final class EnumDetector implements DataTypeDetector {
+public final class EnumDetector implements DataTypeDetector<EnumDetector> {
 
     private final int maxSymbols;
 
@@ -35,7 +35,7 @@ public final class EnumDetector implements DataTypeDetector {
     }
 
     @Override
-    public Proximity proximity() {
+    public Proximity getProximity() {
         return proximity;
     }
 
@@ -65,29 +65,36 @@ public final class EnumDetector implements DataTypeDetector {
     }
 
     @Override
-    public DataType type() {
-        EnumTypeHelper h = EnumTypeHelper.apply(isOptional, Optional.ofNullable(symbols).orElse(Lists.newArrayList()), nf);
+    public EnumDetector withOptional(boolean isOptional) {
+        this.isOptional = isOptional;
+        return this;
+    }
+
+    public EnumDetector withSymbols(List<String> symbols) {
+        this.symbols = symbols;
+        return this;
+    }
+
+    @Override
+    public Field type(String fieldName) {
+        EnumTypeHelper h = EnumTypeHelper.apply(fieldName, isOptional, Optional.ofNullable(symbols).orElse(Lists.newArrayList()), nf);
         String values = String.join(", ", h.symbols);
 
-        return DetectedDataType.apply("Enumeration", h, h, String.format("Values: %s", values));
+        return DetectedField.apply(fieldName, "Enumeration", h, h, String.format("Values: %s", values));
     }
 
     public static Either<Object, Exception> parse(String value, List<String> symbols, NameFactory nf) {
-        if (isNullValue(value)) {
-            return Either.left(null);
-        } else {
-            try {
-                value = nf.create(value.trim());
-            } catch (Exception e) {
-                return Either.right(e);
-            }
+        try {
+            value = nf.create(value.trim());
+        } catch (Exception e) {
+            return Either.right(e);
+        }
 
-            if (symbols.contains(value)) {
-                return Either.left(value);
-            } else {
-                String message = String.format("'%s' is not a correct value for this enumeration", value);
-                return Either.right(new IllegalArgumentException(message));
-            }
+        if (symbols.contains(value)) {
+            return Either.left(value);
+        } else {
+            String message = String.format("'%s' is not a correct value for this enumeration", value);
+            return Either.right(new IllegalArgumentException(message));
         }
     }
 
@@ -96,7 +103,9 @@ public final class EnumDetector implements DataTypeDetector {
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class EnumTypeHelper implements DetectedDataType.Builder, DetectedDataType.Parser {
+    private static class EnumTypeHelper implements DetectedField.Builder, DetectedField.Parser {
+
+        private final String fieldName;
 
         private final boolean isOptional;
 
@@ -104,12 +113,12 @@ public final class EnumDetector implements DataTypeDetector {
 
         private final NameFactory nf;
 
-        static EnumTypeHelper apply(boolean isOptional, List<String> symbols, NameFactory nf) {
-            return apply(isOptional, ImmutableList.copyOf(symbols), nf);
+        static EnumTypeHelper apply(String fieldName, boolean isOptional, List<String> symbols, NameFactory nf) {
+            return apply(fieldName, isOptional, ImmutableList.copyOf(symbols), nf);
         }
 
         @Override
-        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build(String fieldName) {
+        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build() {
             String[] s = new String[symbols.size()];
             symbols.toArray(s);
 
@@ -128,7 +137,15 @@ public final class EnumDetector implements DataTypeDetector {
 
         @Override
         public Either<Object, Exception> parse(String value) {
-            return EnumDetector.parse(value, symbols, nf);
+            boolean isNull = isNullValue(value);
+
+            if (isNull && isOptional) {
+                return Either.left(null);
+            } else if (isNull) {
+                return Either.right(DetectedField.NotOptionalException.apply(fieldName));
+            } else {
+                return EnumDetector.parse(value, symbols, nf);
+            }
         }
 
     }

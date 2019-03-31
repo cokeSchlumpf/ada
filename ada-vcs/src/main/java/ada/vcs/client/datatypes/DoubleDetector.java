@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public final class DoubleDetector implements DataTypeDetector {
+public final class DoubleDetector implements DataTypeDetector<DoubleDetector> {
 
     private final List<Locale> locales;
 
@@ -40,7 +40,7 @@ public final class DoubleDetector implements DataTypeDetector {
     }
 
     @Override
-    public Proximity proximity() {
+    public Proximity getProximity() {
         return proximity;
     }
 
@@ -71,20 +71,23 @@ public final class DoubleDetector implements DataTypeDetector {
     }
 
     @Override
-    public DataType type() {
+    public DoubleDetector withOptional(boolean isOptional) {
+        this.isOptional = isOptional;
+        return this;
+    }
+
+    @Override
+    public Field type(String fieldName) {
         DoubleDetectorTypeHelper h = DoubleDetectorTypeHelper.apply(
+            fieldName,
             isOptional,
             Optional.ofNullable(numberFormat).orElse(defaultNumberFormat));
 
-        return DetectedDataType.apply("Double", h, h);
+        return DetectedField.apply(fieldName, "Double", h, h);
     }
 
     private static Either<Object, Exception> parse(String value, NumberFormat nf) {
-        if (isNullValue(value)) {
-            return Either.left(null);
-        } else {
-            return Either.result(() -> nf.parse(value).doubleValue());
-        }
+        return Either.result(() -> nf.parse(value).doubleValue());
     }
 
     private static boolean isNullValue(String value) {
@@ -92,14 +95,16 @@ public final class DoubleDetector implements DataTypeDetector {
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class DoubleDetectorTypeHelper implements DetectedDataType.Builder, DetectedDataType.Parser {
+    private static class DoubleDetectorTypeHelper implements DetectedField.Builder, DetectedField.Parser {
+
+        private final String fieldName;
 
         private final boolean isOptional;
 
         private final NumberFormat format;
 
         @Override
-        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build(String fieldName) {
+        public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build() {
             if (isOptional) {
                 return builder -> builder.optionalDouble(fieldName);
             } else {
@@ -109,7 +114,15 @@ public final class DoubleDetector implements DataTypeDetector {
 
         @Override
         public Either<Object, Exception> parse(String value) {
-            return DoubleDetector.parse(value, format);
+            boolean isNull = isNullValue(value);
+
+            if (isNull && isOptional) {
+                return Either.left(null);
+            } else if (isNull) {
+                return Either.right(DetectedField.NotOptionalException.apply(fieldName));
+            } else {
+                return DoubleDetector.parse(value, format);
+            }
         }
 
     }
