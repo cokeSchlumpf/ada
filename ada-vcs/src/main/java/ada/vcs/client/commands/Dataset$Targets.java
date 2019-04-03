@@ -4,19 +4,19 @@ import ada.vcs.client.consoles.CommandLineConsole;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
 
-import java.io.File;
-
 @CommandLine.Command(
-    name = "init",
-    description = "initializes repository metadata in the current repository")
+    name = "targets",
+    description = "work with targets of dataset",
+    subcommands = {
+        Dataset$Targets$Add.class
+    })
 @AllArgsConstructor(staticName = "apply")
-public final class InitCommand extends StandardOptions implements Runnable {
+public final class Dataset$Targets extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
 
     @Override
     public void run() {
-        console.message("Initialized empty data repository in %s/", new File(".avcs").getAbsolutePath());
+        console.message("Printing some information about existing targets");
     }
-
 }

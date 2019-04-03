@@ -1,9 +1,10 @@
 package ada.vcs.client.converters.csv;
 
-import ada.commons.Either;
+import ada.commons.util.Either;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.api.DataSink;
 import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.datatypes.BooleanFormat;
 import akka.NotUsed;
 import akka.stream.alpakka.csv.javadsl.CsvFormatting;
 import akka.stream.alpakka.csv.javadsl.CsvQuotingStyle;
@@ -11,42 +12,63 @@ import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.util.ByteString;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Value;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor(staticName = "apply")
+@Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CSVSink implements DataSink {
 
+    private static final String OUTPUT = "output";
+    private static final String FIELD_SEPARATOR = "field-separator";
+    private static final String QUOTE_CHAR = "quote-char";
+    private static final String ESCAPE_CHAR = "escape-char";
+    private static final String END_OF_LINE = "eol";
+    private static final String NULL_VALUE = "null-value";
+    private static final String NUMBER_FORMAT = "number-format";
+    private static final String BOOLEAN_FORMAT = "boolean-format";
+
+    @JsonProperty(OUTPUT)
     private final Either<Path, PrintStream> output;
 
+    @JsonProperty(FIELD_SEPARATOR)
     private final char fieldSeparator;
 
+    @JsonProperty(QUOTE_CHAR)
     private final char quoteChar;
 
+    @JsonProperty(ESCAPE_CHAR)
     private final char escapeChar;
 
+    @JsonProperty(END_OF_LINE)
     private final String endOfLine;
 
+    @JsonProperty(NULL_VALUE)
     private final String nullValue;
 
-    private final NumberFormat numberFormat;
+    @JsonProperty(NUMBER_FORMAT)
+    private final String numberFormat;
 
-    private final Pair<String, String> booleanFormat;
+    @JsonProperty(BOOLEAN_FORMAT)
+    private final BooleanFormat booleanFormat;
 
     public static CSVSink apply(Either<Path, PrintStream> output) {
-        return CSVSink.apply(output, ';', '"', '\\', "\r\n", "", NumberFormat.getNumberInstance(), Pair.of("true", "false"));
+        return CSVSink.apply(output, ';', '"', '\\', "\r\n", "", "#,##0.0000", BooleanFormat.apply("true", "false"));
     }
 
     public static CSVSink apply(PrintStream out) {
@@ -61,9 +83,24 @@ public final class CSVSink implements DataSink {
         return CSVSink.apply(Either.left(out));
     }
 
+    @JsonCreator
+    public static CSVSink apply(
+        @JsonProperty(OUTPUT) Either<Path, PrintStream> output,
+        @JsonProperty(FIELD_SEPARATOR) char fieldSeparator,
+        @JsonProperty(QUOTE_CHAR) char quoteChar,
+        @JsonProperty(ESCAPE_CHAR) char escapeChar,
+        @JsonProperty(END_OF_LINE) String endOfLine,
+        @JsonProperty(NULL_VALUE) String nullValue,
+        @JsonProperty(NUMBER_FORMAT) String numberFormat,
+        @JsonProperty(BOOLEAN_FORMAT) BooleanFormat booleanFormat) {
+
+        return new CSVSink(output, fieldSeparator, quoteChar, escapeChar, endOfLine, nullValue, numberFormat, booleanFormat);
+    }
+
     @Override
     public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
         final AtomicLong count = new AtomicLong();
+        final DecimalFormat df = new DecimalFormat(numberFormat);
 
         Flow<GenericRecord, ByteString, NotUsed> flow = Flow
             .of(GenericRecord.class)
@@ -77,9 +114,9 @@ public final class CSVSink implements DataSink {
                     if (value == null) {
                         return nullValue;
                     } else if (value instanceof Double) {
-                        return numberFormat.format(value);
+                        return df.format(value);
                     } else if (value instanceof Boolean) {
-                        return ((Boolean) value) ? booleanFormat.getLeft() : booleanFormat.getRight();
+                        return ((Boolean) value) ? booleanFormat.getTrue() : booleanFormat.getFalse();
                     } else {
                         return value.toString();
                     }

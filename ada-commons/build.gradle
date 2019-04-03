@@ -1,9 +1,12 @@
 dependencies {
 
+    compile libs['avro']
     compile libs['jackson-annotations']
     compile libs['jackson-databind']
     compile libs['jackson-datatype-guava']
     compile libs['jackson-datatype-jdk8']
     compile libs['jackson-datatype-sr310']
+
+    testCompile libs['assertj-core']
 
 }

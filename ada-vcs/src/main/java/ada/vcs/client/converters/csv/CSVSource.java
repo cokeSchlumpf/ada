@@ -1,6 +1,6 @@
 package ada.vcs.client.converters.csv;
 
-import ada.commons.NameFactory;
+import ada.commons.util.NameFactory;
 import ada.vcs.client.converters.internal.api.DataSource;
 import ada.vcs.client.converters.internal.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
@@ -26,11 +26,11 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.commons.io.FilenameUtils;
 
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -65,22 +65,18 @@ public final class CSVSource implements DataSource<FileContext> {
     @JsonProperty(HEADERS)
     private final List<String> headers;
 
-    @JsonProperty(SCHEMA)
-    private final Schema schema;
-
     @JsonProperty(RECORDS_ANALYZED)
     private final int recordsAnalyzed;
 
     @JsonCreator
     public static CSVSource apply(
         @JsonProperty(FILE) Path file,
-        @JsonProperty(FIELD_SEPARATOR) Character fieldSeparator,
-        @JsonProperty(COMMENT_CHAR) Character commentChar,
-        @JsonProperty(QUOTE_CHAR) Character quoteChar,
-        @JsonProperty(ESCAPE_CHAR) Character escapeChar,
-        @JsonProperty(HEADERS) List<String> headers,
-        @JsonProperty(SCHEMA) Schema schema,
-        @JsonProperty(RECORDS_ANALYZED) Integer recordsAnalyzed) {
+        @Nullable @JsonProperty(FIELD_SEPARATOR) Character fieldSeparator,
+        @Nullable @JsonProperty(COMMENT_CHAR) Character commentChar,
+        @Nullable @JsonProperty(QUOTE_CHAR) Character quoteChar,
+        @Nullable @JsonProperty(ESCAPE_CHAR) Character escapeChar,
+        @Nullable @JsonProperty(HEADERS) List<String> headers,
+        @Nullable @JsonProperty(RECORDS_ANALYZED) Integer recordsAnalyzed) {
 
         CSVSourceBuilder b = new CSVSourceBuilder(file);
 
@@ -89,7 +85,6 @@ public final class CSVSource implements DataSource<FileContext> {
         if (quoteChar != null) b.quoteChar(quoteChar);
         if (escapeChar != null) b.escapeChar(escapeChar);
         if (headers != null && headers.size() > 0) b.headers(headers);
-        if (schema != null) b.schema(schema);
         if (recordsAnalyzed != null) b.recordsAnalyzed(recordsAnalyzed);
 
         return b.build();
@@ -100,7 +95,7 @@ public final class CSVSource implements DataSource<FileContext> {
     }
 
     @Override
-    public CompletionStage<ReadableDataSource<FileContext>> analyze(Materializer materializer) {
+    public CompletionStage<ReadableDataSource<FileContext>> analyze(Materializer materializer, Schema schema) {
         final NameFactory nf = NameFactory.apply(NameFactory.Defaults.LOWERCASE_UNDERSCORED);
         final int offset = headers != null && headers.size() > 0 ? 0 : 1;
 
@@ -130,12 +125,11 @@ public final class CSVSource implements DataSource<FileContext> {
                         }
                     }
 
-                    if (this.schema != null) {
+                    if (schema != null) {
                         return ReadableCSVSource.apply(this, schema, matchers, offset);
                     } else {
                         SchemaBuilder.FieldAssembler<Schema> fields = SchemaBuilder
                             .record(nf.create(FilenameUtils.removeExtension(file.getFileName().toString())))
-                            .namespace("ada.autodetect")
                             .fields();
 
                         for (String header : headers) {
@@ -152,12 +146,13 @@ public final class CSVSource implements DataSource<FileContext> {
                 }));
     }
 
-    private CompletionStage<List<String>> headers(Materializer materializer) {
-        return read().runWith(Sink.head(), materializer);
+    @Override
+    public CompletionStage<ReadableDataSource<FileContext>> analyze(Materializer materializer) {
+        return analyze(materializer, null);
     }
 
-    public Optional<Schema> getSchema() {
-        return Optional.ofNullable(schema);
+    private CompletionStage<List<String>> headers(Materializer materializer) {
+        return read().runWith(Sink.head(), materializer);
     }
 
     public Source<List<String>, CompletionStage<IOResult>> read() {
@@ -193,15 +188,13 @@ public final class CSVSource implements DataSource<FileContext> {
 
         private List<String> headers = Lists.newArrayList();
 
-        private Schema schema = null;
-
         private CSVSourceBuilder(Path file) {
             this.file = file;
         }
 
         public CSVSource build() {
             return new CSVSource(
-                file, fieldSeparator, commentChar, quoteChar, escapeChar, headers, schema, recordsAnalyzed);
+                file, fieldSeparator, commentChar, quoteChar, escapeChar, headers, recordsAnalyzed);
         }
 
         public CSVSourceBuilder commentChar(char commentChar) {
@@ -231,11 +224,6 @@ public final class CSVSource implements DataSource<FileContext> {
 
         public CSVSourceBuilder recordsAnalyzed(int recordsAnalyzed) {
             this.recordsAnalyzed = recordsAnalyzed;
-            return this;
-        }
-
-        public CSVSourceBuilder schema(Schema schema) {
-            this.schema = schema;
             return this;
         }
 

@@ -1,26 +1,49 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
+
+import java.util.List;
 
 @AllArgsConstructor(staticName = "apply")
 public final class CommandFactory implements CommandLine.IFactory {
 
     private final CommandLineConsole console;
 
+    private final CommandContext context;
+
+    public static CommandFactory apply(CommandLineConsole console) {
+        return apply(console, CommandContext.apply());
+    }
+
     @Override
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unchecked")
     public <K> K create(Class<K> cls) throws Exception {
-        if (cls.equals(InitCommand.class)) {
-            return (K) InitCommand.apply(console);
-        } else {
-            throw new Exception("Unknown class " + cls);
-        }
+        List<?> commands = Lists.newArrayList(
+            Datasets$Add.apply(),
+            Datasets$Add$CSV.apply(console, context),
+            Dataset$Targets$Add$CSV.apply(console),
+            Dataset$Targets$Add$Local.apply(console),
+            Dataset$Targets$Add.apply(),
+            Dataset.apply(console),
+            Init.apply(console),
+            Dataset$Targets.apply(console));
+
+        return (K) commands
+            .stream()
+            .filter(i -> i.getClass().equals(cls))
+            .findFirst()
+            .orElseThrow(() -> new Exception("Unknown class " + cls));
     }
 
     public CommandLineConsole getConsole() {
         return console;
+    }
+
+    public CommandContext getContext() {
+        return context;
     }
 
 }

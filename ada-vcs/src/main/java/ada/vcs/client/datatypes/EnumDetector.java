@@ -1,7 +1,7 @@
 package ada.vcs.client.datatypes;
 
-import ada.commons.Either;
-import ada.commons.NameFactory;
+import ada.commons.util.Either;
+import ada.commons.util.NameFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;

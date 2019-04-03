@@ -28,6 +28,7 @@ subprojects {
                 'akka-actor-typed'       : "com.typesafe.akka:akka-actor-typed_${versions['scala']}:${versions['akka']}",
                 'akka-streams'           : "com.typesafe.akka:akka-stream_${versions['scala']}:${versions['akka']}",
                 'assertj-core'           : 'org.assertj:assertj-core:3.9.1',
+                'avro'                   : 'org.apache.avro:avro:1.8.2',
                 'easymock'               : 'org.easymock:easymock:4.0.1',
                 'jackson-annotations'    : 'com.fasterxml.jackson.core:jackson-annotations:2.9.7',
                 'jackson-databind'       : 'com.fasterxml.jackson.core:jackson-databind:2.9.7',

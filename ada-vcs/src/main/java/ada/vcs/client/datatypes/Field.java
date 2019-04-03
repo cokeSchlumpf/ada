@@ -1,6 +1,6 @@
 package ada.vcs.client.datatypes;
 
-import ada.commons.Either;
+import ada.commons.util.Either;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 

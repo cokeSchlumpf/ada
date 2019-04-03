@@ -1,5 +1,6 @@
-package com.ibm.ada.model;
+package ada.commons.util;
 
+import ada.commons.exceptions.InvalidResourceNameException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -8,14 +9,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.ibm.ada.api.exceptions.InvalidResourceNameException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,16 +28,9 @@ public class ResourceName {
             throw InvalidResourceNameException.apply(value);
         }
 
-        Pattern p1 = Pattern.compile("[a-zA-Z0-9]+");
-        Matcher m = p1.matcher(value);
-
-        String name = "";
-
-        while (m.find()) {
-            name = name.length() == 0 ? m.group() : name + "-" + m.group();
-        }
-
-        name = name.toLowerCase();
+        String name = NameFactory
+            .apply(NameFactory.Defaults.LOWERCASE_HYPHENATE)
+            .create(value);
 
         if (name.length() == 0) {
             throw InvalidResourceNameException.apply(value);

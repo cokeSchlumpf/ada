@@ -1,6 +1,6 @@
 package ada.vcs.client.datatypes;
 
-import ada.commons.Either;
+import ada.commons.util.Either;
 import lombok.AllArgsConstructor;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -52,7 +52,7 @@ public final class DetectedField implements Field {
                 .parse(value)
                 .mapRight(e -> NoValidValueException.apply(getFieldName(), value, e));
         } catch (Exception e) {
-            return Either.Right.apply(NoValidValueException.apply(getFieldName(), value));
+            return Either.right(NoValidValueException.apply(getFieldName(), value));
         }
     }
 

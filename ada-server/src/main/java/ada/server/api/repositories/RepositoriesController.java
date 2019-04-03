@@ -4,7 +4,6 @@ import ada.server.api.AuthenticatedApiResource;
 import com.ibm.ada.api.repository.Repositories;
 import com.ibm.ada.api.repository.Repository;
 import com.ibm.ada.api.exceptions.RepositoryNotFoundException;
-import com.ibm.ada.model.*;
 import com.ibm.ada.model.auth.AuthorizationRequest;
 import com.ibm.ada.model.auth.User;
 import com.ibm.ada.model.repository.Record;

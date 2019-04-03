@@ -6,7 +6,6 @@ import ada.vcs.client.converters.internal.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
 import ada.vcs.client.datatypes.DataTypeMatcher;
 import akka.NotUsed;
-import akka.stream.Materializer;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
@@ -131,9 +130,5 @@ public final class ReadableCSVSource implements ReadableDataSource<FileContext> 
         return getRecords(monitor, null);
     }
 
-    @Override
-    public CompletionStage<ReadableDataSource<FileContext>> analyze(Materializer materializer) {
-        return CompletableFuture.completedFuture(this);
-    }
 
 }

@@ -1,7 +1,8 @@
 package ada.vcs.client;
 
+import ada.vcs.client.commands.CommandContext;
 import ada.vcs.client.commands.CommandFactory;
-import ada.vcs.client.commands.RootCommand;
+import ada.vcs.client.commands.Root;
 import ada.vcs.client.consoles.CommandLineConsole;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,8 @@ public class Application {
 
     public static void main(String... args) {
         CommandLineConsole console = CommandLineConsole.apply();
-        CommandFactory commands = CommandFactory.apply(console);
+        CommandContext context = CommandContext.apply();
+        CommandFactory commands = CommandFactory.apply(console, context);
         Application runner = Application.apply(commands);
 
         runner.run(args);
@@ -27,7 +29,7 @@ public class Application {
 
     public void run(String ...args) {
         final PrintStream ps = commandFactory.getConsole().printStream();
-        final CommandLine cli = new CommandLine(new RootCommand(), commandFactory);
+        final CommandLine cli = new CommandLine(new Root(), commandFactory);
 
         try {
             cli.parseWithHandlers(
@@ -48,6 +50,8 @@ public class Application {
             } catch (Exception e) {
                 e.printStackTrace(ps);
             }
+        } finally {
+            commandFactory.getContext().shutdown();
         }
     }
 

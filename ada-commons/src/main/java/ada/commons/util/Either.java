@@ -1,5 +1,7 @@
-package ada.commons;
+package ada.commons.util;
 
+import com.fasterxml.jackson.annotation.*;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
@@ -7,6 +9,14 @@ import lombok.Value;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Either.Left.class, name = "left"),
+    @JsonSubTypes.Type(value = Either.Right.class, name = "right")
+})
 public abstract class Either<L, R> {
 
     private Either() {
@@ -59,20 +69,27 @@ public abstract class Either<L, R> {
         };
     }
 
+    @JsonIgnore
     public abstract boolean isLeft();
 
+    @JsonIgnore
     public abstract boolean isRight();
 
     @Value
     @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor(staticName = "apply")
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Left<L, R> extends Either<L, R> {
 
-        private L left;
+        private L value;
+
+        @JsonCreator
+        private static <L, R> Left<L, R> apply(@JsonProperty("value") L value) {
+            return new Left<>(value);
+        }
 
         @Override
         public <T> T map(Function<? super L, ? extends T> lFunc, Function<? super R, ? extends T> rFunc) {
-            return lFunc.apply(left);
+            return lFunc.apply(value);
         }
 
         @Override
@@ -89,14 +106,19 @@ public abstract class Either<L, R> {
 
     @Value
     @EqualsAndHashCode(callSuper = false)
-    @AllArgsConstructor(staticName = "apply")
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Right<L, R> extends Either<L, R> {
 
-        private R right;
+        private R value;
+
+        @JsonCreator
+        private static <L, R> Right<L, R> apply(@JsonProperty("value") R value) {
+            return new Right<>(value);
+        }
 
         @Override
         public <T> T map(Function<? super L, ? extends T> lFunc, Function<? super R, ? extends T> rFunc) {
-            return rFunc.apply(right);
+            return rFunc.apply(value);
         }
 
         @Override

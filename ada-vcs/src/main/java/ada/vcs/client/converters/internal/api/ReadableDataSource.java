@@ -11,7 +11,7 @@ import java.util.concurrent.CompletionStage;
  *
  * @param <T> See {@link DataSource}.
  */
-public interface ReadableDataSource<T extends Context> extends DataSource<T> {
+public interface ReadableDataSource<T extends Context> {
 
     /**
      * Should return whether the data source has changes based on the provided context.

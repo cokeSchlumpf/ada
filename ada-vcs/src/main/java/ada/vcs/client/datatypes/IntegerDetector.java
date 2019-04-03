@@ -1,6 +1,6 @@
 package ada.vcs.client.datatypes;
 
-import ada.commons.Either;
+import ada.commons.util.Either;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.avro.Schema;

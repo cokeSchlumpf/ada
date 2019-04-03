@@ -1,4 +1,4 @@
-package ada.commons;
+package ada.commons.util;
 
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;

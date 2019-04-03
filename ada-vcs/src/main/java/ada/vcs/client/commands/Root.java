@@ -6,8 +6,10 @@ import picocli.CommandLine;
     name = "avcs",
     description = "Ada Data Version Control System",
     subcommands = {
-        InitCommand.class
+        Dataset.class,
+        Datasets.class,
+        Init.class
     })
-public final class RootCommand extends StandardOptions {
+public final class Root extends StandardOptions {
 
 }

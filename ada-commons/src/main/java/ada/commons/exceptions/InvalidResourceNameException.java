@@ -1,4 +1,4 @@
-package com.ibm.ada.api.exceptions;
+package ada.commons.exceptions;
 
 public final class InvalidResourceNameException extends IllegalArgumentException {
 

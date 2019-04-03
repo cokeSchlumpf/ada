@@ -1,6 +1,6 @@
 package ada.vcs.client.converters.csv;
 
-import ada.commons.Either;
+import ada.commons.util.Either;
 import ada.vcs.client.datatypes.DataTypeDetector;
 import ada.vcs.client.datatypes.DataTypeMatcher;
 import ada.vcs.client.datatypes.Field;

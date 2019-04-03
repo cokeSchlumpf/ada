@@ -17,8 +17,7 @@ dependencies {
     compile libs['jackson-datatype-jdk8']
 
     compile project(':ada-commons')
-
-    compile 'org.apache.avro:avro:1.8.2'
+    
     compile 'com.lightbend.akka:akka-stream-alpakka-csv_2.12:1.0-RC1'
     compile 'info.picocli:picocli:3.5.1'
 

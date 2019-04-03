@@ -1,6 +1,6 @@
 package ada.vcs.client.converters;
 
-import ada.commons.ObjectMapperFactory;
+import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.csv.CSVSink;
 import ada.vcs.client.converters.csv.CSVSource;
@@ -89,12 +89,16 @@ public class CSVSourceUTest {
             .build();
 
         String json = "{\n" +
+            "  \"type\" : \"csv\"," +
             "  \"file\" : \"file:///Users/michael/Workspaces/ada/ada-vcs/foo\",\n" +
             "  \"headers\" : [ \"bla\", \"bla\", \"lorem\" ],\n" +
             "  \"records-analyzed\" : 1000\n" +
             "}";
 
-        CSVSource s2 = ObjectMapperFactory.apply().create().readValue(json, CSVSource.class);
+        CSVSource s2 = ObjectMapperFactory
+            .apply()
+            .create()
+            .readValue(json, CSVSource.class);
 
         assertThat(s2.getCommentChar()).isEqualTo('#');
         System.out.println(om.writeValueAsString(source));

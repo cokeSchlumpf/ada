@@ -1,6 +1,6 @@
 package ada.vcs.client.datatypes;
 
-import ada.commons.Either;
+import ada.commons.util.Either;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
