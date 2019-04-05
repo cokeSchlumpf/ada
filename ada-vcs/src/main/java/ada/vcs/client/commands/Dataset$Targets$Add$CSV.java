@@ -12,16 +12,17 @@ import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.util.Optional;
 
 @CommandLine.Command(
-    name = "local",
+    name = "csv",
     description = "defines a local repository as target")
 public final class Dataset$Targets$Add$CSV extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
 
     @CommandLine.ParentCommand
-    private Dataset dataset;
+    private Dataset$Targets$Add add;
 
     @CommandLine.Parameters(index = "1",
         arity = "0..1",
@@ -80,21 +81,23 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Ru
 
     @Override
     public void run() {
-        AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
-
-        if (alias == null && file != null) {
-            alias = FilenameUtils.removeExtension(file.getName());
-        }
+        final AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        final String alias = getAdd()
+            .flatMap(Dataset$Targets$Add::getTargets)
+            .flatMap(Dataset$Targets::getDataset)
+            .orElseThrow(() -> new IllegalStateException(""))
+            .getAlias();
 
         CSVSink sink = CSVSink.apply(
             Either.left(file.toPath()), fieldSeparator, quoteChar, escapeChar, endOfLine,
             nullValue, numberFormat, BooleanFormat.apply("true", "false"));
 
-        project.addTarget(
-            dataset.getAlias(),
-            Target.apply(ResourceName.apply(alias), sink));
+        project.addTarget(alias, Target.apply(ResourceName.apply(alias), sink));
 
-        console.message("Added target '%s' to dataset '%s'", alias, dataset.getAlias());
+        console.message("Added target '%s' to dataset '%s'", alias, alias);
     }
 
+    public Optional<Dataset$Targets$Add> getAdd() {
+        return Optional.ofNullable(add);
+    }
 }

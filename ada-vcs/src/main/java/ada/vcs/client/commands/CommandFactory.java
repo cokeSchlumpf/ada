@@ -21,13 +21,15 @@ public final class CommandFactory implements CommandLine.IFactory {
     @Override
     @SuppressWarnings("unchecked")
     public <K> K create(Class<K> cls) throws Exception {
-        List<?> commands = Lists.newArrayList(
-            Datasets$Add.apply(),
-            Datasets$Add$CSV.apply(console, context),
+        List<? extends StandardOptions> commands = Lists.newArrayList(
+            Dataset.apply(console),
+            Dataset$Targets.apply(console),
+            Dataset$Targets$Add.apply(),
             Dataset$Targets$Add$CSV.apply(console),
             Dataset$Targets$Add$Local.apply(console),
-            Dataset$Targets$Add.apply(),
-            Dataset.apply(console),
+            Datasets.apply(console),
+            Datasets$Add.apply(),
+            Datasets$Add$CSV.apply(console, context),
             Init.apply(console),
             Dataset$Targets.apply(console));
 

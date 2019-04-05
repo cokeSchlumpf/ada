@@ -8,7 +8,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "dataset",
     aliases = { "ds" },
-    description = "work with datasets",
+    description = "work with a specific dataset",
     subcommands = {
         Dataset$Targets.class
     })

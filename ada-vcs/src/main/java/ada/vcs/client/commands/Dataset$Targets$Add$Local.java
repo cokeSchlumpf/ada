@@ -16,7 +16,7 @@ public final class Dataset$Targets$Add$Local extends StandardOptions implements 
     private final CommandLineConsole console;
 
     @CommandLine.ParentCommand
-    private Dataset dataset;
+    private Dataset$Targets$Add add;
 
     @CommandLine.Parameters(index = "1",
         arity = "0..1",

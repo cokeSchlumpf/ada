@@ -9,7 +9,7 @@ import java.io.File;
 
 @CommandLine.Command(
     name = "init",
-    description = "Initializes Ada metadata in the current directory")
+    description = "initializes Ada metadata in the current directory")
 @AllArgsConstructor(staticName = "apply")
 public final class Init extends StandardOptions implements Runnable {
 

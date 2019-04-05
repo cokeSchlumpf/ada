@@ -1,4 +1,4 @@
-package ada.vcs.client.converters;
+package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.converters.csv.CSVSink;
