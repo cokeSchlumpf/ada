@@ -23,6 +23,7 @@ public final class CommandFactory implements CommandLine.IFactory {
     public <K> K create(Class<K> cls) throws Exception {
         List<? extends StandardOptions> commands = Lists.newArrayList(
             Dataset.apply(console),
+            Dataset$Extract.apply(console, context),
             Dataset$Targets.apply(console),
             Dataset$Targets$Add.apply(),
             Dataset$Targets$Add$Avro.apply(console),

@@ -111,6 +111,20 @@ public class Datasets$Add$CSVITest {
             .contains("avro(out-avro.avro)")
             .contains("csv(out-csv.csv)");
 
+        /*
+         * Extracting data.
+         */
+
+        // When calling the extract command for the 'foo' dataset
+        context.run("dataset", "foo", "extract", "--verbose");
+
+
+        // Then all targets will be extracted
+        assertThat(dir.resolve("out-avro.avro"))
+            .exists();
+        assertThat(dir.resolve("out-csv.csv"))
+            .exists();
+
         System.out.println(context.getOutput());
     }
 

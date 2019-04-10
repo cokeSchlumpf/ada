@@ -112,7 +112,6 @@ public final class CSVSink implements DataSink, FileSystemDependent<CSVSink> {
                 .stream()
                 .map(field -> {
                     Object value = record.get(field.name());
-                    count.incrementAndGet();
 
                     if (value == null) {
                         return nullValue;
@@ -125,6 +124,10 @@ public final class CSVSink implements DataSink, FileSystemDependent<CSVSink> {
                     }
                 })
                 .collect(Collectors.toList()))
+            .map(record -> {
+                count.incrementAndGet();
+                return record;
+            })
             .via(CsvFormatting.format(
                 fieldSeparator,
                 quoteChar,

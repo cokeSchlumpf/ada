@@ -3,6 +3,7 @@ package ada.vcs.client.core;
 import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.exceptions.DatasetAlreadyExistsException;
 import ada.vcs.client.exceptions.DatasetNotExistingException;
+import ada.vcs.client.exceptions.TargetNotExistingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -95,7 +96,7 @@ public final class AdaProject {
     }
 
     public void addTarget(String dataset, Target target) {
-        Dataset ds = getDataset(dataset).orElseThrow(() -> DatasetNotExistingException.apply(dataset));
+        Dataset ds = getDatasetOptional(dataset).orElseThrow(() -> DatasetNotExistingException.apply(dataset));
 
         Map<String, Target> targets$next = Maps.newHashMap();
         ds.getTargets().forEach(t -> targets$next.put(t.getAlias().getValue(), t));
@@ -105,8 +106,15 @@ public final class AdaProject {
     }
 
     public Stream<Target> getTargets(String dataset) {
-        Dataset ds = getDataset(dataset).orElseThrow(() -> DatasetNotExistingException.apply(dataset));
+        Dataset ds = getDatasetOptional(dataset).orElseThrow(() -> DatasetNotExistingException.apply(dataset));
         return ds.getTargets();
+    }
+
+    public Target getTarget(String dataset, String target) {
+        return getTargets(dataset)
+            .filter(t -> t.getAlias().getValue().equals(target))
+            .findFirst()
+            .orElseThrow(() -> TargetNotExistingException.apply(dataset, target));
     }
 
     public void updateDataset(Dataset ds) {
@@ -123,7 +131,7 @@ public final class AdaProject {
         }
     }
 
-    public Optional<Dataset> getDataset(String name) {
+    public Optional<Dataset> getDatasetOptional(String name) {
         Path file = path.resolve(DATASETS).resolve(name + ".json");
 
         try {
@@ -132,6 +140,10 @@ public final class AdaProject {
         } catch (IOException e) {
             return Optional.empty();
         }
+    }
+
+    public Dataset getDataset(String name) {
+        return getDatasetOptional(name).orElseThrow(() -> DatasetNotExistingException.apply(name));
     }
 
     public Stream<Dataset> getDatasets() {

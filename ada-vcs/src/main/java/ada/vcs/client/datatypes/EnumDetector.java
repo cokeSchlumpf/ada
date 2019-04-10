@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.GenericData;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,6 +99,21 @@ public final class EnumDetector implements DataTypeDetector<EnumDetector> {
         }
     }
 
+    public static Either<Object, Exception> parse(String value, List<String> symbols, NameFactory nf, Schema schema) {
+        try {
+            value = nf.create(value.trim());
+        } catch (Exception e) {
+            return Either.right(e);
+        }
+
+        if (symbols.contains(value)) {
+            return Either.left(new GenericData.EnumSymbol(schema, value));
+        } else {
+            String message = String.format("'%s' is not a correct value for this enumeration", value);
+            return Either.right(new IllegalArgumentException(message));
+        }
+    }
+
     private static boolean isNullValue(String value) {
         return value == null || value.trim().length() == 0;
     }
@@ -113,23 +129,29 @@ public final class EnumDetector implements DataTypeDetector<EnumDetector> {
 
         private final NameFactory nf;
 
+        private final Schema schema;
+
         static EnumTypeHelper apply(String fieldName, boolean isOptional, List<String> symbols, NameFactory nf) {
-            return apply(fieldName, isOptional, ImmutableList.copyOf(symbols), nf);
+            String[] s = new String[symbols.size()];
+            symbols.toArray(s);
+
+            Schema schema = SchemaBuilder
+                .enumeration(fieldName)
+                .symbols(s);
+
+            return apply(fieldName, isOptional, ImmutableList.copyOf(symbols), nf, schema);
         }
 
         @Override
         public Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.FieldAssembler<Schema>> build() {
-            String[] s = new String[symbols.size()];
-            symbols.toArray(s);
 
-            Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.EnumDefault<Schema>> enumField = builder -> builder
+
+            Function<SchemaBuilder.FieldAssembler<Schema>, SchemaBuilder.GenericDefault<Schema>> enumField = builder -> builder
                 .name(fieldName)
-                .type()
-                .enumeration(fieldName)
-                .symbols(s);
+                .type(schema);
 
             if (isOptional) {
-                return builder -> enumField.apply(builder).enumDefault(null);
+                return builder -> enumField.apply(builder).withDefault(null);
             } else {
                 return builder -> enumField.apply(builder).noDefault();
             }
@@ -144,7 +166,7 @@ public final class EnumDetector implements DataTypeDetector<EnumDetector> {
             } else if (isNull) {
                 return Either.right(DetectedField.NotOptionalException.apply(fieldName));
             } else {
-                return EnumDetector.parse(value, symbols, nf);
+                return EnumDetector.parse(value, symbols, nf, schema);
             }
         }
 

@@ -28,6 +28,11 @@ public class ApplicationContext {
     }
 
     public void run(String ...args) {
+        output
+            .append("$ ada ")
+            .append(String.join(" ", args))
+            .append("\n");
+
         Application.apply(CommandFactory.apply(console)).run(args);
     }
 

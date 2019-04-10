@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
@@ -34,21 +35,34 @@ public class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
 
     @Override
     public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
-        try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
-            final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
-            final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
+        final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
-            dataFileWriter.create(schema, fos);
+        try {
+            final FileOutputStream fos = new FileOutputStream(path.toFile());
+            final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
+            DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, fos);
 
             return Flow
                 .of(GenericRecord.class)
                 .map(record -> {
-                    dataFileWriter.append(record);
+                    writer.append(record);
                     return record;
                 })
                 .toMat(
                     Sink.fold(0L, (count, record) -> count + 1),
-                    (notUsed, count) -> count.thenApply(WriteSummary::apply));
+                    (notUsed, count) -> count
+                        .thenApply(c -> {
+                            try {
+                                writer.flush();
+                                writer.close();
+                                fos.close();
+
+                                return c;
+                            } catch (IOException e) {
+                                return ExceptionUtils.wrapAndThrow(e);
+                            }
+                        })
+                        .thenApply(WriteSummary::apply));
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }

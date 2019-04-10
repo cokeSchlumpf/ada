@@ -10,6 +10,7 @@ import picocli.CommandLine;
     aliases = { "ds" },
     description = "work with a specific dataset",
     subcommands = {
+        Dataset$Extract.class,
         Dataset$Targets.class
     })
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
