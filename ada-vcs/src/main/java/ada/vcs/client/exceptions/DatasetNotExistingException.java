@@ -7,7 +7,7 @@ public class DatasetNotExistingException extends IllegalArgumentException {
     }
 
     public static DatasetNotExistingException apply(String name) {
-        String message = String.format("The dataset '%s' does not exist.");
+        String message = String.format("The dataset '%s' does not exist.", name);
         return new DatasetNotExistingException(message);
     }
 

@@ -19,6 +19,10 @@ public class ApplicationContext {
         return console;
     }
 
+    public void clearOutput() {
+        output.delete(0, output.length());
+    }
+
     public StringBuffer getOutput() {
         return output;
     }

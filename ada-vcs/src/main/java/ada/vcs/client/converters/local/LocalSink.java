@@ -53,4 +53,9 @@ public class LocalSink implements DataSink {
         }
     }
 
+    @Override
+    public String getInfo() {
+        return "local";
+    }
+
 }

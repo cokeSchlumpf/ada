@@ -91,10 +91,14 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
             return source
                 .analyze(context.getMaterializer())
                 .thenApply(readable -> {
-                    Dataset ds = Dataset.apply(ResourceName.apply(alias), source, readable.getSchema());
+                    Dataset ds = Dataset.apply(
+                        ResourceName.apply(alias),
+                        source.relativize(project.getPath()),
+                        readable.getSchema());
+
                     project.addDataset(ds);
 
-                    console.message(String.format("Added dataset '%s'", ds.getAlias().getValue()));
+                    console.message(String.format("Added dataset '%s'.", ds.getAlias().getValue()));
                     return readable;
                 });
         });

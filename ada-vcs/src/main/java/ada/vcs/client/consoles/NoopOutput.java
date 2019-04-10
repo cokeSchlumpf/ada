@@ -10,4 +10,14 @@ public class NoopOutput implements Output {
 
     }
 
+    @Override
+    public void print(String message) {
+
+    }
+
+    @Override
+    public void println(String message) {
+
+    }
+
 }

@@ -2,7 +2,9 @@ package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.Dataset;
 import ada.vcs.client.exceptions.NoProjectException;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
 
@@ -24,16 +26,21 @@ public final class Datasets extends StandardOptions implements Runnable {
     public void run() {
         AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
 
-        List<String> datasets = project
+        List<Dataset> datasets = project
             .getDatasets()
-            .map(ds -> ds.getAlias().getValue())
             .sorted()
             .collect(Collectors.toList());
 
         if (datasets.size() > 0) {
-            datasets.forEach(console::message);
+            console.table(
+                Lists.newArrayList("Alias", "Type"),
+                datasets
+                    .stream()
+                    .map(ds -> Lists.newArrayList(ds.getAlias().getValue(), ds.getSource().getInfo()))
+                    .collect(Collectors.toList()),
+                true);
         } else {
-            console.message("No datasets in project");
+            console.message("No datasets in project.");
         }
     }
 

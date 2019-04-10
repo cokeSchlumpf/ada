@@ -19,6 +19,7 @@ dependencies {
     compile project(':ada-commons')
     
     compile 'com.lightbend.akka:akka-stream-alpakka-csv_2.12:1.0-RC1'
+    compile 'org.slf4j:slf4j-nop:1.7.26'
     compile 'info.picocli:picocli:3.5.1'
 
     testCompile libs['akka-streams']

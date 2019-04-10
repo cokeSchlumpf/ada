@@ -28,7 +28,7 @@ public final class Init extends StandardOptions implements Runnable {
     public void run() {
         if (dir == null) dir = new File(System.getProperty("user.dir"));
         AdaProject root = AdaProject.init(dir.toPath());
-        console.message("Initialized ada project in %s/", root.getPath());
+        console.message("Initialized ada project in '%s'.", root.getPath());
     }
 
 }

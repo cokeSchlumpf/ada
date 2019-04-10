@@ -12,7 +12,10 @@ import lombok.Value;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -101,6 +104,11 @@ public final class AdaProject {
         updateDataset(Dataset.apply(ds.getAlias(), ds.getSource(), ds.getSchema(), targets$next));
     }
 
+    public Stream<Target> getTargets(String dataset) {
+        Dataset ds = getDataset(dataset).orElseThrow(() -> DatasetNotExistingException.apply(dataset));
+        return ds.getTargets();
+    }
+
     public void updateDataset(Dataset ds) {
         try {
             Path file = path.resolve(DATASETS).resolve(ds.getAlias().getValue() + ".json");
@@ -119,7 +127,8 @@ public final class AdaProject {
         Path file = path.resolve(DATASETS).resolve(name + ".json");
 
         try {
-            return Optional.ofNullable(om.create().readValue(file.toFile(), Dataset.class));
+            return Optional
+                .ofNullable(om.create().readValue(file.toFile(), Dataset.class));
         } catch (IOException e) {
             return Optional.empty();
         }
@@ -131,7 +140,7 @@ public final class AdaProject {
         try {
             return Lists
                 .newArrayList(Files
-                    .newDirectoryStream(path)
+                    .newDirectoryStream(path.resolve(DATASETS))
                     .iterator())
                 .stream()
                 .map(file -> {
@@ -149,7 +158,7 @@ public final class AdaProject {
     }
 
     public Path getPath() {
-        return path.toAbsolutePath().normalize();
+        return path.toAbsolutePath().getParent().normalize();
     }
 
 }

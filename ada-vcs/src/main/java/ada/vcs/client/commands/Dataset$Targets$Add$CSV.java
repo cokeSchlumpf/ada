@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @CommandLine.Command(
     name = "csv",
-    description = "defines a local repository as target")
+    description = "adds CSV as target to the dataset")
 public final class Dataset$Targets$Add$CSV extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
@@ -82,19 +82,25 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Ru
     @Override
     public void run() {
         final AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
-        final String alias = getAdd()
+
+        if (alias == null) {
+            alias = FilenameUtils.removeExtension(file.getName());
+        }
+
+        Dataset dataset = getAdd()
             .flatMap(Dataset$Targets$Add::getTargets)
             .flatMap(Dataset$Targets::getDataset)
-            .orElseThrow(() -> new IllegalStateException(""))
-            .getAlias();
+            .orElseThrow(() -> new IllegalStateException(""));
 
         CSVSink sink = CSVSink.apply(
             Either.left(file.toPath()), fieldSeparator, quoteChar, escapeChar, endOfLine,
             nullValue, numberFormat, BooleanFormat.apply("true", "false"));
 
-        project.addTarget(alias, Target.apply(ResourceName.apply(alias), sink));
+        project.addTarget(
+            dataset.getAlias(),
+            Target.apply(ResourceName.apply(alias), sink.relativize(project.getPath())));
 
-        console.message("Added target '%s' to dataset '%s'", alias, alias);
+        console.message("Added CSV target '%s' to dataset '%s'.", alias, dataset.getAlias());
     }
 
     public Optional<Dataset$Targets$Add> getAdd() {

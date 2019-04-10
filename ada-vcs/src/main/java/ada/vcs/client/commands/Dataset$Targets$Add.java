@@ -9,6 +9,7 @@ import java.util.Optional;
     name = "add",
     description = "adds a new target to the dataset",
     subcommands = {
+        Dataset$Targets$Add$Avro.class,
         Dataset$Targets$Add$CSV.class,
         Dataset$Targets$Add$Local.class
     })

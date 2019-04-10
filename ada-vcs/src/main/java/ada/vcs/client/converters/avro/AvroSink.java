@@ -2,6 +2,7 @@ package ada.vcs.client.converters.avro;
 
 import ada.vcs.client.converters.internal.api.DataSink;
 import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.core.FileSystemDependent;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -18,12 +19,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.atomic.AtomicLong;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AvroSink implements DataSink {
+public class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
 
     @JsonProperty("path")
     private final Path path;
@@ -53,6 +52,21 @@ public class AvroSink implements DataSink {
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }
+    }
+
+    @Override
+    public String getInfo() {
+        return String.format("avro(%s)", path);
+    }
+
+    @Override
+    public AvroSink resolve(Path to) {
+        return apply(to.resolve(path));
+    }
+
+    @Override
+    public AvroSink relativize(Path to) {
+        return apply(to.relativize(path));
     }
 
 }

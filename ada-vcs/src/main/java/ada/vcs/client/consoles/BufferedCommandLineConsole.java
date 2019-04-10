@@ -8,12 +8,12 @@ final class BufferedCommandLineConsole extends CommandLineConsole {
     private final StringBuffer buffer;
 
     @Override
-    protected void print(String message) {
+    public void print(String message) {
         buffer.append(message);
     }
 
     @Override
-    protected void println(String message) {
+    public void println(String message) {
         buffer.append(message);
         buffer.append(System.lineSeparator());
     }

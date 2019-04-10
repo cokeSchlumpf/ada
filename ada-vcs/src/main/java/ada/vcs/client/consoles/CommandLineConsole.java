@@ -31,10 +31,6 @@ public abstract class CommandLineConsole implements Output {
         }
     }
 
-    protected abstract void print(String message);
-
-    protected abstract void println(String message);
-
     @AllArgsConstructor(staticName = "apply")
     private static class CommandLineOutputStream extends OutputStream {
 

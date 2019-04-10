@@ -2,6 +2,7 @@ package ada.vcs.client.converters.internal.api;
 
 import ada.vcs.client.converters.csv.CSVSource;
 import akka.stream.Materializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.avro.Schema;
@@ -31,5 +32,8 @@ public interface DataSource<T extends Context> {
     CompletionStage<ReadableDataSource<T>> analyze(Materializer materializer, Schema schema);
 
     CompletionStage<ReadableDataSource<T>> analyze(Materializer materializer);
+
+    @JsonIgnore
+    String getInfo();
 
 }

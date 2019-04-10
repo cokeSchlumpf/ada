@@ -10,6 +10,7 @@ import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Scanner;
 
 import static picocli.CommandLine.Help.Ansi.AUTO;
 
@@ -19,12 +20,31 @@ public class Application {
     private final CommandFactory commandFactory;
 
     public static void main(String... args) {
-        CommandLineConsole console = CommandLineConsole.apply();
-        CommandContext context = CommandContext.apply();
-        CommandFactory commands = CommandFactory.apply(console, context);
-        Application runner = Application.apply(commands);
+        if (args.length == 0) {
+            repl();
+        } else {
+            CommandLineConsole console = CommandLineConsole.apply();
+            CommandContext context = CommandContext.apply();
+            CommandFactory commands = CommandFactory.apply(console, context);
+            Application runner = Application.apply(commands);
 
-        runner.run(args);
+            runner.run(args);
+        }
+    }
+
+    public static void repl() {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("> ");
+            String command = scanner.nextLine();
+
+            if (command.equals("exit") || command.equals("quit") || command.equals("")) {
+                break;
+            }
+
+            main(command.split(" "));
+        }
     }
 
     public void run(String ...args) {

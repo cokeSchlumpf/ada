@@ -1,7 +1,9 @@
 package ada.vcs.client.converters.internal.api;
 
+import ada.vcs.client.converters.avro.AvroSink;
 import ada.vcs.client.converters.csv.CSVSink;
 import akka.stream.javadsl.Sink;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.avro.Schema;
@@ -14,10 +16,14 @@ import java.util.concurrent.CompletionStage;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
+    @JsonSubTypes.Type(value = AvroSink.class, name = "avro"),
     @JsonSubTypes.Type(value = CSVSink.class, name = "csv")
 })
 public interface DataSink {
 
     Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema);
+
+    @JsonIgnore
+    String getInfo();
 
 }

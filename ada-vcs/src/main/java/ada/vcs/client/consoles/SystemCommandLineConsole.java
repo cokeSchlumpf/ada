@@ -13,12 +13,12 @@ final class SystemCommandLineConsole extends CommandLineConsole {
     }
 
     @Override
-    protected void print(String message) {
+    public void print(String message) {
         System.out.print(message);
     }
 
     @Override
-    protected void println(String message) {
+    public void println(String message) {
         System.out.println(message);
     }
 

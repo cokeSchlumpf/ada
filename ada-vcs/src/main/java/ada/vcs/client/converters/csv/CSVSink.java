@@ -4,6 +4,7 @@ import ada.commons.util.Either;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.api.DataSink;
 import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.datatypes.BooleanFormat;
 import akka.NotUsed;
 import akka.stream.alpakka.csv.javadsl.CsvFormatting;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.experimental.Wither;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 
@@ -31,8 +33,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Value
+@Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CSVSink implements DataSink {
+public final class CSVSink implements DataSink, FileSystemDependent<CSVSink> {
 
     private static final String OUTPUT = "output";
     private static final String FIELD_SEPARATOR = "field-separator";
@@ -142,6 +145,27 @@ public final class CSVSink implements DataSink {
                     .toMat(
                         Sink.foreach(out::print),
                         (i, done) -> done.thenApply(i2 -> WriteSummary.apply(count.get()))));
+    }
+
+    @Override
+    public String getInfo() {
+        return output.map(
+            path -> String.format("csv(%s)", path),
+            os -> "csv(System.out)");
+    }
+
+    @Override
+    public CSVSink resolve(Path to) {
+        return apply(
+            output.mapLeft(to::resolve), fieldSeparator, quoteChar,
+            escapeChar, endOfLine, nullValue, numberFormat, booleanFormat);
+    }
+
+    @Override
+    public CSVSink relativize(Path to) {
+        return apply(
+            output.mapLeft(to::relativize), fieldSeparator, quoteChar,
+            escapeChar, endOfLine, nullValue, numberFormat, booleanFormat);
     }
 
 }

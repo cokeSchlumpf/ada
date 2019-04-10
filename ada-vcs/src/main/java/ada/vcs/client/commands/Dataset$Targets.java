@@ -1,10 +1,16 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
+import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.Target;
+import ada.vcs.client.exceptions.NoProjectException;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CommandLine.Command(
     name = "targets",
@@ -26,10 +32,29 @@ public final class Dataset$Targets extends StandardOptions implements Runnable {
 
     @Override
     public void run() {
-        console.message("Printing some information about existing targets");
+        final AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        final Dataset dataset = getDataset().orElseThrow(RuntimeException::new);
+
+        List<Target> targets = project
+            .getTargets(dataset.getAlias())
+            .sorted()
+            .collect(Collectors.toList());
+
+        if (targets.isEmpty()) {
+            console.message("Dataset '%s' does not contain any targets.", dataset.getAlias());
+        } else {
+            console.table(
+                Lists.newArrayList("Alias", "Type"),
+                targets
+                    .stream()
+                    .map(target -> Lists.newArrayList(target.getAlias().getValue(), target.getSink().getInfo()))
+                    .collect(Collectors.toList()),
+                true);
+        }
     }
 
     public Optional<Dataset> getDataset() {
         return Optional.ofNullable(dataset);
     }
+
 }

@@ -5,14 +5,20 @@ import ada.vcs.client.converters.internal.api.DataSource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.experimental.Wither;
 import org.apache.avro.Schema;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 @Value
-public class Dataset {
+@Wither
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class Dataset implements Comparable<Dataset> {
 
     private final ResourceName alias;
 
@@ -23,16 +29,15 @@ public class Dataset {
     private final Map<String, Target> targets;
 
     @JsonCreator
-    private Dataset(
+    public static Dataset apply(
         @JsonProperty("alias") ResourceName alias,
         @JsonProperty("source") DataSource<?> source,
         @JsonProperty("schema") Schema schema,
-        @JsonProperty("targets") Map<String, Target> targets) {
+        @JsonProperty("targets") List<Target> targets) {
 
-        this.alias = alias;
-        this.source = source;
-        this.schema = schema;
-        this.targets = targets;
+        Map<String, Target> targetsMapped = Maps.newHashMap();
+        targets.forEach(target -> targetsMapped.put(target.getAlias().getValue(), target));
+        return new Dataset(alias, source, schema, targetsMapped);
     }
 
     public static Dataset apply(ResourceName alias, DataSource<?> source, Schema schema) {
@@ -45,6 +50,11 @@ public class Dataset {
 
     public Stream<Target> getTargets() {
         return targets.values().stream();
+    }
+
+    @Override
+    public int compareTo(Dataset o) {
+        return this.getAlias().getValue().compareTo(o.getAlias().getValue());
     }
 
 }

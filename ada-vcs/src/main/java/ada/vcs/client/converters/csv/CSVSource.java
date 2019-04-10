@@ -4,7 +4,9 @@ import ada.commons.util.NameFactory;
 import ada.vcs.client.converters.internal.api.DataSource;
 import ada.vcs.client.converters.internal.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
+import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.datatypes.DataTypeMatcher;
+import ada.vcs.client.datatypes.StringDetector;
 import akka.NotUsed;
 import akka.japi.function.Function;
 import akka.stream.IOResult;
@@ -36,7 +38,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CSVSource implements DataSource<FileContext> {
+public final class CSVSource implements DataSource<FileContext>, FileSystemDependent<CSVSource> {
 
     private static final String FILE = "file";
     private static final String FIELD_SEPARATOR = "field-separator";
@@ -44,7 +46,6 @@ public final class CSVSource implements DataSource<FileContext> {
     private static final String QUOTE_CHAR = "quote-char";
     private static final String ESCAPE_CHAR = "escape-char";
     private static final String HEADERS = "headers";
-    private static final String SCHEMA = "schema";
     private static final String RECORDS_ANALYZED = "records-analyzed";
 
     @JsonProperty(FILE)
@@ -151,6 +152,11 @@ public final class CSVSource implements DataSource<FileContext> {
         return analyze(materializer, null);
     }
 
+    @Override
+    public String getInfo() {
+        return String.format("csv(%s)", file.toString());
+    }
+
     private CompletionStage<List<String>> headers(Materializer materializer) {
         return read().runWith(Sink.head(), materializer);
     }
@@ -170,6 +176,16 @@ public final class CSVSource implements DataSource<FileContext> {
             .map(stringify)
             .filter(l -> !l.isEmpty())
             .filter(l -> !l.get(0).startsWith(comment));
+    }
+
+    @Override
+    public CSVSource resolve(Path to) {
+        return apply(to.resolve(file), fieldSeparator, commentChar, quoteChar, escapeChar, headers, recordsAnalyzed);
+    }
+
+    @Override
+    public CSVSource relativize(Path to) {
+        return apply(to.relativize(file), fieldSeparator, commentChar, quoteChar, escapeChar, headers, recordsAnalyzed);
     }
 
     public final static class CSVSourceBuilder {
