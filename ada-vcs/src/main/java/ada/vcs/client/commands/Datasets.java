@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
     name = "datasets",
     description = "work with datasets",
     subcommands = {
-        Datasets$Add.class
+        Datasets$Add.class,
+        Datasets$Push.class
     })
 @AllArgsConstructor(staticName = "apply")
 public final class Datasets extends StandardOptions implements Runnable {
@@ -33,7 +34,7 @@ public final class Datasets extends StandardOptions implements Runnable {
 
         if (datasets.size() > 0) {
             console.table(
-                Lists.newArrayList("Alias", "Type"),
+                Lists.newArrayList("Alias", "Location"),
                 datasets
                     .stream()
                     .map(ds -> Lists.newArrayList(ds.getAlias().getValue(), ds.getSource().getInfo()))

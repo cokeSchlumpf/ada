@@ -5,6 +5,7 @@ import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.core.remotes.Remotes;
 import ada.vcs.client.exceptions.DatasetAlreadyExistsException;
 import ada.vcs.client.exceptions.DatasetNotExistingException;
+import ada.vcs.client.exceptions.RemoteNotExistingException;
 import ada.vcs.client.exceptions.TargetNotExistingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -170,6 +171,12 @@ public final class AdaProject {
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }
+    }
+
+    public Remote getRemote(String name) {
+        return getRemotes$internal()
+            .getRemote(name)
+            .orElseThrow(() -> RemoteNotExistingException.apply(name));
     }
 
     public Stream<Remote> getRemotes() {

@@ -1,13 +1,18 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.client.converters.internal.api.WriteSummary;
+import akka.stream.javadsl.Sink;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
 
 import java.net.URL;
+import java.util.concurrent.CompletionStage;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,4 +34,10 @@ public class HttpRemote implements Remote {
     public String getInfo() {
         return endpoint.toString();
     }
+
+    @Override
+    public Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema) {
+        return null;
+    }
+
 }

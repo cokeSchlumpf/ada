@@ -1,6 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.features.ApplicationContext;
+import ada.vcs.client.util.TestFactory;
 import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
@@ -51,11 +52,11 @@ public class RemotesITest {
     }
 
     @Test
-    public void test() {
+    public void test() throws InterruptedException {
         final String fsRemoteName$01 = remoteDir$01.getFileName().toString();
         final String fsRemoteName$02 = remoteDir$02.getFileName().toString();
+        final String fooFile = TestFactory.createCSV(dir, "foo.csv").toAbsolutePath().toString();
 
-        // Given an initialized project
         context.run("init");
 
         context.run("remotes", "add", "http://foo.bar/http-remote");
@@ -75,10 +76,15 @@ public class RemotesITest {
 
         context.run("remotes");
         assertThat(context.getOutput())
-            .contains("*    http-remote")
+            .contains("* http-remote")
             .contains(fsRemoteName$01)
             .contains(fsRemoteName$02)
             .contains("hippo-remote");
+
+        context.clearOutput();
+
+        context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
+        context.run("datasets", "push", fsRemoteName$01, "--verbose");
 
         System.out.println(context.getOutput());
     }

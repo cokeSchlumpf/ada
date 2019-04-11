@@ -33,13 +33,15 @@ public final class Remotes extends StandardOptions implements Runnable {
 
         if (remotes.size() > 0) {
             console.table(
-                Lists.newArrayList("", "Alias", "Type"),
+                Lists.newArrayList("Alias", "Type"),
                 remotes
                     .stream()
                     .sorted()
-                    .map(remote -> Lists.newArrayList(upstream.filter(
-                        u -> u.getAlias().getValue().equals(remote.getAlias().getValue())).map(i -> "*").orElse(""),
-                        remote.getAlias().getValue(),
+                    .map(remote -> Lists.newArrayList(
+                        upstream
+                            .filter(u -> u.getAlias().getValue().equals(remote.getAlias().getValue()))
+                            .map(i -> "* ")
+                            .orElse("  ") + remote.getAlias().getValue(),
                         remote.getInfo()))
                     .collect(Collectors.toList()),
                 false);

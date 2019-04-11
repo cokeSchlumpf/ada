@@ -32,6 +32,7 @@ public final class CommandFactory implements CommandLine.IFactory {
             Datasets.apply(console),
             Datasets$Add.apply(),
             Datasets$Add$CSV.apply(console, context),
+            Datasets$Push.apply(console, context),
             Init.apply(console),
             Remotes.apply(console),
             Remotes$Add.apply(console));
