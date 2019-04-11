@@ -11,7 +11,7 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class Datasets$Add$CSVITest {
+public class DatasetsITest {
 
     private Path dir;
 

@@ -33,7 +33,8 @@ public final class CommandFactory implements CommandLine.IFactory {
             Datasets$Add.apply(),
             Datasets$Add$CSV.apply(console, context),
             Init.apply(console),
-            Dataset$Targets.apply(console));
+            Remotes.apply(console),
+            Remotes$Add.apply(console));
 
         return (K) commands
             .stream()

@@ -1,6 +1,8 @@
 package ada.vcs.client.core;
 
 import ada.commons.databind.ObjectMapperFactory;
+import ada.vcs.client.core.remotes.Remote;
+import ada.vcs.client.core.remotes.Remotes;
 import ada.vcs.client.exceptions.DatasetAlreadyExistsException;
 import ada.vcs.client.exceptions.DatasetNotExistingException;
 import ada.vcs.client.exceptions.TargetNotExistingException;
@@ -31,6 +33,8 @@ public final class AdaProject {
 
     private static final String DATASETS = "datasets";
 
+    private static final String REMOTES = "remotes.json";
+
     private final Path path;
 
     private final ObjectMapperFactory om;
@@ -55,11 +59,15 @@ public final class AdaProject {
 
     public static AdaProject init(Path where) {
         try {
-            Path dir = where.resolve(ADA_DIR);
+            final ObjectMapperFactory omf = ObjectMapperFactory.apply();
+            final ObjectMapper om = omf.create(true);
+            final Path dir = where.resolve(ADA_DIR);
+
             if (!Files.exists(dir)) Files.createDirectory(dir);
 
-            Path gitignore = where.resolve(".gitignore");
-            Path local = where.relativize(dir.resolve(LOCAL));
+            final Path gitignore = where.resolve(".gitignore");
+            final Path local = where.relativize(dir.resolve(LOCAL));
+            final Path remotes = dir.resolve(REMOTES);
 
             if (!Files.exists(gitignore) || Files.readAllLines(gitignore).stream().noneMatch(s -> s.contains(local.toString()))) {
                 String ignore = System.lineSeparator() +
@@ -75,7 +83,11 @@ public final class AdaProject {
                 Files.createDirectories(dir.resolve(DATASETS));
             }
 
-            return AdaProject.apply(dir, ObjectMapperFactory.apply());
+            if (!Files.exists(remotes)) {
+                om.writeValue(remotes.toFile(), Remotes.apply());
+            }
+
+            return AdaProject.apply(dir, omf);
         } catch (Exception e) {
             return ExceptionUtils.wrapAndThrow(e);
         }
@@ -117,18 +129,9 @@ public final class AdaProject {
             .orElseThrow(() -> TargetNotExistingException.apply(dataset, target));
     }
 
-    public void updateDataset(Dataset ds) {
-        try {
-            Path file = path.resolve(DATASETS).resolve(ds.getAlias().getValue() + ".json");
-
-            if (!Files.exists(file)) {
-                throw DatasetNotExistingException.apply(ds.getAlias().getValue());
-            } else {
-                om.create(true).writeValue(file.toFile(), ds);
-            }
-        } catch (IOException e) {
-            ExceptionUtils.wrapAndThrow(e);
-        }
+    public void addRemote(Remote remote) {
+        Remotes remotes = getRemotes$internal().add(remote);
+        updateRemotes(remotes);
     }
 
     public Optional<Dataset> getDatasetOptional(String name) {
@@ -166,6 +169,72 @@ public final class AdaProject {
                 .map(Optional::get);
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
+        }
+    }
+
+    public Stream<Remote> getRemotes() {
+        return getRemotes$internal().getRemotes();
+    }
+
+    public Optional<Remote> getUpstream() {
+        return getRemotes$internal().getUpstream();
+    }
+
+    private Remotes getRemotes$internal() {
+        final Path remotesFile = path.resolve(REMOTES);
+
+        if (!Files.exists(remotesFile)) {
+            try {
+                om.create(true).writeValue(remotesFile.toFile(), Remotes.apply());
+            } catch (IOException e) {
+                return ExceptionUtils.wrapAndThrow(e);
+            }
+        }
+
+        try {
+            return om.create(true).readValue(remotesFile.toFile(), Remotes.class);
+        } catch (IOException e) {
+            return ExceptionUtils.wrapAndThrow(e);
+        }
+    }
+
+    public void removeRemote(String alias) {
+        Remotes remotes = Remotes
+            .apply()
+            .remove(alias);
+
+        updateRemotes(remotes);
+    }
+
+    public void setUpstream(String alias) {
+        Remotes remotes = Remotes
+            .apply()
+            .setUpstream(alias);
+
+        updateRemotes(remotes);
+    }
+
+    public void updateDataset(Dataset ds) {
+        try {
+            Path file = path.resolve(DATASETS).resolve(ds.getAlias().getValue() + ".json");
+
+            if (!Files.exists(file)) {
+                throw DatasetNotExistingException.apply(ds.getAlias().getValue());
+            } else {
+                om.create(true).writeValue(file.toFile(), ds);
+            }
+        } catch (IOException e) {
+            ExceptionUtils.wrapAndThrow(e);
+        }
+    }
+
+    private void updateRemotes(Remotes remotes) {
+        final Path remotesFile = path.resolve(REMOTES);
+
+        try {
+            om.create(true).writeValue(remotesFile.toFile(), remotes);
+        } catch (IOException e) {
+            ExceptionUtils.wrapAndThrow(e);
         }
     }
 

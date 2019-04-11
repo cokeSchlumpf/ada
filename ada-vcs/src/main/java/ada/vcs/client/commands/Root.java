@@ -8,7 +8,8 @@ import picocli.CommandLine;
     subcommands = {
         Dataset.class,
         Datasets.class,
-        Init.class
+        Init.class,
+        Remotes.class
     })
 public final class Root extends StandardOptions {
 
