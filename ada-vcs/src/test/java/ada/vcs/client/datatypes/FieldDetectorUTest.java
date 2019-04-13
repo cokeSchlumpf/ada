@@ -1,6 +1,7 @@
 package ada.vcs.client.datatypes;
 
 import ada.commons.util.Either;
+import org.apache.avro.generic.GenericData;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -86,7 +87,7 @@ public class FieldDetectorUTest {
 
         assertThat(d.type("foo").parse("high")).isInstanceOf(Either.Left.class);
         assertThat(d.type("foo").parse("hello")).isInstanceOf(Either.Right.class);
-        assertThat((String) d.type("foo").parse("medium").map(l -> l, r -> null)).isEqualTo("medium");
+        assertThat(((GenericData.EnumSymbol) d.type("foo").parse("medium").map(l -> l, r -> null)).toString()).isEqualTo("medium");
 
         assertThat(d.type("foo").description().isPresent()).isTrue();
         assertThat(d.type("foo").description().get()).contains("low", "high", "medium");

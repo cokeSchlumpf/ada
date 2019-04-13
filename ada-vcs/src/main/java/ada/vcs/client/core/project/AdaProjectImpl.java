@@ -7,12 +7,16 @@ import ada.vcs.client.core.remotes.Remotes;
 import ada.vcs.client.exceptions.*;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor(staticName = "apply")
 final class AdaProjectImpl implements AdaProject {
 
@@ -84,7 +88,7 @@ final class AdaProjectImpl implements AdaProject {
     }
 
     @Override
-    public Path getRoot() {
+    public Path getPath() {
         return dao.getRoot();
     }
 

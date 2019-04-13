@@ -26,6 +26,7 @@ public interface Remote extends Comparable<Remote> {
     @JsonIgnore
     String getInfo();
 
+    @JsonIgnore
     RemoteProperties getProperties();
 
     Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema);

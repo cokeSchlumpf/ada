@@ -4,11 +4,10 @@ import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
-import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.Dataset;
 import ada.vcs.client.core.FileSystemDependent;
+import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.remotes.Remote;
-import ada.vcs.client.exceptions.NoProjectException;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import picocli.CommandLine;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
     subcommands = {
         Datasets$Add$CSV.class
     })
-public class Datasets$Push extends StandardOptions implements Runnable {
+public class Datasets$Push extends StandardOptions implements ProjectCommand {
 
     private final CommandLineConsole console;
 
@@ -52,9 +51,7 @@ public class Datasets$Push extends StandardOptions implements Runnable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void run() {
-        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
-
+    public void run(AdaProject project) {
         List<Dataset> datasets = project
             .getDatasets()
             .collect(Collectors.toList());
@@ -81,7 +78,7 @@ public class Datasets$Push extends StandardOptions implements Runnable {
             .of(project.getRemote(remote))
             .map(rem -> {
                 if (setUpstream) {
-                    project.setUpstream(rem.getAlias().getValue());
+                    project.updateUpstream(rem.getAlias().getValue());
                 }
 
                 if (rem instanceof FileSystemDependent) {

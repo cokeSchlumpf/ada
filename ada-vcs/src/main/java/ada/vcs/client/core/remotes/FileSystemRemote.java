@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileSystemRemote implements Remote, FileSystemDependent<FileSystemRemote> {
+public class FileSystemRemote implements Remote, FileSystemDependent<FileSystemRemote>, RemoteProperties {
 
     private final ResourceName alias;
 
@@ -66,6 +66,11 @@ public class FileSystemRemote implements Remote, FileSystemDependent<FileSystemR
     @Override
     public String getInfo() {
         return dir.toString();
+    }
+
+    @Override
+    public RemoteProperties getProperties() {
+        return this;
     }
 
     @Override

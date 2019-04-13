@@ -3,9 +3,8 @@ package ada.vcs.client.commands;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.avro.AvroSink;
-import ada.vcs.client.core.project.AdaProjectTemp;
+import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.Target;
-import ada.vcs.client.exceptions.NoProjectException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
@@ -15,7 +14,7 @@ import java.util.Optional;
 @CommandLine.Command(
     name = "avro",
     description = "adds an Avro target to the dataset")
-public final class Dataset$Targets$Add$Avro extends StandardOptions implements Runnable {
+public final class Dataset$Targets$Add$Avro extends StandardOptions implements ProjectCommand {
 
     private final CommandLineConsole console;
 
@@ -42,9 +41,7 @@ public final class Dataset$Targets$Add$Avro extends StandardOptions implements R
     }
 
     @Override
-    public void run() {
-        final AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
-
+    public void run(AdaProject project) {
         Dataset dataset = getAdd()
             .flatMap(Dataset$Targets$Add::getTargets)
             .flatMap(Dataset$Targets::getDataset)

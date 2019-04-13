@@ -1,9 +1,8 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.project.AdaProjectTemp;
+import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.remotes.Remote;
-import ada.vcs.client.exceptions.NoProjectException;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
@@ -19,14 +18,12 @@ import java.util.stream.Collectors;
         Remotes$Add.class
     })
 @AllArgsConstructor(staticName = "apply")
-public final class Remotes extends StandardOptions implements Runnable {
+public final class Remotes extends StandardOptions implements ProjectCommand {
 
     private CommandLineConsole console;
 
     @Override
-    public void run() {
-        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
-
+    public void run(AdaProject project) {
         List<Remote> remotes = project.getRemotes().collect(Collectors.toList());
         Optional<Remote> upstream = project.getUpstream();
 

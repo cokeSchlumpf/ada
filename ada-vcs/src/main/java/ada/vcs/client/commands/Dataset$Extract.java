@@ -5,10 +5,9 @@ import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.api.DataSink;
 import ada.vcs.client.converters.internal.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
-import ada.vcs.client.core.project.AdaProjectTemp;
+import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.core.Target;
-import ada.vcs.client.exceptions.NoProjectException;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
     name = "extract",
     description = "extract a dataset to one or more targets")
 @AllArgsConstructor(staticName = "apply")
-public final class Dataset$Extract extends StandardOptions implements Runnable {
+public final class Dataset$Extract extends StandardOptions implements ProjectCommand {
 
     private final CommandLineConsole console;
 
@@ -44,8 +43,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void run() {
-        final AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
+    public void run(AdaProject project) {
         final Dataset dataset = getDataset().orElseThrow(() -> new IllegalStateException(""));
 
         if (targets == null || targets.isEmpty()) {

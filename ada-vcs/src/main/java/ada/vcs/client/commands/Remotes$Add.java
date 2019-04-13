@@ -2,10 +2,9 @@ package ada.vcs.client.commands;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.project.AdaProjectTemp;
+import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.remotes.FileSystemRemote;
 import ada.vcs.client.core.remotes.HttpRemote;
-import ada.vcs.client.exceptions.NoProjectException;
 import picocli.CommandLine;
 
 import java.net.URL;
@@ -16,7 +15,7 @@ import java.nio.file.Paths;
 @CommandLine.Command(
     name = "add",
     description = "adds a new remote")
-public final class Remotes$Add extends StandardOptions implements Runnable {
+public final class Remotes$Add extends StandardOptions implements ProjectCommand {
 
     private final CommandLineConsole console;
 
@@ -42,9 +41,7 @@ public final class Remotes$Add extends StandardOptions implements Runnable {
     }
 
     @Override
-    public void run() {
-        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
-
+    public void run(AdaProject project) {
         switch (url.getProtocol()) {
             case "http":
             case "https":

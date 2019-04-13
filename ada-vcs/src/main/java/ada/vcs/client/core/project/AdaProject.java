@@ -24,7 +24,7 @@ public interface AdaProject {
 
     Stream<Remote> getRemotes();
 
-    Path getRoot();
+    Path getPath();
 
     Stream<Target> getTargets(String dataset);
 

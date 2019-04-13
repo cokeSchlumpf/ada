@@ -3,9 +3,8 @@ package ada.vcs.client.commands;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.csv.CSVSource;
-import ada.vcs.client.core.project.AdaProjectTemp;
+import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.Dataset;
-import ada.vcs.client.exceptions.NoProjectException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @CommandLine.Command(
     name = "csv",
     description = "adds a new dataset from CSV file")
-public final class Datasets$Add$CSV extends StandardOptions implements Runnable {
+public final class Datasets$Add$CSV extends StandardOptions implements ProjectCommand {
 
     private final CommandLineConsole console;
 
@@ -78,9 +77,7 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
     }
 
     @Override
-    public void run() {
-        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
-
+    public void run(AdaProject project) {
         if (alias == null) {
             alias = FilenameUtils.removeExtension(file.getName());
         }

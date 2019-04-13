@@ -1,6 +1,7 @@
 package ada.vcs.client;
 
-import ada.vcs.client.core.project.AdaProjectTemp;
+import ada.vcs.client.core.project.AdaProject;
+import ada.vcs.client.core.project.AdaProjectFactory;
 import com.google.common.collect.Lists;
 import org.assertj.core.util.Files;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class AdaProjectUTest {
         File tmp = Files.newTemporaryFolder();
 
         try {
-            AdaProjectTemp root = AdaProjectTemp.init(tmp.toPath());
+            AdaProject root = AdaProjectFactory.apply().init(tmp.toPath());
             System.out.println(root);
 
             List<String> files = Lists
@@ -31,7 +32,6 @@ public class AdaProjectUTest {
                 .collect(Collectors.toList());
 
             assertThat(files)
-                .contains(".gitignore")
                 .contains(".ada");
         } finally {
             Files.delete(tmp);
@@ -43,12 +43,12 @@ public class AdaProjectUTest {
         File tmp = Files.newTemporaryFolder();
 
         try {
-            AdaProjectTemp root = AdaProjectTemp.init(tmp.toPath());
+            AdaProject root = AdaProjectFactory.apply().init(tmp.toPath());
 
             Path subDir = tmp.toPath().resolve("foo").resolve("bar");
             java.nio.file.Files.createDirectories(subDir);
 
-            Optional<AdaProjectTemp> detected = AdaProjectTemp.from(subDir);
+            Optional<AdaProject> detected = AdaProjectFactory.apply().from(subDir);
 
             assertThat(detected.isPresent()).isTrue();
             detected.ifPresent(adaProject -> assertThat(adaProject).isEqualTo(root));

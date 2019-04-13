@@ -1,15 +1,8 @@
 package ada.vcs.client.core.remotes;
 
-import ada.commons.util.FileSize;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.internal.api.WriteSummary;
-import akka.NotUsed;
-import akka.actor.ActorSystem;
-import akka.http.javadsl.Http;
-import akka.http.javadsl.model.HttpRequest;
-import akka.http.javadsl.model.HttpResponse;
-import akka.japi.Pair;
 import akka.japi.function.Creator;
 import akka.japi.function.Function;
 import akka.stream.javadsl.Compression;
@@ -28,7 +21,6 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
-import scala.util.Try;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
@@ -38,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HttpRemote implements Remote {
+public class HttpRemote implements Remote, RemoteProperties {
 
     private final ResourceName alias;
 
@@ -58,6 +50,11 @@ public class HttpRemote implements Remote {
     }
 
     @Override
+    public RemoteProperties getProperties() {
+        return this;
+    }
+
+    @Override
     public Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema) {
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
@@ -74,14 +71,11 @@ public class HttpRemote implements Remote {
                         writer.append(record);
                         writer.flush();
                     });
+
                     return ByteString.fromArray(baos.toByteArray());
                 })
                 .collect(Collectors.toList());
         };
-
-        Flow<Pair<HttpRequest, NotUsed>, Pair<Try<HttpResponse>, NotUsed>, NotUsed> pairPairNotUsedFlow = Http
-            .get(ActorSystem.create())
-            .superPool();
 
         return Flow
             .of(GenericRecord.class)

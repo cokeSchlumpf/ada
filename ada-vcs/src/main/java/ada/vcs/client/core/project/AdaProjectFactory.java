@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 @AllArgsConstructor(staticName = "apply")
-public class AdaProjectFactory {
+public final class AdaProjectFactory {
 
     public AdaProject init() {
         return init(Paths.get(System.getProperty("user.dir")));

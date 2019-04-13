@@ -59,7 +59,7 @@ public class RemotesITest {
 
         context.run("init");
 
-        context.run("remotes", "add", "http://foo.bar/http-remote");
+        context.run("remotes", "add", "http://foo.bar/http-remote", "--verbose");
         assertThat(context.getOutput()).contains("Added new remote 'http-remote'.");
 
         context.run("remotes", "add", "file:./" + dir.relativize(remoteDir$01), "--verbose");

@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
@@ -18,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 final class AdaProjectDAO {
 
@@ -25,14 +29,20 @@ final class AdaProjectDAO {
 
     private final Path datasets;
 
+    private final Path local;
+
     private final Path remotes;
 
-    private final ObjectMapper om;
+    private final transient ObjectMapper om;
 
-    public static AdaProjectDAO apply(Path root, Path datasets, Path remotes, ObjectMapper om) {
+    public static AdaProjectDAO apply(Path root, Path datasets, Path local, Path remotes, ObjectMapper om) {
         try {
             if (!Files.exists(datasets)) {
                 Files.createDirectories(datasets);
+            }
+
+            if (!Files.exists(local)) {
+                Files.createDirectories(local);
             }
 
             if (!Files.exists(remotes)) {
@@ -42,17 +52,18 @@ final class AdaProjectDAO {
             return ExceptionUtils.wrapAndThrow(e);
         }
 
-        return new AdaProjectDAO(root, datasets, remotes, om);
+        return new AdaProjectDAO(root, datasets, local, remotes, om);
     }
 
     public static AdaProjectDAO apply(Path root) {
         Path base = root.resolve(".ada");
         Path datasets = base.resolve("datasets");
+        Path local = base.resolve("local");
         Path remotes = base.resolve("remotes.json");
 
         ObjectMapper om = ObjectMapperFactory.apply().create(true);
 
-        return apply(root, datasets, remotes, om);
+        return apply(root, datasets, local, remotes, om);
     }
 
     public void addGitIgnore(Path ignore, boolean directory, String comment) {
