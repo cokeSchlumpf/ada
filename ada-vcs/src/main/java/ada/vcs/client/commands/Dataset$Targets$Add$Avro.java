@@ -1,12 +1,10 @@
 package ada.vcs.client.commands;
 
-import ada.commons.util.Either;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.avro.AvroSink;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.Target;
-import ada.vcs.client.datatypes.BooleanFormat;
 import ada.vcs.client.exceptions.NoProjectException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
@@ -45,7 +43,7 @@ public final class Dataset$Targets$Add$Avro extends StandardOptions implements R
 
     @Override
     public void run() {
-        final AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        final AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
 
         Dataset dataset = getAdd()
             .flatMap(Dataset$Targets$Add::getTargets)

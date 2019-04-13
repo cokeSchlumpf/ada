@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.exceptions.NoProjectException;
 import com.google.common.collect.Lists;
@@ -25,7 +25,7 @@ public final class Remotes extends StandardOptions implements Runnable {
 
     @Override
     public void run() {
-        AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
 
         List<Remote> remotes = project.getRemotes().collect(Collectors.toList());
         Optional<Remote> upstream = project.getUpstream();

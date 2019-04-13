@@ -4,7 +4,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.Dataset;
 import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.core.remotes.Remote;
@@ -53,7 +53,7 @@ public class Datasets$Push extends StandardOptions implements Runnable {
     @Override
     @SuppressWarnings("unchecked")
     public void run() {
-        AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
 
         List<Dataset> datasets = project
             .getDatasets()

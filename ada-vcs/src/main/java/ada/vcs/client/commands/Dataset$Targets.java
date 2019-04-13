@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.Target;
 import ada.vcs.client.exceptions.NoProjectException;
 import com.google.common.collect.Lists;
@@ -32,7 +32,7 @@ public final class Dataset$Targets extends StandardOptions implements Runnable {
 
     @Override
     public void run() {
-        final AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        final AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
         final Dataset dataset = getDataset().orElseThrow(RuntimeException::new);
 
         List<Target> targets = project

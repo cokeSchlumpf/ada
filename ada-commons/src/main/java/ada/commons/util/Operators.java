@@ -2,10 +2,20 @@ package ada.commons.util;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.util.Optional;
+
 public final class Operators {
 
     private Operators() {
 
+    }
+
+    public static <T> Optional<T> exceptionToNone(ExceptionalSupplier<T> supplier) {
+        try {
+            return Optional.of(supplier.get());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public static void suppressExceptions(ExceptionalRunnable runnable) {

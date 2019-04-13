@@ -1,6 +1,8 @@
-package ada.vcs.client.core;
+package ada.vcs.client.core.project;
 
 import ada.commons.databind.ObjectMapperFactory;
+import ada.vcs.client.core.Dataset;
+import ada.vcs.client.core.Target;
 import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.core.remotes.Remotes;
 import ada.vcs.client.exceptions.DatasetAlreadyExistsException;
@@ -26,7 +28,7 @@ import java.util.stream.Stream;
 
 @Value
 @AllArgsConstructor(staticName = "apply", access = AccessLevel.PRIVATE)
-public final class AdaProject {
+public final class AdaProjectTemp {
 
     private static final String ADA_DIR = ".ada";
 
@@ -40,13 +42,13 @@ public final class AdaProject {
 
     private final ObjectMapperFactory om;
 
-    public static Optional<AdaProject> fromHere() {
+    public static Optional<AdaProjectTemp> fromHere() {
         return from(Paths.get(System.getProperty("user.dir")));
     }
 
-    public static Optional<AdaProject> from(Path path) {
+    public static Optional<AdaProjectTemp> from(Path path) {
         if (Files.isDirectory(path) && Files.exists(path.resolve(ADA_DIR))) {
-            return Optional.of(AdaProject.apply(path.resolve(ADA_DIR), ObjectMapperFactory.apply()));
+            return Optional.of(AdaProjectTemp.apply(path.resolve(ADA_DIR), ObjectMapperFactory.apply()));
         } else if (path.getParent() != null) {
             return from(path.getParent());
         } else {
@@ -54,11 +56,11 @@ public final class AdaProject {
         }
     }
 
-    public static AdaProject init() {
+    public static AdaProjectTemp init() {
         return init(Paths.get(System.getProperty("user.dir")));
     }
 
-    public static AdaProject init(Path where) {
+    public static AdaProjectTemp init(Path where) {
         try {
             final ObjectMapperFactory omf = ObjectMapperFactory.apply();
             final ObjectMapper om = omf.create(true);
@@ -88,7 +90,7 @@ public final class AdaProject {
                 om.writeValue(remotes.toFile(), Remotes.apply());
             }
 
-            return AdaProject.apply(dir, omf);
+            return AdaProjectTemp.apply(dir, omf);
         } catch (Exception e) {
             return ExceptionUtils.wrapAndThrow(e);
         }

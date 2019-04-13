@@ -1,6 +1,6 @@
 package ada.vcs.client.commands;
 
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.consoles.CommandLineConsole;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
@@ -27,7 +27,7 @@ public final class Init extends StandardOptions implements Runnable {
     @Override
     public void run() {
         if (dir == null) dir = new File(System.getProperty("user.dir"));
-        AdaProject root = AdaProject.init(dir.toPath());
+        AdaProjectTemp root = AdaProjectTemp.init(dir.toPath());
         console.message("Initialized ada project in '%s'.", root.getPath());
     }
 

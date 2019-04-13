@@ -1,18 +1,40 @@
 package ada.vcs.client.core.remotes;
 
+import ada.commons.util.FileSize;
+import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.internal.api.WriteSummary;
+import akka.NotUsed;
+import akka.actor.ActorSystem;
+import akka.http.javadsl.Http;
+import akka.http.javadsl.model.HttpRequest;
+import akka.http.javadsl.model.HttpResponse;
+import akka.japi.Pair;
+import akka.japi.function.Creator;
+import akka.japi.function.Function;
+import akka.stream.javadsl.Compression;
+import akka.stream.javadsl.Flow;
+import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
+import akka.util.ByteString;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.apache.avro.Schema;
+import org.apache.avro.file.DataFileWriter;
+import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumWriter;
+import scala.util.Try;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -37,7 +59,37 @@ public class HttpRemote implements Remote {
 
     @Override
     public Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema) {
-        return null;
+        final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
+
+        Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
+            DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, baos);
+
+            return records -> records
+                .stream()
+                .map(record -> {
+                    baos.reset();
+                    Operators.suppressExceptions(() -> {
+                        writer.append(record);
+                        writer.flush();
+                    });
+                    return ByteString.fromArray(baos.toByteArray());
+                })
+                .collect(Collectors.toList());
+        };
+
+        Flow<Pair<HttpRequest, NotUsed>, Pair<Try<HttpResponse>, NotUsed>, NotUsed> pairPairNotUsedFlow = Http
+            .get(ActorSystem.create())
+            .superPool();
+
+        return Flow
+            .of(GenericRecord.class)
+            .map(record -> (List<GenericRecord>) Lists.newArrayList(record))
+            .statefulMapConcat(writeBytes)
+            .via(Compression.gzip())
+            .toMat(Sink.ignore(), Keep.right())
+            .mapMaterializedValue(done -> done.thenApply(d -> WriteSummary.apply(42)));
     }
 
 }

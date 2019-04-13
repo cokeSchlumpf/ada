@@ -4,7 +4,7 @@ import ada.commons.util.Either;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.csv.CSVSink;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.Target;
 import ada.vcs.client.datatypes.BooleanFormat;
 import ada.vcs.client.exceptions.NoProjectException;
@@ -81,7 +81,7 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Ru
 
     @Override
     public void run() {
-        final AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        final AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
 
         if (alias == null) {
             alias = FilenameUtils.removeExtension(file.getName());

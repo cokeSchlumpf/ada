@@ -2,7 +2,6 @@ package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.internal.api.WriteSummary;
-import ada.vcs.client.core.FileSystemDependent;
 import akka.stream.javadsl.Sink;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -26,6 +25,8 @@ public interface Remote extends Comparable<Remote> {
 
     @JsonIgnore
     String getInfo();
+
+    RemoteProperties getProperties();
 
     Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema);
 

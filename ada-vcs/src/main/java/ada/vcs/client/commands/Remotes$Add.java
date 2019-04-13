@@ -2,7 +2,7 @@ package ada.vcs.client.commands;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.core.remotes.FileSystemRemote;
 import ada.vcs.client.core.remotes.HttpRemote;
 import ada.vcs.client.exceptions.NoProjectException;
@@ -43,7 +43,7 @@ public final class Remotes$Add extends StandardOptions implements Runnable {
 
     @Override
     public void run() {
-        AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
 
         switch (url.getProtocol()) {
             case "http":

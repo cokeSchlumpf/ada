@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.AdaProject;
+import ada.vcs.client.core.project.AdaProjectTemp;
 import ada.vcs.client.exceptions.NoProjectException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
@@ -39,7 +39,7 @@ public final class Dataset$Targets$Add$Local extends StandardOptions implements 
 
     @Override
     public void run() {
-        AdaProject project = AdaProject.fromHere().orElseThrow(NoProjectException::apply);
+        AdaProjectTemp project = AdaProjectTemp.fromHere().orElseThrow(NoProjectException::apply);
 
         if (alias == null) {
             alias = FilenameUtils.removeExtension(directory.getName());
