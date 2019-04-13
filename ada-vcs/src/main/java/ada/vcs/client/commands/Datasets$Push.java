@@ -22,7 +22,7 @@ import java.util.stream.Stream;
     subcommands = {
         Datasets$Add$CSV.class
     })
-public class Datasets$Push extends StandardOptions implements ProjectCommand {
+public final class Datasets$Push extends StandardOptions implements ProjectCommand {
 
     private final CommandLineConsole console;
 
@@ -36,7 +36,7 @@ public class Datasets$Push extends StandardOptions implements ProjectCommand {
     private String remote;
 
     @CommandLine.Option(
-        names = {"-u", "--set-upstream"},
+        names = { "-u", "--set-upstream" },
         description = "if set, the remote will be set as default upstream remote")
     private boolean setUpstream;
 
