@@ -1,5 +1,7 @@
 package ada.vcs.client.core.project;
 
+import ada.vcs.client.core.dataset.DatasetFactory;
+import ada.vcs.client.core.remotes.RemotesFactory;
 import lombok.AllArgsConstructor;
 
 import java.nio.file.Files;
@@ -10,12 +12,16 @@ import java.util.Optional;
 @AllArgsConstructor(staticName = "apply")
 public final class AdaProjectFactory {
 
+    private final RemotesFactory remotesFactory;
+
+    private final DatasetFactory datasetFactory;
+
     public AdaProject init() {
         return init(Paths.get(System.getProperty("user.dir")));
     }
 
     public AdaProject init(Path where) {
-        AdaProjectDAO dao = AdaProjectDAO.apply(where);
+        AdaProjectDAO dao = AdaProjectDAO.apply(remotesFactory, datasetFactory, where);
         return AdaProjectImpl.apply(dao);
     }
 

@@ -4,7 +4,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.avro.AvroSink;
 import ada.vcs.client.core.project.AdaProject;
-import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.core.dataset.TargetImpl;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
@@ -54,7 +54,7 @@ public final class Dataset$Targets$Add$Avro extends StandardOptions implements P
         AvroSink sink = AvroSink.apply(file.toPath());
         project.addTarget(
             dataset.getAlias(),
-            Target.apply(ResourceName.apply(alias), sink.relativize(project.getPath())));
+            TargetImpl.apply(ResourceName.apply(alias), sink.relativize(project.getPath())));
 
         console.message("Added Avro target '%s' to dataset '%s'.", alias, dataset.getAlias());
     }

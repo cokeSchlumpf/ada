@@ -102,22 +102,22 @@ public final class Datasets$Push extends StandardOptions implements ProjectComma
 
                     console.message(
                         "-> Uploading data to from dataset '%s' (%d of %d).",
-                        dataset.getAlias().getValue(), idx + 1, datasets.size());
+                        dataset.alias().getValue(), idx + 1, datasets.size());
 
-                    if (dataset.getSource() instanceof FileSystemDependent) {
+                    if (dataset.source() instanceof FileSystemDependent) {
                         return dataset.withSource(
-                            ((FileSystemDependent<? extends DataSource>) dataset.getSource()).resolve(project.getPath()));
+                            ((FileSystemDependent<? extends DataSource>) dataset.source()).resolve(project.getPath()));
                     } else {
                         return dataset;
                     }
                 })
                 .mapAsync(1, dataset -> dataset
-                    .getSource()
-                    .analyze(materializer, dataset.getSchema())
+                    .source()
+                    .analyze(materializer, dataset.schema())
                     .thenCompose(readableDataSource ->
                         readableDataSource
                             .getRecords(NoOpMonitor.apply())
-                            .toMat(rm.push(dataset.getSchema()), (l, r) -> l.thenCompose(i -> r))
+                            .toMat(rm.push(dataset.schema()), (l, r) -> l.thenCompose(i -> r))
                             .run(materializer)
                             .thenApply(summary -> {
                                 console.message("   Done.");

@@ -1,23 +1,32 @@
 package ada.vcs.client.core.dataset;
 
+import ada.commons.util.ResourceName;
+import ada.vcs.client.converters.api.DataSource;
+import org.apache.avro.Schema;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public interface Dataset extends Comparable<Dataset> {
 
     Stream<Target> getTargets();
 
-    Dataset withAlias(ada.commons.util.ResourceName alias);
+    Dataset withAlias(ResourceName alias);
 
-    Dataset withSource(ada.vcs.client.converters.api.DataSource<?> source);
+    Dataset withSource(DataSource<?> source);
 
-    Dataset withSchema(org.apache.avro.Schema schema);
+    Dataset withSchema(Schema schema);
 
-    Dataset withTargets(java.util.Map<String, Target> targets);
+    Dataset withTargets(Map<String, Target> targets);
 
-    ada.commons.util.ResourceName getAlias();
+    ResourceName alias();
 
-    ada.vcs.client.converters.api.DataSource<?> getSource();
+    DataSource<?> source();
 
-    org.apache.avro.Schema getSchema();
+    Schema schema();
+
+    void writeTo(OutputStream os) throws IOException;
 
 }

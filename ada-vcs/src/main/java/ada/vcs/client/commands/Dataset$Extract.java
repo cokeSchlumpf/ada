@@ -7,7 +7,7 @@ import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.FileSystemDependent;
-import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.core.dataset.TargetImpl;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
@@ -49,7 +49,7 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
         if (targets == null || targets.isEmpty()) {
             targets = project
                 .getTargets(dataset.getAlias())
-                .map(Target::getAlias)
+                .map(TargetImpl::getAlias)
                 .map(ResourceName::getValue)
                 .collect(Collectors.toList());
         }
@@ -63,7 +63,7 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
         context.withMaterializer(materializer -> {
             ada.vcs.client.core.dataset.Dataset ds = project.getDataset(dataset.getAlias());
 
-            DataSource<?> source = ds.getSource();
+            DataSource<?> source = ds.source();
             if (source instanceof FileSystemDependent) {
                 source = ((FileSystemDependent<? extends DataSource>) source).resolve(project.getPath());
             }
@@ -71,7 +71,7 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
             console.message("Extracting data to %d target(s)", targets.size());
 
             return source
-                .analyze(materializer, ds.getSchema())
+                .analyze(materializer, ds.schema())
                 .thenCompose(src -> Source
                     .from(targets)
                     .zipWithIndex()
@@ -81,7 +81,7 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
 
                         console.message(
                             "-> Starting to extract dataset '%s' to target '%s' (%d of %d).",
-                            ds.getAlias().getValue(), target, idx + 1, targets.size());
+                            ds.alias().getValue(), target, idx + 1, targets.size());
 
                         DataSink sink = project
                             .getTarget(dataset.getAlias(), target)
@@ -97,7 +97,7 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
                             .thenApply(summary -> {
                                 console.message(
                                     "   Done. Extracted %d records from dataset '%s' to target '%s'.",
-                                    summary.getCount(), ds.getAlias().getValue(), target);
+                                    summary.getCount(), ds.alias().getValue(), target);
 
                                 return summary;
                             });

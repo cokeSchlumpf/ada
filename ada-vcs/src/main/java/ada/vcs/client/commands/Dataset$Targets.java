@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.core.dataset.TargetImpl;
 import ada.vcs.client.core.project.AdaProject;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,7 @@ public final class Dataset$Targets extends StandardOptions implements ProjectCom
     public void run(AdaProject project) {
         final Dataset dataset = getDataset().orElseThrow(RuntimeException::new);
 
-        List<Target> targets = project
+        List<TargetImpl> targets = project
             .getTargets(dataset.getAlias())
             .sorted()
             .collect(Collectors.toList());

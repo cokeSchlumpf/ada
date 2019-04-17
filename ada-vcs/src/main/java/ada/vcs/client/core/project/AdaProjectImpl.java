@@ -24,7 +24,7 @@ final class AdaProjectImpl implements AdaProject {
 
     @Override
     public void addDataset(Dataset dataset) {
-        String name = dataset.getAlias().getValue();
+        String name = dataset.alias().getValue();
 
         dao
             .readDataset(name)
@@ -54,8 +54,8 @@ final class AdaProjectImpl implements AdaProject {
         Dataset existing = getDataset(dataset);
 
         Map<String, Target> targets$next = Maps.newHashMap();
-        existing.getTargets().forEach(t -> targets$next.put(t.getAlias().getValue(), t));
-        targets$next.put(target.getAlias().getValue(), target);
+        existing.getTargets().forEach(t -> targets$next.put(t.alias().getValue(), t));
+        targets$next.put(target.alias().getValue(), target);
         dao.saveDataset(existing.withTargets(targets$next));
     }
 
@@ -103,7 +103,7 @@ final class AdaProjectImpl implements AdaProject {
         Dataset existing = getDataset(dataset);
         return existing
             .getTargets()
-            .filter(t -> t.getAlias().getValue().equals(target))
+            .filter(t -> t.alias().getValue().equals(target))
             .findFirst()
             .orElseThrow(() -> TargetNotExistingException.apply(dataset, target));
     }
@@ -129,8 +129,8 @@ final class AdaProjectImpl implements AdaProject {
 
         existing
             .getTargets()
-            .filter(t -> !t.getAlias().getValue().equals(name))
-            .forEach(t -> targets$next.put(t.getAlias().getValue(), t));
+            .filter(t -> !t.alias().getValue().equals(name))
+            .forEach(t -> targets$next.put(t.alias().getValue(), t));
 
         dao.saveDataset(existing.withTargets(targets$next));
     }

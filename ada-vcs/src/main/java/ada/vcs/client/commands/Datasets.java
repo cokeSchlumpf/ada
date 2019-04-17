@@ -34,7 +34,7 @@ public final class Datasets extends StandardOptions implements ProjectCommand {
                 Lists.newArrayList("Alias", "Location"),
                 datasets
                     .stream()
-                    .map(ds -> Lists.newArrayList(ds.getAlias().getValue(), ds.getSource().info()))
+                    .map(ds -> Lists.newArrayList(ds.alias().getValue(), ds.source().info()))
                     .collect(Collectors.toList()),
                 true);
         } else {

@@ -96,7 +96,7 @@ public final class Datasets$Add$CSV extends StandardOptions implements ProjectCo
 
                     project.addDataset(ds);
 
-                    console.message(String.format("Added dataset '%s'.", ds.getAlias().getValue()));
+                    console.message(String.format("Added dataset '%s'.", ds.alias().getValue()));
                     return readable;
                 });
         });

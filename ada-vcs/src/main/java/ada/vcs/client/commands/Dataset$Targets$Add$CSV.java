@@ -5,7 +5,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.csv.CSVSink;
 import ada.vcs.client.core.project.AdaProject;
-import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.core.dataset.TargetImpl;
 import ada.vcs.client.datatypes.BooleanFormat;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
@@ -95,7 +95,7 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Pr
 
         project.addTarget(
             dataset.getAlias(),
-            Target.apply(ResourceName.apply(alias), sink.relativize(project.getPath())));
+            TargetImpl.apply(ResourceName.apply(alias), sink.relativize(project.getPath())));
 
         console.message("Added CSV target '%s' to dataset '%s'.", alias, dataset.getAlias());
     }

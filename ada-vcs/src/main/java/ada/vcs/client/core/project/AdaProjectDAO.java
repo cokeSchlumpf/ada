@@ -1,12 +1,10 @@
 package ada.vcs.client.core.project;
 
-import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.Operators;
 import ada.vcs.client.core.dataset.Dataset;
-import ada.vcs.client.core.dataset.DatasetImpl;
+import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.core.remotes.Remotes;
-import ada.vcs.client.core.remotes.RemotesImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ada.vcs.client.core.remotes.RemotesFactory;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +13,8 @@ import lombok.ToString;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -27,6 +27,10 @@ import java.util.stream.Stream;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 final class AdaProjectDAO {
 
+    private final RemotesFactory remotesFactory;
+
+    private final DatasetFactory datasetFactory;
+
     private final Path root;
 
     private final Path datasets;
@@ -35,7 +39,10 @@ final class AdaProjectDAO {
 
     private final Path remotes;
 
-    public static AdaProjectDAO apply(Path root, Path datasets, Path local, Path remotes, ObjectMapper om) {
+    public static AdaProjectDAO apply(
+        RemotesFactory remotesFactory, DatasetFactory datasetFactory,
+        Path root, Path datasets, Path local, Path remotes) {
+
         try {
             if (!Files.exists(datasets)) {
                 Files.createDirectories(datasets);
@@ -46,24 +53,24 @@ final class AdaProjectDAO {
             }
 
             if (!Files.exists(remotes)) {
-                om.writeValue(remotes.toFile(), RemotesImpl.apply());
+                try (OutputStream os = Files.newOutputStream(remotes)) {
+                    remotesFactory.createRemotes().writeTo(os);
+                }
             }
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }
 
-        return new AdaProjectDAO(root, datasets, local, remotes, om);
+        return new AdaProjectDAO(remotesFactory, datasetFactory, root, datasets, local, remotes);
     }
 
-    public static AdaProjectDAO apply(Path root) {
+    public static AdaProjectDAO apply(RemotesFactory remotesFactory, DatasetFactory datasetFactory, Path root) {
         Path base = root.resolve(".ada");
         Path datasets = base.resolve("datasets");
         Path local = base.resolve("local");
         Path remotes = base.resolve("remotes.json");
 
-        ObjectMapper om = ObjectMapperFactory.apply().create(true);
-
-        return apply(root, datasets, local, remotes, om);
+        return apply(remotesFactory, datasetFactory, root, datasets, local, remotes);
     }
 
     public void addGitIgnore(Path ignore, boolean directory, String comment) {
@@ -119,7 +126,15 @@ final class AdaProjectDAO {
 
     public Optional<Dataset> readDataset(String name) {
         Path file = datasets.resolve(String.format("%s.json", name));
-        return Operators.exceptionToNone(() -> om.readValue(file.toFile(), DatasetImpl.class));
+        return readDataset(file);
+    }
+
+    private Optional<Dataset> readDataset(Path file) {
+        return Operators.exceptionToNone(() -> {
+            try (InputStream is = Files.newInputStream(file)) {
+                return datasetFactory.createDataset(is);
+            }
+        });
     }
 
     public Stream<Dataset> readDatasets() {
@@ -129,8 +144,7 @@ final class AdaProjectDAO {
                     .newDirectoryStream(datasets)
                     .iterator())
                 .stream()
-                .map(file -> Operators
-                    .exceptionToNone(() -> om.readValue(file.toFile(), DatasetImpl.class)))
+                .map(this::readDataset)
                 .filter(Optional::isPresent)
                 .map(Optional::get);
         } catch (IOException e) {
@@ -139,8 +153,8 @@ final class AdaProjectDAO {
     }
 
     public Remotes readRemotes() {
-        try {
-            return om.readValue(remotes.toFile(), RemotesImpl.class);
+        try (InputStream is = Files.newInputStream(remotes)) {
+            return remotesFactory.createRemotes(is);
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }
@@ -159,17 +173,18 @@ final class AdaProjectDAO {
     }
 
     public void saveDataset(Dataset dataset) {
-        try {
-            Path file = datasets.resolve(String.format("%s.json", dataset.getAlias().getValue()));
-            om.writeValue(file.toFile(), dataset);
+        Path file = datasets.resolve(String.format("%s.json", dataset.alias().getValue()));
+
+        try (OutputStream os = Files.newOutputStream(file)) {
+            dataset.writeTo(os);
         } catch (IOException e) {
             ExceptionUtils.wrapAndThrow(e);
         }
     }
 
     public void saveRemotes(Remotes remotes) {
-        try {
-            om.writeValue(this.remotes.toFile(), remotes);
+        try (OutputStream os = Files.newOutputStream(this.remotes)) {
+            remotes.writeTo(os);
         } catch (IOException e) {
             ExceptionUtils.wrapAndThrow(e);
         }
