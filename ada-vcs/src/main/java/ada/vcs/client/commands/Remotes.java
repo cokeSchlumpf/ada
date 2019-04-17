@@ -36,10 +36,10 @@ public final class Remotes extends StandardOptions implements ProjectCommand {
                     .sorted()
                     .map(remote -> Lists.newArrayList(
                         upstream
-                            .filter(u -> u.getAlias().getValue().equals(remote.getAlias().getValue()))
+                            .filter(u -> u.alias().getValue().equals(remote.alias().getValue()))
                             .map(i -> "* ")
-                            .orElse("  ") + remote.getAlias().getValue(),
-                        remote.getInfo()))
+                            .orElse("  ") + remote.alias().getValue(),
+                        remote.info()))
                     .collect(Collectors.toList()),
                 false);
         } else {

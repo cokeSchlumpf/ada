@@ -1,7 +1,7 @@
 package ada.vcs.client.core.project;
 
-import ada.vcs.client.core.Dataset;
-import ada.vcs.client.core.Target;
+import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.Target;
 import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.core.remotes.Remotes;
 import ada.vcs.client.exceptions.*;
@@ -37,11 +37,11 @@ final class AdaProjectImpl implements AdaProject {
 
     @Override
     public void addRemote(Remote remote) {
-        String name = remote.getAlias().getValue();
+        String name = remote.alias().getValue();
         Remotes remotes = dao.readRemotes();
 
         remotes
-            .getRemote(remote.getAlias().getValue())
+            .getRemote(remote.alias().getValue())
             .ifPresent(existing -> {
                 throw RemoteAlreadyExistsException.apply(name);
             });

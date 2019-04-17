@@ -1,13 +1,11 @@
 package ada.vcs.client.converters.avro;
 
-import ada.vcs.client.converters.internal.api.DataSink;
-import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.converters.api.DataSink;
+import ada.vcs.client.converters.api.DataSinkMemento;
+import ada.vcs.client.converters.api.WriteSummary;
 import ada.vcs.client.core.FileSystemDependent;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
@@ -20,17 +18,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
+@AllArgsConstructor(staticName = "apply")
+public final class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
 
-    @JsonProperty("path")
     private final Path path;
 
-    @JsonCreator
-    public static AvroSink apply(@JsonProperty("path") Path path) {
-        return new AvroSink(path);
+    public static AvroSink apply(AvroSinkMemento memento) {
+        return apply(memento.getPath());
     }
 
     @Override
@@ -69,8 +64,13 @@ public class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
     }
 
     @Override
-    public String getInfo() {
+    public String info() {
         return String.format("avro(%s)", path);
+    }
+
+    @Override
+    public DataSinkMemento memento() {
+        return null;
     }
 
     @Override

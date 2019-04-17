@@ -2,12 +2,12 @@ package ada.vcs.client.commands;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.internal.api.DataSink;
-import ada.vcs.client.converters.internal.api.DataSource;
+import ada.vcs.client.converters.api.DataSink;
+import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.FileSystemDependent;
-import ada.vcs.client.core.Target;
+import ada.vcs.client.core.dataset.Target;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
@@ -61,7 +61,7 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
 
 
         context.withMaterializer(materializer -> {
-            ada.vcs.client.core.Dataset ds = project.getDataset(dataset.getAlias());
+            ada.vcs.client.core.dataset.Dataset ds = project.getDataset(dataset.getAlias());
 
             DataSource<?> source = ds.getSource();
             if (source instanceof FileSystemDependent) {

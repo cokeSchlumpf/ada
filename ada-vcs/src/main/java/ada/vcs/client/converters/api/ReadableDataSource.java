@@ -1,4 +1,4 @@
-package ada.vcs.client.converters.internal.api;
+package ada.vcs.client.converters.api;
 
 import akka.stream.javadsl.Source;
 import org.apache.avro.Schema;

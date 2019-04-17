@@ -3,8 +3,10 @@ package ada.vcs.client.core;
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.csv.CSVSource;
-import ada.vcs.client.converters.internal.api.ReadableDataSource;
+import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
+import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.DatasetImpl;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,14 +52,14 @@ public class DatasetUTest {
 
         Schema schema = rs.getSchema();
 
-        Dataset ds = Dataset.apply(ResourceName.apply("foo"), source, schema);
+        Dataset ds = DatasetImpl.apply(ResourceName.apply("foo"), source, schema);
 
         ObjectMapper om = ObjectMapperFactory.apply().create(true);
 
         String json = om.writeValueAsString(ds);
         System.out.println(json);
 
-        Dataset dsp = om.readValue(json, Dataset.class);
+        Dataset dsp = om.readValue(json, DatasetImpl.class);
 
         System.out.println(dsp);
     }

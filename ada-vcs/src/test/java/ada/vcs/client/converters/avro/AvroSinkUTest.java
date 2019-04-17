@@ -1,6 +1,6 @@
 package ada.vcs.client.converters.avro;
 
-import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.converters.api.WriteSummary;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;

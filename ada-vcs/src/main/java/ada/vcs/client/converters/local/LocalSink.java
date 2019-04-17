@@ -4,8 +4,9 @@ import ada.commons.io.FilenameTemplate;
 import ada.commons.io.RotatingFileOutputStream;
 import ada.commons.io.RotationConfig;
 import ada.commons.util.FileSize;
-import ada.vcs.client.converters.internal.api.DataSink;
-import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.converters.api.DataSink;
+import ada.vcs.client.converters.api.DataSinkMemento;
+import ada.vcs.client.converters.api.WriteSummary;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import lombok.AllArgsConstructor;
@@ -22,9 +23,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public class LocalSink implements DataSink {
+public final class LocalSink implements DataSink {
 
     private final Path directory;
+
+    public static LocalSink apply(LocalSinkMemento memento) {
+        return LocalSink.apply(memento.getDirectory());
+    }
 
     @Override
     public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
@@ -54,8 +59,13 @@ public class LocalSink implements DataSink {
     }
 
     @Override
-    public String getInfo() {
+    public String info() {
         return "local";
+    }
+
+    @Override
+    public DataSinkMemento memento() {
+        return LocalSinkMemento.apply(directory);
     }
 
 }

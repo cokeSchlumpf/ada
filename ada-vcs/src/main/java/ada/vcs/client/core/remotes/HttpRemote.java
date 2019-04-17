@@ -2,7 +2,7 @@ package ada.vcs.client.core.remotes;
 
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.internal.api.WriteSummary;
+import ada.vcs.client.converters.api.WriteSummary;
 import akka.japi.function.Creator;
 import akka.japi.function.Function;
 import akka.stream.javadsl.Compression;
@@ -10,10 +10,8 @@ import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
 import akka.util.ByteString;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.apache.avro.Schema;
@@ -23,34 +21,54 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class HttpRemote implements Remote, RemoteProperties {
+@AllArgsConstructor(staticName = "apply")
+final class HttpRemote implements Remote, RemoteMemento {
+
+    private final ObjectMapper om;
 
     private final ResourceName alias;
 
     private final URL endpoint;
 
-    @JsonCreator
-    public static HttpRemote apply(
-        @JsonProperty("alias") ResourceName alias,
-        @JsonProperty("endpoint") URL endpoint) {
-
-        return new HttpRemote(alias, endpoint);
+    public static HttpRemote apply(ObjectMapper om, HttpRemoteMemento memento) {
+        return HttpRemote.apply(om, memento.getAlias(), memento.getEndpoint());
     }
 
     @Override
-    public String getInfo() {
+    public ResourceName alias() {
+        return alias;
+    }
+
+    @Override
+    public String info() {
         return endpoint.toString();
     }
 
     @Override
-    public RemoteProperties getProperties() {
+    public boolean equals(Object obj) {
+        if (obj instanceof Remote) {
+            return memento().equals(((Remote) obj).memento());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return memento().hashCode();
+    }
+
+    @Override
+    public RemoteMemento memento() {
         return this;
     }
 
@@ -84,6 +102,21 @@ public class HttpRemote implements Remote, RemoteProperties {
             .via(Compression.gzip())
             .toMat(Sink.ignore(), Keep.right())
             .mapMaterializedValue(done -> done.thenApply(d -> WriteSummary.apply(42)));
+    }
+
+    @Override
+    public void writeTo(OutputStream os) throws IOException {
+        om.writeValue(os, HttpRemoteMemento.apply(alias, endpoint));
+    }
+
+    @Override
+    public Remote resolve(Path to) {
+        return this;
+    }
+
+    @Override
+    public Remote relativize(Path to) {
+        return this;
     }
 
 }

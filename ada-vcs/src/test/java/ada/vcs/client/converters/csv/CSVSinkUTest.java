@@ -1,8 +1,7 @@
 package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
-import ada.vcs.client.converters.csv.CSVSink;
-import ada.vcs.client.converters.internal.api.DataSink;
+import ada.vcs.client.converters.api.DataSink;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 

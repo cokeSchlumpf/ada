@@ -1,5 +1,6 @@
-package ada.vcs.client.core.remotes;
+package ada.vcs.client.converters.api;
 
+import ada.vcs.client.converters.csv.CSVSource;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -8,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = FileSystemRemote.class, name = "fs"),
-    @JsonSubTypes.Type(value = HttpRemote.class, name = "http")
+    @JsonSubTypes.Type(value = CSVSource.class, name = "csv")
 })
-public interface RemoteProperties {
-
+public interface DataSourceMemento {
 }

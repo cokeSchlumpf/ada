@@ -1,7 +1,7 @@
-package ada.vcs.client.core;
+package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.internal.api.DataSink;
+import ada.vcs.client.converters.api.DataSink;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

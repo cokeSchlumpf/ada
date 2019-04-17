@@ -4,7 +4,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.avro.AvroSink;
 import ada.vcs.client.core.project.AdaProject;
-import ada.vcs.client.core.Target;
+import ada.vcs.client.core.dataset.Target;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 

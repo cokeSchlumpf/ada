@@ -1,7 +1,7 @@
 package ada.vcs.client.core.project;
 
-import ada.vcs.client.core.Dataset;
-import ada.vcs.client.core.Target;
+import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.Target;
 import ada.vcs.client.core.remotes.Remote;
 
 import java.nio.file.Path;

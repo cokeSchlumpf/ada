@@ -3,8 +3,9 @@ package ada.vcs.client.commands;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.csv.CSVSource;
+import ada.vcs.client.core.dataset.DatasetImpl;
 import ada.vcs.client.core.project.AdaProject;
-import ada.vcs.client.core.Dataset;
+import ada.vcs.client.core.dataset.Dataset;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
@@ -88,7 +89,7 @@ public final class Datasets$Add$CSV extends StandardOptions implements ProjectCo
             return source
                 .analyze(context.getMaterializer())
                 .thenApply(readable -> {
-                    Dataset ds = Dataset.apply(
+                    Dataset ds = DatasetImpl.apply(
                         ResourceName.apply(alias),
                         source.relativize(project.getPath()),
                         readable.getSchema());

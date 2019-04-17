@@ -1,6 +1,6 @@
 package ada.vcs.client.converters.internal.monitors;
 
-import ada.vcs.client.converters.internal.api.Monitor;
+import ada.vcs.client.converters.api.Monitor;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(staticName = "apply")

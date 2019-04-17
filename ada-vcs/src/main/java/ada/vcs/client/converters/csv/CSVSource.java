@@ -1,12 +1,12 @@
 package ada.vcs.client.converters.csv;
 
 import ada.commons.util.NameFactory;
-import ada.vcs.client.converters.internal.api.DataSource;
-import ada.vcs.client.converters.internal.api.ReadableDataSource;
+import ada.vcs.client.converters.api.DataSource;
+import ada.vcs.client.converters.api.DataSourceMemento;
+import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
 import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.datatypes.DataTypeMatcher;
-import ada.vcs.client.datatypes.StringDetector;
 import akka.NotUsed;
 import akka.japi.function.Function;
 import akka.stream.IOResult;
@@ -17,8 +17,6 @@ import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
@@ -28,7 +26,6 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -40,44 +37,23 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CSVSource implements DataSource<FileContext>, FileSystemDependent<CSVSource> {
 
-    private static final String FILE = "file";
-    private static final String FIELD_SEPARATOR = "field-separator";
-    private static final String COMMENT_CHAR = "comment-char";
-    private static final String QUOTE_CHAR = "quote-char";
-    private static final String ESCAPE_CHAR = "escape-char";
-    private static final String HEADERS = "headers";
-    private static final String RECORDS_ANALYZED = "records-analyzed";
-
-    @JsonProperty(FILE)
     private final Path file;
 
-    @JsonProperty(FIELD_SEPARATOR)
     private final char fieldSeparator;
 
-    @JsonProperty(COMMENT_CHAR)
     private final char commentChar;
 
-    @JsonProperty(QUOTE_CHAR)
     private final char quoteChar;
 
-    @JsonProperty(ESCAPE_CHAR)
     private final char escapeChar;
 
-    @JsonProperty(HEADERS)
     private final List<String> headers;
 
-    @JsonProperty(RECORDS_ANALYZED)
     private final int recordsAnalyzed;
 
-    @JsonCreator
     public static CSVSource apply(
-        @JsonProperty(FILE) Path file,
-        @Nullable @JsonProperty(FIELD_SEPARATOR) Character fieldSeparator,
-        @Nullable @JsonProperty(COMMENT_CHAR) Character commentChar,
-        @Nullable @JsonProperty(QUOTE_CHAR) Character quoteChar,
-        @Nullable @JsonProperty(ESCAPE_CHAR) Character escapeChar,
-        @Nullable @JsonProperty(HEADERS) List<String> headers,
-        @Nullable @JsonProperty(RECORDS_ANALYZED) Integer recordsAnalyzed) {
+        Path file, Character fieldSeparator, Character commentChar,
+        Character quoteChar, Character escapeChar, List<String> headers, Integer recordsAnalyzed) {
 
         CSVSourceBuilder b = new CSVSourceBuilder(file);
 
@@ -89,6 +65,12 @@ public final class CSVSource implements DataSource<FileContext>, FileSystemDepen
         if (recordsAnalyzed != null) b.recordsAnalyzed(recordsAnalyzed);
 
         return b.build();
+    }
+
+    public static CSVSource apply(CSVSourceMemento memento) {
+        return apply(
+            memento.getFile(), memento.getFieldSeparator(), memento.getCommentChar(),
+            memento.getQuoteChar(), memento.getEscapeChar(), memento.getHeaders(), memento.getRecordsAnalyzed());
     }
 
     public static CSVSourceBuilder builder(Path file) {
@@ -153,8 +135,15 @@ public final class CSVSource implements DataSource<FileContext>, FileSystemDepen
     }
 
     @Override
-    public String getInfo() {
+    public String info() {
         return String.format("csv(%s)", file.toString());
+    }
+
+    @Override
+    public DataSourceMemento memento() {
+        return CSVSourceMemento.apply(
+            file, fieldSeparator, commentChar, quoteChar, escapeChar,
+            headers, recordsAnalyzed);
     }
 
     private CompletionStage<List<String>> headers(Materializer materializer) {

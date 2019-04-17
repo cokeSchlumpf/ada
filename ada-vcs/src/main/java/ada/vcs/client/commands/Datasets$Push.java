@@ -2,9 +2,9 @@ package ada.vcs.client.commands;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.internal.api.DataSource;
+import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
-import ada.vcs.client.core.Dataset;
+import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.remotes.Remote;
@@ -59,7 +59,7 @@ public final class Datasets$Push extends StandardOptions implements ProjectComma
         if (remote == null || remote.trim().length() == 0) {
             remote = project
                 .getUpstream()
-                .map(Remote::getAlias)
+                .map(Remote::alias)
                 .map(ResourceName::getValue)
                 .orElse(null);
 
@@ -78,7 +78,7 @@ public final class Datasets$Push extends StandardOptions implements ProjectComma
             .of(project.getRemote(remote))
             .map(rem -> {
                 if (setUpstream) {
-                    project.updateUpstream(rem.getAlias().getValue());
+                    project.updateUpstream(rem.alias().getValue());
                 }
 
                 if (rem instanceof FileSystemDependent) {
@@ -90,7 +90,7 @@ public final class Datasets$Push extends StandardOptions implements ProjectComma
             .findFirst()
             .get();
 
-        console.message("Pushing %d dataset(s) to remote '%s'", datasets.size(), rm.getAlias().getValue());
+        console.message("Pushing %d dataset(s) to remote '%s'", datasets.size(), rm.alias().getValue());
 
         context
             .withMaterializer(materializer -> Source

@@ -1,4 +1,4 @@
-package ada.vcs.client.converters.internal.api;
+package ada.vcs.client.converters.api;
 
 public interface Monitor {
 

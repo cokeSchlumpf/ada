@@ -3,8 +3,7 @@ package ada.vcs.client.core.remotes;
 import ada.commons.util.FileSize;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.internal.api.WriteSummary;
-import ada.vcs.client.core.FileSystemDependent;
+import ada.vcs.client.converters.api.WriteSummary;
 import akka.japi.function.Creator;
 import akka.japi.function.Function;
 import akka.stream.alpakka.file.javadsl.LogRotatorSink;
@@ -13,12 +12,10 @@ import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
 import akka.util.ByteString;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -26,6 +23,8 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -33,43 +32,64 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileSystemRemote implements Remote, FileSystemDependent<FileSystemRemote>, RemoteProperties {
+final class FileSystemRemote implements Remote, RemoteMemento {
+
+    private final ObjectMapper om;
 
     private final ResourceName alias;
 
     private final Path dir;
 
-    @JsonCreator
-    public static FileSystemRemote apply(
-        @JsonProperty("alias") ResourceName alias,
-        @JsonProperty("dir") Path dir) {
+    public static FileSystemRemote apply(ObjectMapper om, ResourceName alias, Path dir) {
 
         if (Files.exists(dir) && !Files.isDirectory(dir)) {
             throw new IllegalArgumentException("Path must be a directory, not a file");
         }
 
-        return new FileSystemRemote(alias, dir);
+        return new FileSystemRemote(om, alias, dir);
+    }
+
+    public static FileSystemRemote apply(ObjectMapper om, FileSystemRemoteMemento memento) {
+        return apply(om, memento.getAlias(), memento.getDir());
     }
 
     @Override
     public FileSystemRemote resolve(Path to) {
-        return apply(alias, to.resolve(dir));
+        return apply(om, alias, to.resolve(dir));
     }
 
     @Override
     public FileSystemRemote relativize(Path to) {
-        return apply(alias, to.relativize(dir));
+        return apply(om, alias, to.relativize(dir));
     }
 
     @Override
-    public String getInfo() {
+    public ResourceName alias() {
+        return alias;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Remote) {
+            return memento().equals(((Remote) obj).memento());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return memento().hashCode();
+    }
+
+    @Override
+    public String info() {
         return dir.toString();
     }
 
     @Override
-    public RemoteProperties getProperties() {
+    public RemoteMemento memento() {
         return this;
     }
 
@@ -125,6 +145,11 @@ public class FileSystemRemote implements Remote, FileSystemDependent<FileSystemR
                 LogRotatorSink.createFromFunction(rotationFunction),
                 Keep.right())
             .mapMaterializedValue(done -> done.thenApply(d -> WriteSummary.apply(42)));
+    }
+
+    @Override
+    public void writeTo(OutputStream os) throws IOException {
+        om.writeValue(os, FileSystemRemoteMemento.apply(alias, dir));
     }
 
 }

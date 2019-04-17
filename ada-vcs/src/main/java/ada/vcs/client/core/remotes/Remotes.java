@@ -1,114 +1,30 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.Lists;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 
-import java.util.List;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Value
-@EqualsAndHashCode(doNotUseGetters = true)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Remotes {
+public interface Remotes {
 
-    @JsonProperty
-    private final List<Remote> remotes;
+    Optional<Remote> getRemote(String alias);
 
-    @JsonProperty
-    private final ResourceName upstream;
+    Optional<Remote> getRemote(ResourceName alias);
 
-    @JsonCreator
-    public static Remotes apply(
-        @JsonProperty("remotes") List<Remote> remotes,
-        @JsonProperty("upstream") ResourceName upstream) {
+    Stream<Remote> getRemotes();
 
-        return new Remotes(Lists.newArrayList(remotes), upstream);
-    }
+    Optional<Remote> getUpstream();
 
-    public static Remotes apply(List<Remote> remotes) {
-        return apply(remotes, null);
-    }
+    Remotes add(Remote remote);
 
-    public static Remotes apply() {
-        return apply(Lists.newArrayList());
-    }
+    Remotes remove(Remote remote);
 
-    public Optional<Remote> getRemote(String alias) {
-        return getRemotes()
-            .filter(remote -> remote.getAlias().getValue().equals(alias))
-            .findFirst();
-    }
+    Remotes remove(String alias);
 
-    public Optional<Remote> getRemote(ResourceName alias) {
-        return getRemote(alias.getValue());
-    }
+    Remotes setUpstream(String alias);
 
-    @JsonIgnore
-    public Stream<Remote> getRemotes() {
-        return remotes.stream();
-    }
-
-    @JsonIgnore
-    public Optional<Remote> getUpstream() {
-        if (upstream == null) {
-            return Optional.empty();
-        } else {
-            return remotes
-                .stream()
-                .filter(remote -> remote.getAlias().getValue().equals(upstream.getValue()))
-                .findFirst();
-        }
-    }
-
-    public Remotes add(Remote remote) {
-        List<Remote> remotes = this.remotes
-            .stream()
-            .filter(r -> !r.getAlias().getValue().equals(remote.getAlias().getValue()))
-            .collect(Collectors.toList());
-
-        remotes.add(remote);
-
-        if (remotes.size() == 1) {
-            return apply(remotes, remote.getAlias());
-        } else {
-            return apply(remotes, upstream);
-        }
-    }
-
-    public Remotes remove(Remote remote) {
-        return remove(remote.getAlias().getValue());
-    }
-
-    public Remotes remove(String alias) {
-        List<Remote> remotes = this.remotes
-            .stream()
-            .filter(r -> !r.getAlias().getValue().equals(alias))
-            .collect(Collectors.toList());
-
-        if (upstream != null && upstream.getValue().equals(alias)) {
-            if (remotes.size() > 0) {
-                return apply(remotes, remotes.get(0).getAlias());
-            } else {
-                return apply(remotes, null);
-            }
-        } else {
-            return apply(remotes, upstream);
-        }
-    }
-
-    public Remotes setUpstream(String alias) {
-        return getRemote(alias)
-            .map(remote -> Remotes.apply(remotes, remote.getAlias()))
-            .orElse(this);
-    }
+    void writeTo(OutputStream os) throws IOException;
 
 }

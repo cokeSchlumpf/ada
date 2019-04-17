@@ -2,8 +2,10 @@ package ada.vcs.client.core.project;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.Operators;
-import ada.vcs.client.core.Dataset;
+import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.DatasetImpl;
 import ada.vcs.client.core.remotes.Remotes;
+import ada.vcs.client.core.remotes.RemotesImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
@@ -33,8 +35,6 @@ final class AdaProjectDAO {
 
     private final Path remotes;
 
-    private final transient ObjectMapper om;
-
     public static AdaProjectDAO apply(Path root, Path datasets, Path local, Path remotes, ObjectMapper om) {
         try {
             if (!Files.exists(datasets)) {
@@ -46,7 +46,7 @@ final class AdaProjectDAO {
             }
 
             if (!Files.exists(remotes)) {
-                om.writeValue(remotes.toFile(), Remotes.apply());
+                om.writeValue(remotes.toFile(), RemotesImpl.apply());
             }
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
@@ -119,7 +119,7 @@ final class AdaProjectDAO {
 
     public Optional<Dataset> readDataset(String name) {
         Path file = datasets.resolve(String.format("%s.json", name));
-        return Operators.exceptionToNone(() -> om.readValue(file.toFile(), Dataset.class));
+        return Operators.exceptionToNone(() -> om.readValue(file.toFile(), DatasetImpl.class));
     }
 
     public Stream<Dataset> readDatasets() {
@@ -130,7 +130,7 @@ final class AdaProjectDAO {
                     .iterator())
                 .stream()
                 .map(file -> Operators
-                    .exceptionToNone(() -> om.readValue(file.toFile(), Dataset.class)))
+                    .exceptionToNone(() -> om.readValue(file.toFile(), DatasetImpl.class)))
                 .filter(Optional::isPresent)
                 .map(Optional::get);
         } catch (IOException e) {
@@ -140,7 +140,7 @@ final class AdaProjectDAO {
 
     public Remotes readRemotes() {
         try {
-            return om.readValue(remotes.toFile(), Remotes.class);
+            return om.readValue(remotes.toFile(), RemotesImpl.class);
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }

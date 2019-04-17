@@ -1,6 +1,6 @@
 package ada.vcs.client.converters.internal.contexts;
 
-import ada.vcs.client.converters.internal.api.Context;
+import ada.vcs.client.converters.api.Context;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import lombok.AccessLevel;

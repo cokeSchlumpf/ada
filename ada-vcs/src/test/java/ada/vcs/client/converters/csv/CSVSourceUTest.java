@@ -2,10 +2,8 @@ package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.csv.CSVSink;
-import ada.vcs.client.converters.csv.CSVSource;
-import ada.vcs.client.converters.internal.api.ReadSummary;
-import ada.vcs.client.converters.internal.api.ReadableDataSource;
+import ada.vcs.client.converters.api.ReadSummary;
+import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import akka.actor.ActorSystem;

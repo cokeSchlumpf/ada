@@ -32,9 +32,9 @@ public class RemotesUTest {
 
         assertThat(httpRemoteRead).isEqualTo(httpRemoteOrig);
 
-        Remotes remotesOrig = Remotes.apply(Lists.newArrayList(fsRemoteOrig, httpRemoteOrig), fsRemoteOrig.getAlias());
+        Remotes remotesOrig = RemotesImpl.apply(Lists.newArrayList(fsRemoteOrig, httpRemoteOrig), fsRemoteOrig.alias());
         String remotesJson = om.writeValueAsString(remotesOrig);
-        Remotes remotesRead = om.readValue(remotesJson, Remotes.class);
+        Remotes remotesRead = om.readValue(remotesJson, RemotesImpl.class);
 
         assertThat(remotesRead).isEqualTo(remotesOrig);
 
@@ -48,7 +48,7 @@ public class RemotesUTest {
         FileSystemRemote fsRemote = FileSystemRemote.apply(ResourceName.apply("fs-remote"), Paths.get("test"));
         HttpRemote httpRemote = HttpRemote.apply(ResourceName.apply("http-remote"), new URL("http://foo.bar"));
 
-        Remotes remotes = Remotes
+        Remotes remotes = RemotesImpl
             .apply()
             .add(fsRemote);
 
@@ -67,7 +67,7 @@ public class RemotesUTest {
         assertThat(remotes.getUpstream().isPresent()).isTrue();
         assertThat(remotes.getUpstream().orElse(null)).isEqualTo(fsRemote);
 
-        assertThat(remotes.getRemote(fsRemote.getAlias()).orElse(null)).isEqualTo(fsRemote);
+        assertThat(remotes.getRemote(fsRemote.alias()).orElse(null)).isEqualTo(fsRemote);
         assertThat(remotes.getRemote("foo").isPresent()).isFalse();
 
         remotes = remotes.add(fsRemote);

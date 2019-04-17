@@ -1,7 +1,7 @@
-package ada.vcs.client.core;
+package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.internal.api.DataSource;
+import ada.vcs.client.converters.api.DataSource;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Maps;
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 @Value
 @Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Dataset implements Comparable<Dataset> {
+public class DatasetImpl implements Dataset {
 
     private final ResourceName alias;
 
@@ -37,7 +37,7 @@ public class Dataset implements Comparable<Dataset> {
 
         Map<String, Target> targetsMapped = Maps.newHashMap();
         targets.forEach(target -> targetsMapped.put(target.getAlias().getValue(), target));
-        return new Dataset(alias, source, schema, targetsMapped);
+        return new DatasetImpl(alias, source, schema, targetsMapped);
     }
 
     public static Dataset apply(ResourceName alias, DataSource<?> source, Schema schema) {
@@ -45,9 +45,10 @@ public class Dataset implements Comparable<Dataset> {
     }
 
     public static Dataset apply(ResourceName alias, DataSource<?> source, Schema schema, Map<String, Target> targets) {
-        return new Dataset(alias, source, schema, targets);
+        return new DatasetImpl(alias, source, schema, targets);
     }
 
+    @Override
     public Stream<Target> getTargets() {
         return targets.values().stream();
     }

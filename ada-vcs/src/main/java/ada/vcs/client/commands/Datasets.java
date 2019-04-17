@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.Dataset;
+import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.project.AdaProject;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -34,7 +34,7 @@ public final class Datasets extends StandardOptions implements ProjectCommand {
                 Lists.newArrayList("Alias", "Location"),
                 datasets
                     .stream()
-                    .map(ds -> Lists.newArrayList(ds.getAlias().getValue(), ds.getSource().getInfo()))
+                    .map(ds -> Lists.newArrayList(ds.getAlias().getValue(), ds.getSource().info()))
                     .collect(Collectors.toList()),
                 true);
         } else {
