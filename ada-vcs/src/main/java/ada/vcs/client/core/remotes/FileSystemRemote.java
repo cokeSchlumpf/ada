@@ -33,7 +33,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class FileSystemRemote implements Remote, RemoteMemento {
+final class FileSystemRemote implements Remote {
 
     private final ObjectMapper om;
 
@@ -90,7 +90,7 @@ final class FileSystemRemote implements Remote, RemoteMemento {
 
     @Override
     public RemoteMemento memento() {
-        return this;
+        return FileSystemRemoteMemento.apply(alias, dir);
     }
 
     @Override

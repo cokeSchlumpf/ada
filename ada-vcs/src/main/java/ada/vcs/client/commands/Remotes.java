@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
+import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.remotes.Remote;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -18,32 +18,36 @@ import java.util.stream.Collectors;
         Remotes$Add.class
     })
 @AllArgsConstructor(staticName = "apply")
-public final class Remotes extends StandardOptions implements ProjectCommand {
+public final class Remotes extends StandardOptions implements Runnable {
 
     private CommandLineConsole console;
 
+    private CommandContext context;
+
     @Override
-    public void run(AdaProject project) {
-        List<Remote> remotes = project.getRemotes().collect(Collectors.toList());
-        Optional<Remote> upstream = project.getUpstream();
+    public void run() {
+        context.withProject(project -> {
+            List<Remote> remotes = project.getRemotes().collect(Collectors.toList());
+            Optional<Remote> upstream = project.getUpstream();
 
 
-        if (remotes.size() > 0) {
-            console.table(
-                Lists.newArrayList("Alias", "Type"),
-                remotes
-                    .stream()
-                    .sorted()
-                    .map(remote -> Lists.newArrayList(
-                        upstream
-                            .filter(u -> u.alias().getValue().equals(remote.alias().getValue()))
-                            .map(i -> "* ")
-                            .orElse("  ") + remote.alias().getValue(),
-                        remote.info()))
-                    .collect(Collectors.toList()),
-                false);
-        } else {
-            console.message("No remotes in project.");
-        }
+            if (remotes.size() > 0) {
+                console.table(
+                    Lists.newArrayList("Alias", "Type"),
+                    remotes
+                        .stream()
+                        .sorted()
+                        .map(remote -> Lists.newArrayList(
+                            upstream
+                                .filter(u -> u.alias().getValue().equals(remote.alias().getValue()))
+                                .map(i -> "* ")
+                                .orElse("  ") + remote.alias().getValue(),
+                            remote.info()))
+                        .collect(Collectors.toList()),
+                    false);
+            } else {
+                console.message("No remotes in project.");
+            }
+        });
     }
 }

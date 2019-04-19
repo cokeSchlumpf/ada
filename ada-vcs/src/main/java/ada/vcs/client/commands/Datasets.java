@@ -1,8 +1,8 @@
 package ada.vcs.client.commands;
 
+import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.core.dataset.Dataset;
-import ada.vcs.client.core.project.AdaProject;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
@@ -18,28 +18,32 @@ import java.util.stream.Collectors;
         Datasets$Push.class
     })
 @AllArgsConstructor(staticName = "apply")
-public final class Datasets extends StandardOptions implements ProjectCommand {
+public final class Datasets extends StandardOptions implements Runnable {
 
     private CommandLineConsole console;
 
-    @Override
-    public void run(AdaProject project) {
-        List<Dataset> datasets = project
-            .getDatasets()
-            .sorted()
-            .collect(Collectors.toList());
+    private CommandContext context;
 
-        if (datasets.size() > 0) {
-            console.table(
-                Lists.newArrayList("Alias", "Location"),
-                datasets
-                    .stream()
-                    .map(ds -> Lists.newArrayList(ds.alias().getValue(), ds.source().info()))
-                    .collect(Collectors.toList()),
-                true);
-        } else {
-            console.message("No datasets in project.");
-        }
+    @Override
+    public void run() {
+        context.withProject(project -> {
+            List<Dataset> datasets = project
+                .getDatasets()
+                .sorted()
+                .collect(Collectors.toList());
+
+            if (datasets.size() > 0) {
+                console.table(
+                    Lists.newArrayList("Alias", "Location"),
+                    datasets
+                        .stream()
+                        .map(ds -> Lists.newArrayList(ds.alias().getValue(), ds.source().info()))
+                        .collect(Collectors.toList()),
+                    true);
+            } else {
+                console.message("No datasets in project.");
+            }
+        });
     }
 
 }

@@ -3,7 +3,6 @@ package ada.vcs.client.converters.avro;
 import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.DataSinkMemento;
 import ada.vcs.client.converters.api.WriteSummary;
-import ada.vcs.client.core.FileSystemDependent;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.Sink;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
-public final class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
+public final class AvroSink implements DataSink {
 
     private final Path path;
 
@@ -70,7 +69,7 @@ public final class AvroSink implements DataSink, FileSystemDependent<AvroSink> {
 
     @Override
     public DataSinkMemento memento() {
-        return null;
+        return AvroSinkMemento.apply(path);
     }
 
     @Override

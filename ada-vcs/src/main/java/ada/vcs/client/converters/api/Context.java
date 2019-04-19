@@ -1,10 +1,7 @@
 package ada.vcs.client.converters.api;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import ada.vcs.client.core.Writable;
 
-public interface Context {
-
-    void writeTo(OutputStream os) throws IOException;
+public interface Context extends Writable {
 
 }

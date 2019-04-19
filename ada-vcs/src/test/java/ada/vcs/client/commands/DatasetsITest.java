@@ -90,7 +90,7 @@ public class DatasetsITest {
 
         // When adding targets to a dataset
         context.run("dataset", "foo", "targets", "add", "csv", dir.resolve("out-csv.csv").toString(), "--verbose");
-        context.run("dataset", "foo", "targets", "add", "avro", dir.resolve("out-avro.avro").toString());
+        context.run("dataset", "foo", "targets", "add", "avro", dir.resolve("out-avro.avro").toString(), "--verbose");
 
         // Then the CLI should confirm this.
         assertThat(context.getOutput())
@@ -104,7 +104,7 @@ public class DatasetsITest {
          */
 
         // When listing the datasets
-        context.run("dataset", "foo", "targets");
+        context.run("dataset", "foo", "targets", "--verbose");
 
         // The added datasets should be listed.
         assertThat(context.getOutput())

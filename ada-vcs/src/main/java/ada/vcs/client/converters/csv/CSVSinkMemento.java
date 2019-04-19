@@ -3,15 +3,14 @@ package ada.vcs.client.converters.csv;
 import ada.commons.util.Either;
 import ada.vcs.client.converters.api.DataSinkMemento;
 import ada.vcs.client.datatypes.BooleanFormat;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 
 @Value
-@AllArgsConstructor(staticName = "apply")
 public final class CSVSinkMemento implements DataSinkMemento {
 
     private static final String OUTPUT = "output";
@@ -47,4 +46,28 @@ public final class CSVSinkMemento implements DataSinkMemento {
     @JsonProperty(BOOLEAN_FORMAT)
     private final BooleanFormat booleanFormat;
 
+    @JsonCreator
+    private CSVSinkMemento(
+        @JsonProperty(OUTPUT) Either<Path, PrintStream> output,
+        @JsonProperty(FIELD_SEPARATOR) char fieldSeparator,
+        @JsonProperty(QUOTE_CHAR) char quoteChar,
+        @JsonProperty(ESCAPE_CHAR) char escapeChar,
+        @JsonProperty(END_OF_LINE) String endOfLine,
+        @JsonProperty(NULL_VALUE) String nullValue,
+        @JsonProperty(NUMBER_FORMAT) String numberFormat,
+        @JsonProperty(BOOLEAN_FORMAT) BooleanFormat booleanFormat) {
+
+        this.output = output;
+        this.fieldSeparator = fieldSeparator;
+        this.quoteChar = quoteChar;
+        this.escapeChar = escapeChar;
+        this.endOfLine = endOfLine;
+        this.nullValue = nullValue;
+        this.numberFormat = numberFormat;
+        this.booleanFormat = booleanFormat;
+    }
+
+    public static CSVSinkMemento apply(Either<Path, PrintStream> output, char fieldSeparator, char quoteChar, char escapeChar, String endOfLine, String nullValue, String numberFormat, BooleanFormat booleanFormat) {
+        return new CSVSinkMemento(output, fieldSeparator, quoteChar, escapeChar, endOfLine, nullValue, numberFormat, booleanFormat);
+    }
 }

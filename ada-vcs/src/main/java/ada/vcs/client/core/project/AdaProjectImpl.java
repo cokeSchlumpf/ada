@@ -88,7 +88,7 @@ final class AdaProjectImpl implements AdaProject {
     }
 
     @Override
-    public Path getPath() {
+    public Path path() {
         return dao.getRoot();
     }
 

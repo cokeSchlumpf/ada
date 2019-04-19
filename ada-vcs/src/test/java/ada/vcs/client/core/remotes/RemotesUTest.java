@@ -1,14 +1,15 @@
 package ada.vcs.client.core.remotes;
 
-import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
@@ -18,23 +19,31 @@ public class RemotesUTest {
 
     @Test
     public void testJson() throws IOException {
-        ObjectMapper om = ObjectMapperFactory.apply().create(true);
+        RemotesFactory factory = RemotesFactory.apply();
+        Remote fsRemoteOrig = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), Paths.get("test"));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        FileSystemRemote fsRemoteOrig = FileSystemRemote.apply(ResourceName.apply("fs-remote"), Paths.get("test"));
-        String fsRemoteJson = om.writeValueAsString(fsRemoteOrig);
-        FileSystemRemote fsRemoteRead = om.readValue(fsRemoteJson, FileSystemRemote.class);
+        fsRemoteOrig.writeTo(os);
+        String fsRemoteJson = new String(os.toByteArray(), StandardCharsets.UTF_8);
+        Remote fsRemoteRead = factory.createRemote(new ByteArrayInputStream(fsRemoteJson.getBytes()));
 
         assertThat(fsRemoteRead).isEqualTo(fsRemoteOrig);
 
-        HttpRemote httpRemoteOrig = HttpRemote.apply(ResourceName.apply("http-remote"), new URL("http://foo.bar/project"));
-        String httpRemoteJson = om.writeValueAsString(httpRemoteOrig);
-        HttpRemote httpRemoteRead = om.readValue(httpRemoteJson, HttpRemote.class);
+        Remote httpRemoteOrig = factory.createHttpRemote(ResourceName.apply("http-remote"), new URL("http://foo.bar/project"));
+
+        os.reset();
+        httpRemoteOrig.writeTo(os);
+        String httpRemoteJson = new String(os.toByteArray(), StandardCharsets.UTF_8);
+        Remote httpRemoteRead = factory.createRemote(new ByteArrayInputStream(httpRemoteJson.getBytes()));
 
         assertThat(httpRemoteRead).isEqualTo(httpRemoteOrig);
 
-        Remotes remotesOrig = RemotesImpl.apply(Lists.newArrayList(fsRemoteOrig, httpRemoteOrig), fsRemoteOrig.alias());
-        String remotesJson = om.writeValueAsString(remotesOrig);
-        Remotes remotesRead = om.readValue(remotesJson, RemotesImpl.class);
+        Remotes remotesOrig = factory.createRemotes(Lists.newArrayList(fsRemoteOrig, httpRemoteOrig), fsRemoteOrig.alias());
+        os.reset();
+
+        remotesOrig.writeTo(os);
+        String remotesJson = new String(os.toByteArray(), StandardCharsets.UTF_8);
+        Remotes remotesRead = factory.createRemotes(new ByteArrayInputStream(remotesJson.getBytes()));
 
         assertThat(remotesRead).isEqualTo(remotesOrig);
 
@@ -45,11 +54,12 @@ public class RemotesUTest {
 
     @Test
     public void test() throws MalformedURLException {
-        FileSystemRemote fsRemote = FileSystemRemote.apply(ResourceName.apply("fs-remote"), Paths.get("test"));
-        HttpRemote httpRemote = HttpRemote.apply(ResourceName.apply("http-remote"), new URL("http://foo.bar"));
+        RemotesFactory factory = RemotesFactory.apply();
+        Remote fsRemote = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), Paths.get("test"));
+        Remote httpRemote = factory.createHttpRemote(ResourceName.apply("http-remote"), new URL("http://foo.bar"));
 
-        Remotes remotes = RemotesImpl
-            .apply()
+        Remotes remotes = factory
+            .createRemotes()
             .add(fsRemote);
 
         assertThat(remotes.getRemotes().collect(Collectors.toList()))

@@ -82,6 +82,20 @@ public class RemotesImpl implements Remotes {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof RemotesImpl) {
+            return this.memento().equals(((RemotesImpl) other).memento());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return memento().hashCode();
+    }
+
+    @Override
     public Remotes remove(Remote remote) {
         return remove(remote.alias().getValue());
     }
@@ -116,7 +130,7 @@ public class RemotesImpl implements Remotes {
         om.writeValue(os, memento());
     }
 
-    private RemotesMemento memento() {
+    public RemotesMemento memento() {
         return RemotesMemento.apply(
             remotes.stream().map(Remote::memento).collect(Collectors.toList()),
             upstream);

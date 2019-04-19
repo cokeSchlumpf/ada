@@ -1,12 +1,17 @@
 package ada.vcs.client.converters.api;
 
+import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.converters.avro.AvroSink;
 import ada.vcs.client.converters.avro.AvroSinkMemento;
 import ada.vcs.client.converters.csv.CSVSink;
 import ada.vcs.client.converters.csv.CSVSinkMemento;
 import ada.vcs.client.converters.local.LocalSink;
 import ada.vcs.client.converters.local.LocalSinkMemento;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DataSinkFactory {

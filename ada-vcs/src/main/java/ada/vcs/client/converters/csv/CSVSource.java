@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CSVSource implements DataSource<FileContext>, FileSystemDependent<CSVSource> {
+public final class CSVSource implements DataSource<FileContext> {
 
     private final Path file;
 

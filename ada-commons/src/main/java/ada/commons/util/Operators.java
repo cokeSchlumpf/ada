@@ -48,4 +48,11 @@ public final class Operators {
 
     }
 
+    @FunctionalInterface
+    public interface ExceptionalFunction<I, R> {
+
+        R apply(I in) throws Exception;
+
+    }
+
 }

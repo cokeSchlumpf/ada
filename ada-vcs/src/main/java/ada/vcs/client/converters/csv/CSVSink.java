@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Value
 @Wither
 @AllArgsConstructor(staticName = "apply")
-public final class CSVSink implements DataSink, FileSystemDependent<CSVSink> {
+public final class CSVSink implements DataSink {
 
     private final Either<Path, PrintStream> output;
 

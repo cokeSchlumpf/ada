@@ -68,4 +68,13 @@ public final class LocalSink implements DataSink {
         return LocalSinkMemento.apply(directory);
     }
 
+    @Override
+    public DataSink resolve(Path to) {
+        return this;
+    }
+
+    @Override
+    public DataSink relativize(Path to) {
+        return this;
+    }
 }

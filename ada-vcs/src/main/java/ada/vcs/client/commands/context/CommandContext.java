@@ -1,5 +1,8 @@
-package ada.vcs.client.commands;
+package ada.vcs.client.commands.context;
 
+import ada.commons.databind.ObjectMapperFactory;
+import ada.vcs.client.core.project.AdaProject;
+import ada.vcs.client.exceptions.NoProjectException;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
@@ -12,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -24,6 +28,8 @@ public final class CommandContext {
 
     private final List<Runnable> shutdownActions;
 
+    private final Factories factories;
+
     public static CommandContext apply() {
         ArrayList<Runnable> shutdownActions = Lists.newArrayList();
 
@@ -35,21 +41,36 @@ public final class CommandContext {
 
         Supplier<Materializer> materializer = Suppliers.memoize(() -> ActorMaterializer.create(system.get()));
 
-        return new CommandContext(materializer, system, shutdownActions);
+        Factories factories = Factories.apply(ObjectMapperFactory.apply().create(true));
+
+        return new CommandContext(materializer, system, shutdownActions, factories);
     }
 
-    public Materializer getMaterializer() {
+    public Factories factories() {
+        return factories;
+    }
+
+    public Materializer materializer() {
         return materializer.get();
     }
 
-    public ActorSystem getSystem() {
+    public ActorSystem system() {
         return system.get();
+    }
+
+    public void withProject(Consumer<AdaProject> block) {
+        AdaProject project = factories
+            .projectFactory()
+            .fromHere()
+            .orElseThrow(NoProjectException::apply);
+
+        block.accept(project);
     }
 
     public void withMaterializer(Function<Materializer, CompletionStage<?>> block) {
         try {
             block
-                .apply(getMaterializer())
+                .apply(materializer())
                 .toCompletableFuture()
                 .get();
         } catch (InterruptedException | ExecutionException e) {

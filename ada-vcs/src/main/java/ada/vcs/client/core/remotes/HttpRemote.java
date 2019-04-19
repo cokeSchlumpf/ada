@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-final class HttpRemote implements Remote, RemoteMemento {
+final class HttpRemote implements Remote {
 
     private final ObjectMapper om;
 
@@ -69,7 +69,7 @@ final class HttpRemote implements Remote, RemoteMemento {
 
     @Override
     public RemoteMemento memento() {
-        return this;
+        return HttpRemoteMemento.apply(alias, endpoint);
     }
 
     @Override

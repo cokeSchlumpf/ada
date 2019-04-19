@@ -1,6 +1,6 @@
 package ada.vcs.client;
 
-import ada.vcs.client.commands.CommandContext;
+import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.commands.CommandFactory;
 import ada.vcs.client.commands.Root;
 import ada.vcs.client.consoles.CommandLineConsole;

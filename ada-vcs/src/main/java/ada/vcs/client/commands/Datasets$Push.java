@@ -1,12 +1,10 @@
 package ada.vcs.client.commands;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.dataset.Dataset;
-import ada.vcs.client.core.FileSystemDependent;
-import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.remotes.Remote;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
@@ -22,7 +20,7 @@ import java.util.stream.Stream;
     subcommands = {
         Datasets$Add$CSV.class
     })
-public final class Datasets$Push extends StandardOptions implements ProjectCommand {
+public final class Datasets$Push extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
 
@@ -38,7 +36,7 @@ public final class Datasets$Push extends StandardOptions implements ProjectComma
     @CommandLine.Option(
         names = { "-u", "--set-upstream" },
         description = "if set, the remote will be set as default upstream remote")
-    private boolean setUpstream;
+    private boolean setUpstream = false;
 
     private Datasets$Push(CommandLineConsole console, CommandContext context) {
         this.console = console;
@@ -50,80 +48,72 @@ public final class Datasets$Push extends StandardOptions implements ProjectComma
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void run(AdaProject project) {
-        List<Dataset> datasets = project
-            .getDatasets()
-            .collect(Collectors.toList());
+    public void run() {
+        context.withProject(project -> {
+            List<Dataset> datasets = project
+                .getDatasets()
+                .collect(Collectors.toList());
 
-        if (remote == null || remote.trim().length() == 0) {
-            remote = project
-                .getUpstream()
-                .map(Remote::alias)
-                .map(ResourceName::getValue)
-                .orElse(null);
+            if (remote == null || remote.trim().length() == 0) {
+                remote = project
+                    .getUpstream()
+                    .map(Remote::alias)
+                    .map(ResourceName::getValue)
+                    .orElse(null);
 
-            if (remote == null) {
-                console.message("No remote provided and no upstream set.");
+                if (remote == null) {
+                    console.message("No remote provided and no upstream set.");
+                    return;
+                }
+            }
+
+            if (datasets.isEmpty()) {
+                console.message("The project does not contain any datasets to push.");
                 return;
             }
-        }
 
-        if (datasets.isEmpty()) {
-            console.message("The project does not contain any datasets to push.");
-            return;
-        }
-
-        final Remote rm = Stream
-            .of(project.getRemote(remote))
-            .map(rem -> {
-                if (setUpstream) {
-                    project.updateUpstream(rem.alias().getValue());
-                }
-
-                if (rem instanceof FileSystemDependent) {
-                    return ((FileSystemDependent<? extends Remote>) rem).resolve(project.getPath());
-                } else {
-                    return rem;
-                }
-            })
-            .findFirst()
-            .get();
-
-        console.message("Pushing %d dataset(s) to remote '%s'", datasets.size(), rm.alias().getValue());
-
-        context
-            .withMaterializer(materializer -> Source
-                .from(datasets)
-                .zipWithIndex()
-                .map(pair -> {
-                    Dataset dataset = pair.first();
-                    Long idx = (Long) pair.second();
-
-                    console.message(
-                        "-> Uploading data to from dataset '%s' (%d of %d).",
-                        dataset.alias().getValue(), idx + 1, datasets.size());
-
-                    if (dataset.source() instanceof FileSystemDependent) {
-                        return dataset.withSource(
-                            ((FileSystemDependent<? extends DataSource>) dataset.source()).resolve(project.getPath()));
-                    } else {
-                        return dataset;
+            final Remote rm = Stream
+                .of(project.getRemote(remote))
+                .map(rem -> {
+                    if (setUpstream) {
+                        project.updateUpstream(rem.alias().getValue());
                     }
+
+                    return rem.resolve(project.path());
                 })
-                .mapAsync(1, dataset -> dataset
-                    .source()
-                    .analyze(materializer, dataset.schema())
-                    .thenCompose(readableDataSource ->
-                        readableDataSource
-                            .getRecords(NoOpMonitor.apply())
-                            .toMat(rm.push(dataset.schema()), (l, r) -> l.thenCompose(i -> r))
-                            .run(materializer)
-                            .thenApply(summary -> {
-                                console.message("   Done.");
-                                return summary;
-                            })))
-                .runWith(Sink.ignore(), materializer));
+                .findFirst()
+                .get();
+
+            console.message("Pushing %d dataset(s) to remote '%s'", datasets.size(), rm.alias().getValue());
+
+            context
+                .withMaterializer(materializer -> Source
+                    .from(datasets)
+                    .zipWithIndex()
+                    .map(pair -> {
+                        Dataset dataset = pair.first();
+                        Long idx = (Long) pair.second();
+
+                        console.message(
+                            "-> Uploading data to from dataset '%s' (%d of %d).",
+                            dataset.alias().getValue(), idx + 1, datasets.size());
+
+                        return dataset.withSource(dataset.source().resolve(project.path()));
+                    })
+                    .mapAsync(1, dataset -> dataset
+                        .source()
+                        .analyze(materializer, dataset.schema())
+                        .thenCompose(readableDataSource ->
+                            readableDataSource
+                                .getRecords(NoOpMonitor.apply())
+                                .toMat(rm.push(dataset.schema()), (l, r) -> l.thenCompose(i -> r))
+                                .run(materializer)
+                                .thenApply(summary -> {
+                                    console.message("   Done.");
+                                    return summary;
+                                })))
+                    .runWith(Sink.ignore(), materializer));
+        });
     }
 
 }

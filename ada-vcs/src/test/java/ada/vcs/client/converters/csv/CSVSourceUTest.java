@@ -2,6 +2,7 @@ package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.consoles.CommandLineConsole;
+import ada.vcs.client.converters.api.DataSourceMemento;
 import ada.vcs.client.converters.api.ReadSummary;
 import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
@@ -93,12 +94,14 @@ public class CSVSourceUTest {
             "  \"records-analyzed\" : 1000\n" +
             "}";
 
-        CSVSource s2 = ObjectMapperFactory
+        CSVSourceMemento s2 = ObjectMapperFactory
             .apply()
             .create()
-            .readValue(json, CSVSource.class);
+            .readValue(json, CSVSourceMemento.class);
 
-        assertThat(s2.getCommentChar()).isEqualTo('#');
+        CSVSource parsed = CSVSource.apply(s2);
+
+        assertThat(parsed.getCommentChar()).isEqualTo('#');
         System.out.println(om.writeValueAsString(source));
     }
 

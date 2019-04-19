@@ -1,6 +1,6 @@
 package ada.vcs.client.converters.api;
 
-import ada.vcs.client.converters.csv.CSVSource;
+import ada.vcs.client.converters.csv.CSVSourceMemento;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     include = JsonTypeInfo.As.PROPERTY,
     property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = CSVSource.class, name = "csv")
+    @JsonSubTypes.Type(value = CSVSourceMemento.class, name = "csv")
 })
 public interface DataSourceMemento {
 }

@@ -2,6 +2,7 @@ package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.api.DataSinkMemento;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ final class TargetMemento {
     @JsonProperty("sink")
     private final DataSinkMemento sink;
 
+    @JsonCreator
     public static TargetMemento apply(
         @JsonProperty("alias") ResourceName alias,
         @JsonProperty("sink") DataSinkMemento sink) {

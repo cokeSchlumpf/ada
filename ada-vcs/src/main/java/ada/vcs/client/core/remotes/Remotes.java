@@ -1,13 +1,12 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.client.core.Writable;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface Remotes {
+public interface Remotes extends Writable {
 
     Optional<Remote> getRemote(String alias);
 
@@ -24,7 +23,5 @@ public interface Remotes {
     Remotes remove(String alias);
 
     Remotes setUpstream(String alias);
-
-    void writeTo(OutputStream os) throws IOException;
 
 }

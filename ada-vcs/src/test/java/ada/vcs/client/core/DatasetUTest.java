@@ -1,21 +1,22 @@
 package ada.vcs.client.core;
 
-import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.csv.CSVSource;
 import ada.vcs.client.converters.api.ReadableDataSource;
+import ada.vcs.client.converters.csv.CSVSource;
 import ada.vcs.client.converters.internal.contexts.FileContext;
 import ada.vcs.client.core.dataset.Dataset;
-import ada.vcs.client.core.dataset.DatasetImpl;
+import ada.vcs.client.core.dataset.DatasetFactory;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.avro.Schema;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
@@ -52,14 +53,17 @@ public class DatasetUTest {
 
         Schema schema = rs.getSchema();
 
-        Dataset ds = DatasetImpl.apply(ResourceName.apply("foo"), source, schema);
+        DatasetFactory factory = DatasetFactory.apply();
+        Dataset ds = factory.createDataset(ResourceName.apply("foo"), source, schema);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        ObjectMapper om = ObjectMapperFactory.apply().create(true);
+        ds.writeTo(baos);
 
-        String json = om.writeValueAsString(ds);
+        String json = new String(baos.toByteArray(), StandardCharsets.UTF_8);
         System.out.println(json);
 
-        Dataset dsp = om.readValue(json, DatasetImpl.class);
+        ByteArrayInputStream is = new ByteArrayInputStream(json.getBytes());
+        Dataset dsp = factory.createDataset(is);
 
         System.out.println(dsp);
     }

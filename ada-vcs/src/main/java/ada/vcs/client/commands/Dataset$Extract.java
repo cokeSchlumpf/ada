@@ -1,13 +1,12 @@
 package ada.vcs.client.commands;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
-import ada.vcs.client.core.project.AdaProject;
-import ada.vcs.client.core.FileSystemDependent;
-import ada.vcs.client.core.dataset.TargetImpl;
+import ada.vcs.client.core.dataset.Target;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
     name = "extract",
     description = "extract a dataset to one or more targets")
 @AllArgsConstructor(staticName = "apply")
-public final class Dataset$Extract extends StandardOptions implements ProjectCommand {
+public final class Dataset$Extract extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
 
@@ -42,67 +41,63 @@ public final class Dataset$Extract extends StandardOptions implements ProjectCom
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void run(AdaProject project) {
-        final Dataset dataset = getDataset().orElseThrow(() -> new IllegalStateException(""));
+    public void run() {
+        context.withProject(project -> {
+            final Dataset dataset = getDataset().orElseThrow(() -> new IllegalStateException(""));
 
-        if (targets == null || targets.isEmpty()) {
-            targets = project
-                .getTargets(dataset.getAlias())
-                .map(TargetImpl::getAlias)
-                .map(ResourceName::getValue)
-                .collect(Collectors.toList());
-        }
-
-        if (targets.isEmpty()) {
-            console.message("Dataset '%s' does not contain any targets to extract data.", dataset.getAlias());
-            return;
-        }
-
-
-        context.withMaterializer(materializer -> {
-            ada.vcs.client.core.dataset.Dataset ds = project.getDataset(dataset.getAlias());
-
-            DataSource<?> source = ds.source();
-            if (source instanceof FileSystemDependent) {
-                source = ((FileSystemDependent<? extends DataSource>) source).resolve(project.getPath());
+            if (targets == null || targets.isEmpty()) {
+                targets = project
+                    .getTargets(dataset.alias())
+                    .map(Target::alias)
+                    .map(ResourceName::getValue)
+                    .collect(Collectors.toList());
             }
 
-            console.message("Extracting data to %d target(s)", targets.size());
+            if (targets.isEmpty()) {
+                console.message("Dataset '%s' does not contain any targets to extract data.", dataset.alias());
+                return;
+            }
 
-            return source
-                .analyze(materializer, ds.schema())
-                .thenCompose(src -> Source
-                    .from(targets)
-                    .zipWithIndex()
-                    .mapAsync(1, pair -> {
-                        String target = pair.first();
-                        Long idx = (Long) pair.second();
 
-                        console.message(
-                            "-> Starting to extract dataset '%s' to target '%s' (%d of %d).",
-                            ds.alias().getValue(), target, idx + 1, targets.size());
+            context.withMaterializer(materializer -> {
+                final ada.vcs.client.core.dataset.Dataset ds = project.getDataset(dataset.alias());
+                final DataSource<?> source = ds.source().resolve(project.path());
 
-                        DataSink sink = project
-                            .getTarget(dataset.getAlias(), target)
-                            .getSink();
+                console.message("Extracting data to %d target(s)", targets.size());
 
-                        if (sink instanceof FileSystemDependent) {
-                            sink = ((FileSystemDependent<? extends DataSink>) sink).resolve(project.getPath());
-                        }
+                return source
+                    .analyze(materializer, ds.schema())
+                    .thenCompose(src -> Source
+                        .from(targets)
+                        .zipWithIndex()
+                        .mapAsync(1, pair -> {
+                            final String target = pair.first();
 
-                        return src
-                            .getRecords(NoOpMonitor.apply())
-                            .runWith(sink.sink(src.getSchema()), materializer)
-                            .thenApply(summary -> {
-                                console.message(
-                                    "   Done. Extracted %d records from dataset '%s' to target '%s'.",
-                                    summary.getCount(), ds.alias().getValue(), target);
+                            final Long idx = (Long) pair.second();
 
-                                return summary;
-                            });
-                    })
-                    .runWith(Sink.ignore(), materializer));
+                            final DataSink sink = project
+                                .getTarget(dataset.alias(), target)
+                                .sink()
+                                .resolve(project.path());
+
+                            console.message(
+                                "-> Starting to extract dataset '%s' to target '%s' (%d of %d).",
+                                ds.alias().getValue(), target, idx + 1, targets.size());
+
+
+                            return src
+                                .getRecords(NoOpMonitor.apply())
+                                .runWith(sink.sink(src.getSchema()), materializer)
+                                .thenApply(summary -> {
+                                    console.message(
+                                        "   Done. Extracted %d records from dataset '%s' to target '%s'.",
+                                        summary.getCount(), ds.alias().getValue(), target);
+
+                                    return summary;
+                                });
+                        })
+                        .runWith(Sink.ignore(), materializer));
+            });
         });
     }
 

@@ -1,7 +1,9 @@
 package ada.vcs.client;
 
+import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.core.project.AdaProjectFactory;
+import ada.vcs.client.core.remotes.RemotesFactory;
 import com.google.common.collect.Lists;
 import org.assertj.core.util.Files;
 import org.junit.Test;
@@ -22,7 +24,9 @@ public class AdaProjectUTest {
         File tmp = Files.newTemporaryFolder();
 
         try {
-            AdaProject root = AdaProjectFactory.apply().init(tmp.toPath());
+            AdaProject root = AdaProjectFactory
+                .apply(RemotesFactory.apply(), DatasetFactory.apply())
+                .init(tmp.toPath());
             System.out.println(root);
 
             List<String> files = Lists
@@ -43,12 +47,16 @@ public class AdaProjectUTest {
         File tmp = Files.newTemporaryFolder();
 
         try {
-            AdaProject root = AdaProjectFactory.apply().init(tmp.toPath());
+            AdaProjectFactory factory = AdaProjectFactory
+                .apply(RemotesFactory.apply(), DatasetFactory.apply());
+
+            AdaProject root = factory
+                .init(tmp.toPath());
 
             Path subDir = tmp.toPath().resolve("foo").resolve("bar");
             java.nio.file.Files.createDirectories(subDir);
 
-            Optional<AdaProject> detected = AdaProjectFactory.apply().from(subDir);
+            Optional<AdaProject> detected = factory.from(subDir);
 
             assertThat(detected.isPresent()).isTrue();
             detected.ifPresent(adaProject -> assertThat(adaProject).isEqualTo(root));

@@ -1,6 +1,8 @@
 package ada.vcs.client.core.dataset;
 
+import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
+import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.DataSinkFactory;
 import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.api.DataSourceFactory;
@@ -23,6 +25,10 @@ public final class DatasetFactory {
     private final DataSourceFactory dataSourceFactory;
 
     private final DataSinkFactory dataSinkFactory;
+
+    public static DatasetFactory apply() {
+        return apply(ObjectMapperFactory.apply().create(true), DataSourceFactory.apply(), DataSinkFactory.apply());
+    }
 
     public Dataset createDataset(
         ResourceName alias, DataSource<?> source, Schema schema, List<TargetImpl> targets) {
@@ -55,6 +61,10 @@ public final class DatasetFactory {
 
     public Dataset createDataset(InputStream is) throws IOException {
         return createDataset(om.readValue(is, DatasetMemento.class));
+    }
+
+    public Target createTarget(ResourceName alias, DataSink sink) {
+        return TargetImpl.apply(alias, sink);
     }
 
 }

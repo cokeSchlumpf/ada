@@ -30,7 +30,7 @@ public final class Dataset extends StandardOptions implements Runnable {
         console.message("Printing some information about datasets");
     }
 
-    public String getAlias() {
+    public String alias() {
         return alias;
     }
 }
