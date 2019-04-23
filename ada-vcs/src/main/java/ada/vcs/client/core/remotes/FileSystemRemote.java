@@ -4,13 +4,16 @@ import ada.commons.util.FileSize;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.api.WriteSummary;
+import ada.vcs.client.core.repository.api.RefSpec;
+import ada.vcs.client.core.repository.api.Repository;
+import ada.vcs.client.core.repository.api.User;
+import ada.vcs.client.core.repository.api.version.Tag;
+import ada.vcs.client.core.repository.api.version.VersionDetails;
+import akka.NotUsed;
 import akka.japi.function.Creator;
 import akka.japi.function.Function;
 import akka.stream.alpakka.file.javadsl.LogRotatorSink;
-import akka.stream.javadsl.Compression;
-import akka.stream.javadsl.Flow;
-import akka.stream.javadsl.Keep;
-import akka.stream.javadsl.Sink;
+import akka.stream.javadsl.*;
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -41,27 +44,28 @@ final class FileSystemRemote implements Remote {
 
     private final Path dir;
 
-    public static FileSystemRemote apply(ObjectMapper om, ResourceName alias, Path dir) {
+    private final Repository delegate;
 
+    public static FileSystemRemote apply(ObjectMapper om, ResourceName alias, Path dir, Repository delegate) {
         if (Files.exists(dir) && !Files.isDirectory(dir)) {
             throw new IllegalArgumentException("Path must be a directory, not a file");
         }
 
-        return new FileSystemRemote(om, alias, dir);
+        return new FileSystemRemote(om, alias, dir, delegate);
     }
 
-    public static FileSystemRemote apply(ObjectMapper om, FileSystemRemoteMemento memento) {
-        return apply(om, memento.getAlias(), memento.getDir());
+    public static FileSystemRemote apply(ObjectMapper om, FileSystemRemoteMemento memento, Repository delegate) {
+        return apply(om, memento.getAlias(), memento.getDir(), delegate);
     }
 
     @Override
     public FileSystemRemote resolve(Path to) {
-        return apply(om, alias, to.resolve(dir));
+        return apply(om, alias, to.resolve(dir), delegate);
     }
 
     @Override
     public FileSystemRemote relativize(Path to) {
-        return apply(om, alias, to.relativize(dir));
+        return apply(om, alias, to.relativize(dir), delegate);
     }
 
     @Override
@@ -94,7 +98,7 @@ final class FileSystemRemote implements Remote {
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema) {
+    public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
         final FileSize maxChunkSize = FileSize.apply(10, FileSize.Unit.MEGABYTES);
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
@@ -150,6 +154,31 @@ final class FileSystemRemote implements Remote {
     @Override
     public void writeTo(OutputStream os) throws IOException {
         om.writeValue(os, FileSystemRemoteMemento.apply(alias, dir));
+    }
+
+    @Override
+    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
+        return null;
+    }
+
+    @Override
+    public Source<Tag, NotUsed> tags() {
+        return null;
+    }
+
+    @Override
+    public Source<VersionDetails, NotUsed> history() {
+        return null;
+    }
+
+    @Override
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user, String message) {
+        return null;
+    }
+
+    @Override
+    public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
+        return null;
     }
 
 }

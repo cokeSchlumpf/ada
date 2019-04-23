@@ -1,5 +1,6 @@
 package ada.vcs.client.core.project;
 
+import ada.vcs.client.core.configuration.AdaConfiguration;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.Target;
 import ada.vcs.client.core.remotes.Remote;
@@ -15,6 +16,8 @@ public interface AdaProject {
     void addRemote(Remote remote);
 
     void addTarget(String dataset, Target target);
+
+    AdaConfiguration getConfiguration();
 
     Dataset getDataset(String name);
 

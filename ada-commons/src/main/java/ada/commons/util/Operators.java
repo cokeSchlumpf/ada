@@ -3,11 +3,19 @@ package ada.commons.util;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public final class Operators {
 
     private Operators() {
 
+    }
+
+    public static <T, E extends Exception> CompletionStage<T> completeExceptionally(E with) {
+        CompletableFuture<T> result = new CompletableFuture<>();
+        result.completeExceptionally(with);
+        return result;
     }
 
     public static <T> Optional<T> exceptionToNone(ExceptionalSupplier<T> supplier) {

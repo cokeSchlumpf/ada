@@ -1,5 +1,7 @@
 package ada.vcs.client.core.project;
 
+import ada.vcs.client.core.AdaHome;
+import ada.vcs.client.core.configuration.AdaConfiguration;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.Target;
 import ada.vcs.client.core.remotes.Remote;
@@ -21,6 +23,8 @@ import java.util.stream.Stream;
 final class AdaProjectImpl implements AdaProject {
 
     private final AdaProjectDAO dao;
+
+    private final AdaHome home;
 
     @Override
     public void addDataset(Dataset dataset) {
@@ -57,6 +61,11 @@ final class AdaProjectImpl implements AdaProject {
         existing.getTargets().forEach(t -> targets$next.put(t.alias().getValue(), t));
         targets$next.put(target.alias().getValue(), target);
         dao.saveDataset(existing.withTargets(targets$next));
+    }
+
+    @Override
+    public AdaConfiguration getConfiguration() {
+        return AdaProjectConfiguration.apply(dao, home);
     }
 
     @Override

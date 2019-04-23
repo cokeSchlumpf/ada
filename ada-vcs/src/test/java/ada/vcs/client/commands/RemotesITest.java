@@ -1,7 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.features.ApplicationContext;
-import ada.vcs.client.util.TestFactory;
+import ada.vcs.client.util.TestDataFactory;
 import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
@@ -52,10 +52,10 @@ public class RemotesITest {
     }
 
     @Test
-    public void test() throws InterruptedException {
+    public void test()  {
         final String fsRemoteName$01 = remoteDir$01.getFileName().toString();
         final String fsRemoteName$02 = remoteDir$02.getFileName().toString();
-        final String fooFile = TestFactory.createCSV(dir, "foo.csv").toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv").toAbsolutePath().toString();
 
         context.run("init");
 
@@ -68,7 +68,7 @@ public class RemotesITest {
         context.run("remotes", "add", "file://" + remoteDir$02.toAbsolutePath(), "--verbose");
         assertThat(context.getOutput()).contains("Added new remote '" + fsRemoteName$02 + "'.");
 
-        context.run("remotes", "add", "http://foo.bar/http-remote", "hippo-remote");
+        context.run("remotes", "add", "http://localhost:8080/hello", "hippo-remote");
         assertThat(context.getOutput()).contains("Added new remote 'hippo-remote'.");
 
         context.clearOutput();
@@ -85,6 +85,7 @@ public class RemotesITest {
 
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
         context.run("datasets", "push", fsRemoteName$01, "--verbose");
+        // context.run("datasets", "push", "hippo-remote", "--verbose");
 
         System.out.println(context.getOutput());
     }

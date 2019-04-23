@@ -28,8 +28,10 @@ dependencies {
     testCompile libs['assertj-core']
     testCompile libs['wiremock']
 
+    testCompile 'com.thedeanda:lorem:2.1'
     testCompile 'io.cucumber:cucumber-java:4.2.5'
     testCompile 'io.cucumber:cucumber-picocontainer:4.2.6'
+    testCompile 'org.jtwig:jtwig-core:5.87.0.RELEASE'
 }
 
 configurations {

@@ -1,6 +1,7 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.client.util.AbstractAdaTest;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
@@ -15,11 +16,11 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemotesUTest {
+public class RemotesUTest extends AbstractAdaTest {
 
     @Test
     public void testJson() throws IOException {
-        RemotesFactory factory = RemotesFactory.apply();
+        RemotesFactory factory = getContext().factories().remotesFactory();
         Remote fsRemoteOrig = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), Paths.get("test"));
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -54,7 +55,7 @@ public class RemotesUTest {
 
     @Test
     public void test() throws MalformedURLException {
-        RemotesFactory factory = RemotesFactory.apply();
+        RemotesFactory factory = getContext().factories().remotesFactory();
         Remote fsRemote = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), Paths.get("test"));
         Remote httpRemote = factory.createHttpRemote(ResourceName.apply("http-remote"), new URL("http://foo.bar"));
 

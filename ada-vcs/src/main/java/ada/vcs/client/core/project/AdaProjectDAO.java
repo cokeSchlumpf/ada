@@ -1,6 +1,8 @@
 package ada.vcs.client.core.project;
 
 import ada.commons.util.Operators;
+import ada.vcs.client.core.configuration.AdaConfiguration;
+import ada.vcs.client.core.configuration.AdaConfigurationFactory;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.core.remotes.Remotes;
@@ -27,6 +29,10 @@ import java.util.stream.Stream;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 final class AdaProjectDAO {
 
+    private static final String CONFIGURATION_FILE = "config.json";
+
+    private final AdaConfigurationFactory configurationFactory;
+
     private final RemotesFactory remotesFactory;
 
     private final DatasetFactory datasetFactory;
@@ -40,8 +46,8 @@ final class AdaProjectDAO {
     private final Path remotes;
 
     public static AdaProjectDAO apply(
-        RemotesFactory remotesFactory, DatasetFactory datasetFactory,
-        Path root, Path datasets, Path local, Path remotes) {
+        AdaConfigurationFactory configurationFactory, RemotesFactory remotesFactory,
+        DatasetFactory datasetFactory, Path root, Path datasets, Path local, Path remotes) {
 
         try {
             if (!Files.exists(datasets)) {
@@ -61,16 +67,16 @@ final class AdaProjectDAO {
             return ExceptionUtils.wrapAndThrow(e);
         }
 
-        return new AdaProjectDAO(remotesFactory, datasetFactory, root, datasets, local, remotes);
+        return new AdaProjectDAO(configurationFactory, remotesFactory, datasetFactory, root, datasets, local, remotes);
     }
 
-    public static AdaProjectDAO apply(RemotesFactory remotesFactory, DatasetFactory datasetFactory, Path root) {
+    public static AdaProjectDAO apply(AdaConfigurationFactory configurationFactory, RemotesFactory remotesFactory, DatasetFactory datasetFactory, Path root) {
         Path base = root.resolve(".ada");
         Path datasets = base.resolve("datasets");
         Path local = base.resolve("local");
         Path remotes = base.resolve("remotes.json");
 
-        return apply(remotesFactory, datasetFactory, root, datasets, local, remotes);
+        return apply(configurationFactory, remotesFactory, datasetFactory, root, datasets, local, remotes);
     }
 
     public void addGitIgnore(Path ignore, boolean directory, String comment) {
@@ -129,6 +135,16 @@ final class AdaProjectDAO {
         return readDataset(file);
     }
 
+    public AdaConfiguration readConfiguration() {
+        Path file = root.resolve(CONFIGURATION_FILE);
+
+        if (Files.exists(file)) {
+            return Operators.suppressExceptions(() -> configurationFactory.create(file));
+        } else {
+            return configurationFactory.create();
+        }
+    }
+
     private Optional<Dataset> readDataset(Path file) {
         return Operators.exceptionToNone(() -> {
             try (InputStream is = Files.newInputStream(file)) {
@@ -170,6 +186,11 @@ final class AdaProjectDAO {
         } catch (IOException e) {
             ExceptionUtils.wrapAndThrow(e);
         }
+    }
+
+    public void saveConfiguration(AdaConfiguration configuration) {
+        Path file = root.resolve(CONFIGURATION_FILE);
+        Operators.suppressExceptions(() -> configuration.writeTo(file));
     }
 
     public void saveDataset(Dataset dataset) {

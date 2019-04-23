@@ -1,5 +1,6 @@
 package ada.commons.util;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class FileSize {
     private final long size;
     private final Unit unit;
 
+    @JsonIgnore
     public long getBytes() {
         return getSize() * getUnit().getFactor();
     }
@@ -49,6 +51,7 @@ public class FileSize {
         }
     }
 
+    @JsonIgnore
     public String toSizeAdaptedString() {
         Unit unit = Unit.BYTES;
         double size = getBytes();

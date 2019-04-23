@@ -3,12 +3,17 @@ package ada.vcs.client.core.remotes;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.api.WriteSummary;
+import ada.vcs.client.core.repository.api.RefSpec;
+import ada.vcs.client.core.repository.api.User;
+import ada.vcs.client.core.repository.api.version.Tag;
+import ada.vcs.client.core.repository.api.version.VersionDetails;
+import akka.NotUsed;
+import akka.actor.ActorSystem;
+import akka.http.javadsl.Http;
+import akka.http.javadsl.model.*;
 import akka.japi.function.Creator;
 import akka.japi.function.Function;
-import akka.stream.javadsl.Compression;
-import akka.stream.javadsl.Flow;
-import akka.stream.javadsl.Keep;
-import akka.stream.javadsl.Sink;
+import akka.stream.javadsl.*;
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -19,6 +24,7 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
+import org.reactivestreams.Publisher;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,12 +41,14 @@ final class HttpRemote implements Remote {
 
     private final ObjectMapper om;
 
+    private final ActorSystem system;
+
     private final ResourceName alias;
 
     private final URL endpoint;
 
-    public static HttpRemote apply(ObjectMapper om, HttpRemoteMemento memento) {
-        return HttpRemote.apply(om, memento.getAlias(), memento.getEndpoint());
+    public static HttpRemote apply(ObjectMapper om, ActorSystem system, HttpRemoteMemento memento) {
+        return HttpRemote.apply(om, system, memento.getAlias(), memento.getEndpoint());
     }
 
     @Override
@@ -73,7 +81,7 @@ final class HttpRemote implements Remote {
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<WriteSummary>> push(Schema schema) {
+    public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
         Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
@@ -95,13 +103,24 @@ final class HttpRemote implements Remote {
                 .collect(Collectors.toList());
         };
 
+        Function<Publisher<ByteString>, CompletionStage<HttpResponse>> consumer = publisher -> {
+            HttpEntity.Chunked entity = HttpEntities.create(
+                ContentTypes.APPLICATION_OCTET_STREAM,
+                Source.fromPublisher(publisher));
+
+            return Http
+                .get(system)
+                .singleRequest(HttpRequest.PUT(endpoint.toString()).withEntity(entity));
+        };
+
         return Flow
             .of(GenericRecord.class)
             .map(record -> (List<GenericRecord>) Lists.newArrayList(record))
             .statefulMapConcat(writeBytes)
             .via(Compression.gzip())
-            .toMat(Sink.ignore(), Keep.right())
-            .mapMaterializedValue(done -> done.thenApply(d -> WriteSummary.apply(42)));
+            .toMat(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), Keep.right())
+            .mapMaterializedValue(consumer::apply)
+            .mapMaterializedValue(response -> response.thenApply(i -> WriteSummary.apply(42))); // TODO: Correct response
     }
 
     @Override
@@ -117,6 +136,31 @@ final class HttpRemote implements Remote {
     @Override
     public Remote relativize(Path to) {
         return this;
+    }
+
+    @Override
+    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
+        return null;
+    }
+
+    @Override
+    public Source<Tag, NotUsed> tags() {
+        return null;
+    }
+
+    @Override
+    public Source<VersionDetails, NotUsed> history() {
+        return null;
+    }
+
+    @Override
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user, String message) {
+        return null;
+    }
+
+    @Override
+    public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
+        return null;
     }
 
 }

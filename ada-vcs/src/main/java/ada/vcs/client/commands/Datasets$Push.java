@@ -106,7 +106,7 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
                         .thenCompose(readableDataSource ->
                             readableDataSource
                                 .getRecords(NoOpMonitor.apply())
-                                .toMat(rm.push(dataset.schema()), (l, r) -> l.thenCompose(i -> r))
+                                .toMat(rm.sink(dataset.schema()), (l, r) -> l.thenCompose(i -> r))
                                 .run(materializer)
                                 .thenApply(summary -> {
                                     console.message("   Done.");
