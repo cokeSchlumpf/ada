@@ -1,14 +1,35 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.features.ApplicationContext;
+import org.assertj.core.util.Files;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Path;
+
 public class InitITest {
+
+    private Path dir;
+
+    @Before
+    public void setup() {
+        dir = Files.newTemporaryFolder().toPath();
+        System.setProperty("user.dir", dir.toAbsolutePath().toString());
+    }
+
+    @After
+    public void cleanup() {
+        if (dir != null) {
+            Files.delete(dir.toFile());
+            dir = null;
+        }
+    }
 
     @Test
     public void test() {
         ApplicationContext context = new ApplicationContext();
-        context.run("init", "-d", "/Users/michael/Workspaces/notebook/Beispieldaten/test", "--verbose");
+        context.run("init");
         System.out.println(context.getOutput());
     }
 
