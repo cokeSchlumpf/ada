@@ -21,7 +21,7 @@ public class RemotesUTest extends AbstractAdaTest {
     @Test
     public void testJson() throws IOException {
         RemotesFactory factory = getContext().factories().remotesFactory();
-        Remote fsRemoteOrig = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), Paths.get("test"));
+        Remote fsRemoteOrig = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), getDirectory().resolve("test"));
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         fsRemoteOrig.writeTo(os);
@@ -56,7 +56,7 @@ public class RemotesUTest extends AbstractAdaTest {
     @Test
     public void test() throws MalformedURLException {
         RemotesFactory factory = getContext().factories().remotesFactory();
-        Remote fsRemote = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), Paths.get("test"));
+        Remote fsRemote = factory.createFileSystemRemote(ResourceName.apply("fs-remote"), getDirectory().resolve("test"));
         Remote httpRemote = factory.createHttpRemote(ResourceName.apply("http-remote"), new URL("http://foo.bar"));
 
         Remotes remotes = factory
