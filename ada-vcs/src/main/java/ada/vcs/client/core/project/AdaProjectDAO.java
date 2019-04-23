@@ -29,8 +29,6 @@ import java.util.stream.Stream;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 final class AdaProjectDAO {
 
-    private static final String CONFIGURATION_FILE = "config.json";
-
     private final AdaConfigurationFactory configurationFactory;
 
     private final RemotesFactory remotesFactory;
@@ -41,13 +39,17 @@ final class AdaProjectDAO {
 
     private final Path datasets;
 
+    private final Path cache;
+
     private final Path local;
 
     private final Path remotes;
 
+    private final Path config;
+
     public static AdaProjectDAO apply(
         AdaConfigurationFactory configurationFactory, RemotesFactory remotesFactory,
-        DatasetFactory datasetFactory, Path root, Path datasets, Path local, Path remotes) {
+        DatasetFactory datasetFactory, Path root, Path datasets, Path cache, Path local, Path remotes, Path config) {
 
         try {
             if (!Files.exists(datasets)) {
@@ -56,6 +58,11 @@ final class AdaProjectDAO {
 
             if (!Files.exists(local)) {
                 Files.createDirectories(local);
+            }
+
+            if (!Files.exists(cache)) {
+                Files.createDirectories(cache);
+                addGitIgnore(cache, true, "Ada local cache", root);
             }
 
             if (!Files.exists(remotes)) {
@@ -67,16 +74,18 @@ final class AdaProjectDAO {
             return ExceptionUtils.wrapAndThrow(e);
         }
 
-        return new AdaProjectDAO(configurationFactory, remotesFactory, datasetFactory, root, datasets, local, remotes);
+        return new AdaProjectDAO(configurationFactory, remotesFactory, datasetFactory, root, datasets, cache, local, remotes, config);
     }
 
     public static AdaProjectDAO apply(AdaConfigurationFactory configurationFactory, RemotesFactory remotesFactory, DatasetFactory datasetFactory, Path root) {
         Path base = root.resolve(".ada");
         Path datasets = base.resolve("datasets");
         Path local = base.resolve("local");
+        Path cache = base.resolve("cache");
         Path remotes = base.resolve("remotes.json");
+        Path config = base.resolve("config.json");
 
-        return apply(configurationFactory, remotesFactory, datasetFactory, root, datasets, local, remotes);
+        return apply(configurationFactory, remotesFactory, datasetFactory, root, datasets, cache, local, remotes, config);
     }
 
     public void addGitIgnore(Path ignore, boolean directory, String comment) {
@@ -88,6 +97,18 @@ final class AdaProjectDAO {
     }
 
     public void addGitIgnore(String ignorePattern, String comment) {
+        addGitIgnore(ignorePattern, comment, root);
+    }
+
+    public static void addGitIgnore(Path ignore, boolean directory, String comment, Path root) {
+        if (directory) {
+            addGitIgnore(root.relativize(ignore).toString() + "/**/*", comment, root);
+        } else {
+            addGitIgnore(root.relativize(ignore).toString(), comment, root);
+        }
+    }
+
+    private static void addGitIgnore(String ignorePattern, String comment, Path root) {
         Path gitignoreFile = root.resolve(".gitignore");
 
         try {
@@ -136,10 +157,8 @@ final class AdaProjectDAO {
     }
 
     public AdaConfiguration readConfiguration() {
-        Path file = root.resolve(CONFIGURATION_FILE);
-
-        if (Files.exists(file)) {
-            return Operators.suppressExceptions(() -> configurationFactory.create(file));
+        if (Files.exists(config)) {
+            return Operators.suppressExceptions(() -> configurationFactory.create(config));
         } else {
             return configurationFactory.create();
         }
@@ -189,8 +208,7 @@ final class AdaProjectDAO {
     }
 
     public void saveConfiguration(AdaConfiguration configuration) {
-        Path file = root.resolve(CONFIGURATION_FILE);
-        Operators.suppressExceptions(() -> configuration.writeTo(file));
+        Operators.suppressExceptions(() -> configuration.writeTo(config));
     }
 
     public void saveDataset(Dataset dataset) {
