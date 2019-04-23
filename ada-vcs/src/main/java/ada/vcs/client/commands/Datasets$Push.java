@@ -74,12 +74,10 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
 
             final Remote rm = Stream
                 .of(project.getRemote(remote))
-                .map(rem -> {
+                .peek(rem -> {
                     if (setUpstream) {
                         project.updateUpstream(rem.alias().getValue());
                     }
-
-                    return rem.resolve(project.path());
                 })
                 .findFirst()
                 .get();
@@ -92,7 +90,7 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
                     .zipWithIndex()
                     .map(pair -> {
                         Dataset dataset = pair.first();
-                        Long idx = (Long) pair.second();
+                        Long idx = pair.second();
 
                         console.message(
                             "-> Uploading data to from dataset '%s' (%d of %d).",

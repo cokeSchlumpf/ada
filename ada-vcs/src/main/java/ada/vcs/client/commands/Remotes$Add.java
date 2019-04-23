@@ -79,8 +79,7 @@ public final class Remotes$Add extends StandardOptions implements Runnable {
                         context
                             .factories()
                             .remotesFactory()
-                            .createFileSystemRemote(ResourceName.apply(alias), path)
-                            .relativize(project.path()));
+                            .createFileSystemRemote(ResourceName.apply(alias), path));
 
                     break;
                 default:

@@ -12,7 +12,7 @@ import org.apache.avro.generic.GenericRecord;
 import java.util.concurrent.CompletionStage;
 
 public interface Remote
-    extends Comparable<Remote>, FileSystemDependent<Remote>, Writable, Repository {
+    extends Comparable<Remote>, Writable, Repository {
 
     ResourceName alias();
 

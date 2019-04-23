@@ -129,16 +129,6 @@ final class HttpRemote implements Remote {
     }
 
     @Override
-    public Remote resolve(Path to) {
-        return this;
-    }
-
-    @Override
-    public Remote relativize(Path to) {
-        return this;
-    }
-
-    @Override
     public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
         return null;
     }

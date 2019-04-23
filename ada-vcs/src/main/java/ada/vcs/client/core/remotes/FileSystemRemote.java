@@ -59,16 +59,6 @@ final class FileSystemRemote implements Remote {
     }
 
     @Override
-    public FileSystemRemote resolve(Path to) {
-        return apply(om, alias, to.resolve(dir), delegate);
-    }
-
-    @Override
-    public FileSystemRemote relativize(Path to) {
-        return apply(om, alias, to.relativize(dir), delegate);
-    }
-
-    @Override
     public ResourceName alias() {
         return alias;
     }
