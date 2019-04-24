@@ -6,6 +6,7 @@ import picocli.CommandLine;
     name = "avcs",
     description = "Ada Data Version Control System",
     subcommands = {
+        Config.class,
         Dataset.class,
         Datasets.class,
         Init.class,

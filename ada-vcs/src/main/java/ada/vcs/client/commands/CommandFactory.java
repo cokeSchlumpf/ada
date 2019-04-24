@@ -23,6 +23,7 @@ public final class CommandFactory implements CommandLine.IFactory {
     @SuppressWarnings("unchecked")
     public <K> K create(Class<K> cls) throws Exception {
         List<? extends StandardOptions> commands = Lists.newArrayList(
+            Config.apply(console, context),
             Dataset.apply(console),
             Dataset$Extract.apply(console, context),
             Dataset$Targets.apply(console, context),

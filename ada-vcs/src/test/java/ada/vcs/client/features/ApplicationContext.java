@@ -10,9 +10,13 @@ public class ApplicationContext {
 
     private final CommandLineConsole console;
 
-    public ApplicationContext() {
+    private ApplicationContext() {
         this.output = new StringBuffer();
         this.console = CommandLineConsole.apply(output);
+    }
+
+    public static ApplicationContext apply() {
+        return new ApplicationContext();
     }
 
     public CommandLineConsole getConsole() {

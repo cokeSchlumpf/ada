@@ -17,8 +17,6 @@ final class VersionDetailsMemento {
 
     private final User user;
 
-    private final String message;
-
     private final Schema schema;
 
     private final Date date;
@@ -30,13 +28,12 @@ final class VersionDetailsMemento {
     @JsonCreator
     public static VersionDetailsMemento apply(
         @JsonProperty("user") User user,
-        @JsonProperty("message") String message,
         @JsonProperty("schema") Schema schema,
         @JsonProperty("date") Date date,
         @JsonProperty("id") String id,
         @JsonProperty("tag") TagMemento tag) {
 
-        return new VersionDetailsMemento(user, message, schema, date, id, tag);
+        return new VersionDetailsMemento(user, schema, date, id, tag);
     }
 
     public Optional<TagMemento> getTag() {

@@ -26,7 +26,7 @@ public class RemotesITest {
 
     @Before
     public void setup() throws IOException {
-        context = new ApplicationContext();
+        context = ApplicationContext.apply();
         dir = Files.newTemporaryFolder().toPath();
         remotesDir = Files.newTemporaryFolder().toPath();
         remoteDir$01 = remotesDir.resolve("first-remote");

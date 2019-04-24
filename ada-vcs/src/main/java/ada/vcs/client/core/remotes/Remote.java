@@ -20,8 +20,6 @@ public interface Remote
 
     RemoteMemento memento();
 
-    Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema);
-
     @Override
     default int compareTo(Remote o) {
         return this.alias().getValue().compareTo(o.alias().getValue());

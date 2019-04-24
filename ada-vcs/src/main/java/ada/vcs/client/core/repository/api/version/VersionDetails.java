@@ -11,8 +11,6 @@ public interface VersionDetails extends Writable, Comparable<VersionDetails> {
 
     User user();
 
-    String message();
-
     Date date();
 
     String id();

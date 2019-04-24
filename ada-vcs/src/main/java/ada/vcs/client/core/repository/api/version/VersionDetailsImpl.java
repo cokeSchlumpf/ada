@@ -17,8 +17,6 @@ final class VersionDetailsImpl implements VersionDetails {
 
     private final User user;
 
-    private final String message;
-
     private final Schema schema;
 
     private final Date date;
@@ -39,13 +37,8 @@ final class VersionDetailsImpl implements VersionDetails {
 
     private VersionDetailsMemento memento() {
         return VersionDetailsMemento.apply(
-            user, message, schema, date, id,
+            user, schema, date, id,
             tag().map(Tag::memento).orElse(null));
-    }
-
-    @Override
-    public String message() {
-        return message;
     }
 
     @Override
@@ -70,7 +63,7 @@ final class VersionDetailsImpl implements VersionDetails {
 
     @Override
     public VersionDetails withTag(Tag tag) {
-        return apply(om, user, message, schema, date, id, tag);
+        return apply(om, user, schema, date, id, tag);
     }
 
     @Override

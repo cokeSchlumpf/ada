@@ -33,7 +33,7 @@ public final class AdaProjectConfiguration implements AdaConfiguration {
                         .exec("git config user.name")
                         .map(username -> process
                             .exec("git config user.email")
-                            .map(mail -> User.apply(username, mail))
+                            .map(mail -> User.apply(username.trim(), mail.trim()))
                             .orElse(User.apply(username)));
                 }));
     }

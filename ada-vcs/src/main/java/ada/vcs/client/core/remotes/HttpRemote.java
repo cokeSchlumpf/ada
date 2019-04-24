@@ -2,7 +2,6 @@ package ada.vcs.client.core.remotes;
 
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.WriteSummary;
 import ada.vcs.client.core.repository.api.RefSpec;
 import ada.vcs.client.core.repository.api.User;
 import ada.vcs.client.core.repository.api.version.Tag;
@@ -30,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -81,7 +79,27 @@ final class HttpRemote implements Remote {
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
+    public void writeTo(OutputStream os) throws IOException {
+        om.writeValue(os, HttpRemoteMemento.apply(alias, endpoint));
+    }
+
+    @Override
+    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
+        return null;
+    }
+
+    @Override
+    public Source<Tag, NotUsed> tags() {
+        return null;
+    }
+
+    @Override
+    public Source<VersionDetails, NotUsed> history() {
+        return null;
+    }
+
+    @Override
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user) {
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
         Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
@@ -120,32 +138,7 @@ final class HttpRemote implements Remote {
             .via(Compression.gzip())
             .toMat(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), Keep.right())
             .mapMaterializedValue(consumer::apply)
-            .mapMaterializedValue(response -> response.thenApply(i -> WriteSummary.apply(42))); // TODO: Correct response
-    }
-
-    @Override
-    public void writeTo(OutputStream os) throws IOException {
-        om.writeValue(os, HttpRemoteMemento.apply(alias, endpoint));
-    }
-
-    @Override
-    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
-        return null;
-    }
-
-    @Override
-    public Source<Tag, NotUsed> tags() {
-        return null;
-    }
-
-    @Override
-    public Source<VersionDetails, NotUsed> history() {
-        return null;
-    }
-
-    @Override
-    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user, String message) {
-        return null;
+            .mapMaterializedValue(response -> response.thenApply(i -> null)); // TODO: Correct response
     }
 
     @Override

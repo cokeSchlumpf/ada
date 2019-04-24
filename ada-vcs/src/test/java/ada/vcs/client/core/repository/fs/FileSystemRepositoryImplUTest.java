@@ -68,7 +68,7 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
             VersionDetails details = Source
                 .from(samples)
                 .runWith(
-                    repository.push(data.getSchema(), user, "Hello World"),
+                    repository.push(data.getSchema(), user),
                     getContext().materializer())
                 .toCompletableFuture()
                 .get();

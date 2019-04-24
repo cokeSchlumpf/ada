@@ -13,7 +13,7 @@ public class VersionDetailsUTest {
 
         VersionDetails details = VersionFactory
             .apply(omf.create())
-            .createDetails(User.apply("hello", "hello@me.com"), "Some message", null);
+            .createDetails(User.apply("hello", "hello@me.com"), null);
 
         System.out.println(details);
     }

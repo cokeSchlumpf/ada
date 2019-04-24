@@ -129,9 +129,9 @@ final class FileSystemRepositoryImpl implements Repository {
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user, String message) {
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user) {
         return Operators.suppressExceptions(() -> {
-            final VersionDetails details = versionFactory.createDetails(user, message, schema);
+            final VersionDetails details = versionFactory.createDetails(user, schema);
             final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
             final Path root = settings.getRoot();

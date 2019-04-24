@@ -6,6 +6,8 @@ import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.remotes.Remote;
+import ada.vcs.client.core.repository.api.User;
+import ada.vcs.client.exceptions.NoUserConfiguredException;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import picocli.CommandLine;
@@ -53,6 +55,11 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
             List<Dataset> datasets = project
                 .getDatasets()
                 .collect(Collectors.toList());
+
+            User user = project
+                .getConfiguration()
+                .getUser()
+                .orElseThrow(NoUserConfiguredException::apply);
 
             if (remote == null || remote.trim().length() == 0) {
                 remote = project
@@ -104,7 +111,7 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
                         .thenCompose(readableDataSource ->
                             readableDataSource
                                 .getRecords(NoOpMonitor.apply())
-                                .toMat(rm.sink(dataset.schema()), (l, r) -> l.thenCompose(i -> r))
+                                .toMat(rm.push(dataset.schema(), user), (l, r) -> l.thenCompose(i -> r))
                                 .run(materializer)
                                 .thenApply(summary -> {
                                     console.message("   Done.");

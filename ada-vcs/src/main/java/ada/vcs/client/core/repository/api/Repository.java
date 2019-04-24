@@ -19,7 +19,7 @@ public interface Repository {
 
     Source<VersionDetails, NotUsed> history();
 
-    Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user, String message);
+    Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user);
 
     Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec);
 

@@ -28,7 +28,7 @@ public class InitITest {
 
     @Test
     public void test() {
-        ApplicationContext context = new ApplicationContext();
+        ApplicationContext context = ApplicationContext.apply();
         context.run("init");
         System.out.println(context.getOutput());
     }

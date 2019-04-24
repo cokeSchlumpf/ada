@@ -28,7 +28,7 @@ public class UseCaseTests {
 
     @Test
     public void test() {
-        ApplicationContext context = new ApplicationContext();
+        ApplicationContext context = ApplicationContext.apply();
         context.run("init");
         context.run("dataset", "foo", "targets");
         System.out.println(context.getOutput());

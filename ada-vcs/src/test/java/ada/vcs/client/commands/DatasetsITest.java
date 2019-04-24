@@ -19,7 +19,7 @@ public class DatasetsITest {
 
     @Before
     public void setup() {
-        context = new ApplicationContext();
+        context = ApplicationContext.apply();
         dir = Files.newTemporaryFolder().toPath();
         System.setProperty("user.dir", dir.toAbsolutePath().toString());
     }

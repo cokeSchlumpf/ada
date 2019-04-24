@@ -3,7 +3,6 @@ package ada.vcs.client.core.remotes;
 import ada.commons.util.FileSize;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.WriteSummary;
 import ada.vcs.client.core.repository.api.RefSpec;
 import ada.vcs.client.core.repository.api.Repository;
 import ada.vcs.client.core.repository.api.User;
@@ -88,7 +87,27 @@ final class FileSystemRemote implements Remote {
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
+    public void writeTo(OutputStream os) throws IOException {
+        om.writeValue(os, FileSystemRemoteMemento.apply(alias, dir));
+    }
+
+    @Override
+    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
+        return null;
+    }
+
+    @Override
+    public Source<Tag, NotUsed> tags() {
+        return null;
+    }
+
+    @Override
+    public Source<VersionDetails, NotUsed> history() {
+        return null;
+    }
+
+    @Override
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user) {
         final FileSize maxChunkSize = FileSize.apply(10, FileSize.Unit.MEGABYTES);
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
@@ -138,32 +157,7 @@ final class FileSystemRemote implements Remote {
             .toMat(
                 LogRotatorSink.createFromFunction(rotationFunction),
                 Keep.right())
-            .mapMaterializedValue(done -> done.thenApply(d -> WriteSummary.apply(42)));
-    }
-
-    @Override
-    public void writeTo(OutputStream os) throws IOException {
-        om.writeValue(os, FileSystemRemoteMemento.apply(alias, dir));
-    }
-
-    @Override
-    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
-        return null;
-    }
-
-    @Override
-    public Source<Tag, NotUsed> tags() {
-        return null;
-    }
-
-    @Override
-    public Source<VersionDetails, NotUsed> history() {
-        return null;
-    }
-
-    @Override
-    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user, String message) {
-        return null;
+            .mapMaterializedValue(done -> done.thenApply(d -> null)); // TODO
     }
 
     @Override

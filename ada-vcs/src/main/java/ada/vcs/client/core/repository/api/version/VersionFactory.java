@@ -17,7 +17,7 @@ public final class VersionFactory {
 
     private final ObjectMapper om;
 
-    public VersionDetails createDetails(User user, String message, Schema schema) {
+    public VersionDetails createDetails(User user, Schema schema) {
         Date date = new Date();
 
         String id = Hashing
@@ -26,18 +26,16 @@ public final class VersionFactory {
             .putString(user.getName(), StandardCharsets.UTF_8)
             .putString(user.getEmail().orElse(""), StandardCharsets.UTF_8)
             .putString(date.toString(), StandardCharsets.UTF_8)
-            .putString(message, StandardCharsets.UTF_8)
             .hash()
             .toString();
 
-        return VersionDetailsImpl.apply(om, user, message, schema, date, id, null);
+        return VersionDetailsImpl.apply(om, user, schema, date, id, null);
     }
 
     public VersionDetails createDetails(VersionDetailsMemento memento) {
         return VersionDetailsImpl.apply(
             om,
             memento.getUser(),
-            memento.getMessage(),
             memento.getSchema(),
             memento.getDate(),
             memento.getId(),
