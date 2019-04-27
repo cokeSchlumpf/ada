@@ -61,7 +61,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
 
             context.withMaterializer(materializer -> {
                 final ada.vcs.client.core.dataset.Dataset ds = project.getDataset(dataset.alias());
-                final DataSource<?> source = ds.source().resolve(project.path());
+                final DataSource source = ds.source().resolve(project.path());
 
                 console.message("Extracting data to %d target(s)", targets.size());
 
@@ -73,7 +73,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
                         .mapAsync(1, pair -> {
                             final String target = pair.first();
 
-                            final Long idx = (Long) pair.second();
+                            final Long idx = pair.second();
 
                             final DataSink sink = project
                                 .getTarget(dataset.alias(), target)
@@ -87,7 +87,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
 
                             return src
                                 .getRecords(NoOpMonitor.apply())
-                                .runWith(sink.sink(src.getSchema()), materializer)
+                                .runWith(sink.sink(src.schema()), materializer)
                                 .thenApply(summary -> {
                                     console.message(
                                         "   Done. Extracted %d records from dataset '%s' to target '%s'.",

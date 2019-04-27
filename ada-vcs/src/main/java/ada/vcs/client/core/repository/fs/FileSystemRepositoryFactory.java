@@ -28,6 +28,10 @@ public final class FileSystemRepositoryFactory {
         FileSystemRepositorySettings settings;
 
         if (Files.exists(settingsFile)) {
+            if (!Files.isDirectory(root)) {
+                throw new IllegalArgumentException("Path must be a directory, not a file");
+            }
+
             settings = Operators.suppressExceptions(() -> {
                 try (InputStream is = Files.newInputStream(root.resolve(SETTINGS))) {
                     return createSettings(root, is);

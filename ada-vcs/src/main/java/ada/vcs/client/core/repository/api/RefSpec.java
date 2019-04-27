@@ -2,8 +2,12 @@ package ada.vcs.client.core.repository.api;
 
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import lombok.AllArgsConstructor;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,6 +19,19 @@ public abstract class RefSpec {
 
     public static VersionRef fromId(String id) {
         return VersionRef.apply(id);
+    }
+
+    public static VersionRef fromFile(Path path) {
+        return Operators.suppressExceptions(() -> {
+            HashCode hash = Hashing
+                .goodFastHash(128)
+                .newHasher()
+                .putLong(path.toFile().lastModified())
+                .putLong(Files.size(path))
+                .hash();
+
+            return RefSpec.VersionRef.apply(hash.toString());
+        });
     }
 
     public static TagRef fromTag(String tag) {

@@ -5,8 +5,10 @@ import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.RemoteSource;
 import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.core.repository.api.User;
+import ada.vcs.client.core.repository.api.version.VersionDetails;
 import ada.vcs.client.exceptions.NoUserConfiguredException;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
@@ -18,10 +20,7 @@ import java.util.stream.Stream;
 
 @CommandLine.Command(
     name = "push",
-    description = "push all datasets to a remote repository",
-    subcommands = {
-        Datasets$Add$CSV.class
-    })
+    description = "push all datasets to a remote repository")
 public final class Datasets$Push extends StandardOptions implements Runnable {
 
     private final CommandLineConsole console;
@@ -108,15 +107,21 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
                     .mapAsync(1, dataset -> dataset
                         .source()
                         .analyze(materializer, dataset.schema())
-                        .thenCompose(readableDataSource ->
-                            readableDataSource
+                        .thenCompose(readableDataSource -> {
+                            VersionDetails details = context.factories().versionFactory().createDetails(user, dataset.schema(), readableDataSource.ref());
+
+                            return readableDataSource
                                 .getRecords(NoOpMonitor.apply())
-                                .toMat(rm.push(dataset.schema(), user), (l, r) -> l.thenCompose(i -> r))
+                                .toMat(rm.push(details), (l, r) -> l.thenCompose(i -> r))
                                 .run(materializer)
                                 .thenApply(summary -> {
+                                    RemoteSource rs = context.factories().remoteSourceFactory().apply(details, rm);
+                                    project.updateRemoteSource(dataset.alias().getValue(), rs);
+
                                     console.message("   Done.");
                                     return summary;
-                                })))
+                                });
+                        }))
                     .runWith(Sink.ignore(), materializer));
         });
     }

@@ -11,6 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = FileSystemRemoteMemento.class, name = "fs"),
     @JsonSubTypes.Type(value = HttpRemoteMemento.class, name = "http")
 })
-interface RemoteMemento {
+public interface RemoteMemento {
 
 }

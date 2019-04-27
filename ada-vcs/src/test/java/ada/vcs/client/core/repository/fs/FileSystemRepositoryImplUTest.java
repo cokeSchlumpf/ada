@@ -40,7 +40,7 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
         {
             /*
              * When the repository is new, the list of tags should be empty,
-             * as well as the history (list of versions).
+             * as well as the datasets (list of versions).
              */
             assertThat(
                 repository
@@ -52,7 +52,7 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
 
             assertThat(
                 repository
-                    .history()
+                    .datasets()
                     .runWith(Sink.seq(), getContext().materializer())
                     .toCompletableFuture()
                     .get()
@@ -65,10 +65,12 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
             /*
              * When pushing data into the repository a new version is created.
              */
-            VersionDetails details = Source
+            VersionDetails details = getContext().factories().versionFactory().createDetails(user, data.getSchema());
+
+            Source
                 .from(samples)
                 .runWith(
-                    repository.push(data.getSchema(), user),
+                    repository.push(details),
                     getContext().materializer())
                 .toCompletableFuture()
                 .get();
@@ -78,7 +80,7 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
             assertThat(details.user()).isEqualTo(user);
 
             List<VersionDetails> history = repository
-                .history()
+                .datasets()
                 .runWith(Sink.seq(), getContext().materializer())
                 .toCompletableFuture()
                 .get();
@@ -112,7 +114,7 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
             assertThat(tagRef.toString()).isEqualTo("tags/my-tag");
 
             System.out.println(repository
-                .history()
+                .datasets()
                 .runWith(Sink.seq(), getContext().materializer())
                 .toCompletableFuture()
                 .get());

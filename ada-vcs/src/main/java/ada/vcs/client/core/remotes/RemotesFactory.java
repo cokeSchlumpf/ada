@@ -49,11 +49,8 @@ public final class RemotesFactory {
 
     public Remote createRemote(RemoteMemento memento) {
         if (memento instanceof FileSystemRemoteMemento) {
-            Repository delegate = FileSystemRepositoryFactory
-                .apply(om, ActorMaterializer.create(system), versionFactory)
-                .create(((FileSystemRemoteMemento) memento).getDir());
-
-            return FileSystemRemote.apply(om, (FileSystemRemoteMemento) memento, delegate);
+            FileSystemRemoteMemento m = (FileSystemRemoteMemento) memento;
+            return createFileSystemRemote(m.getAlias(), m.getDir());
         } else if (memento instanceof HttpRemoteMemento) {
             return HttpRemote.apply(om, system, (HttpRemoteMemento) memento);
         } else {

@@ -2,6 +2,7 @@ package ada.vcs.client.core.project;
 
 import ada.vcs.client.core.configuration.AdaConfiguration;
 import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.RemoteSource;
 import ada.vcs.client.core.dataset.Target;
 import ada.vcs.client.core.remotes.Remote;
 
@@ -40,6 +41,8 @@ public interface AdaProject {
     void removeTarget(String dataset, String name);
 
     void updateUpstream(String alias);
+
+    void updateRemoteSource(String dataset, RemoteSource rs);
 
     Optional<Remote> getUpstream();
 

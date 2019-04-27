@@ -1,6 +1,7 @@
 package ada.vcs.client.core.repository.api.version;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.client.core.repository.api.RefSpec;
 import ada.vcs.client.core.repository.api.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
@@ -30,6 +31,11 @@ public final class VersionFactory {
             .toString();
 
         return VersionDetailsImpl.apply(om, user, schema, date, id, null);
+    }
+
+    public VersionDetails createDetails(User user, Schema schema, RefSpec.VersionRef ref) {
+        Date date = new Date();
+        return VersionDetailsImpl.apply(om, user, schema, date, ref.getId(), null);
     }
 
     public VersionDetails createDetails(VersionDetailsMemento memento) {

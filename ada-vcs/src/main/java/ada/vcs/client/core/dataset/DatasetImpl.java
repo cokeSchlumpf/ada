@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Value;
 import lombok.experimental.Wither;
 import org.apache.avro.Schema;
 
@@ -14,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,26 +25,41 @@ final class DatasetImpl implements Dataset {
 
     private final ResourceName alias;
 
-    private final DataSource<?> source;
+    private final DataSource source;
 
     private final Schema schema;
 
     private final Map<String, Target> targets;
 
+    private final RemoteSource remoteSource;
+
     public static Dataset apply(
-        ObjectMapper om, ResourceName alias, DataSource<?> source, Schema schema, List<Target> targets) {
+        ObjectMapper om, ResourceName alias, DataSource source, Schema schema, List<Target> targets) {
+
+        return apply(om, alias, source, schema, targets, null);
+    }
+
+    public static Dataset apply(
+        ObjectMapper om, ResourceName alias, DataSource source, Schema schema, List<Target> targets, RemoteSource remoteSource) {
 
         Map<String, Target> targetsMapped = Maps.newHashMap();
         targets.forEach(target -> targetsMapped.put(target.alias().getValue(), target));
-        return new DatasetImpl(om, alias, source, schema, targetsMapped);
+        return new DatasetImpl(om, alias, source, schema, targetsMapped, remoteSource);
     }
 
-    public static Dataset apply(ObjectMapper om, ResourceName alias, DataSource<?> source, Schema schema, Map<String, Target> targets) {
-        return new DatasetImpl(om, alias, source, schema, targets);
+    public static Dataset apply(ObjectMapper om, ResourceName alias, DataSource source, Schema schema, Map<String, Target> targets) {
+        return apply(om, alias, source, schema, targets, null);
     }
 
     public static Dataset apply(
-        ObjectMapper om, ResourceName alias, DataSource<?> source, Schema schema) {
+        ObjectMapper om, ResourceName alias, DataSource source,
+        Schema schema, Map<String, Target> targets, RemoteSource remoteSource) {
+
+        return new DatasetImpl(om, alias, source, schema, targets,remoteSource);
+    }
+
+    public static Dataset apply(
+        ObjectMapper om, ResourceName alias, DataSource source, Schema schema) {
         return apply(om, alias, source, schema, Maps.newHashMap());
     }
 
@@ -59,8 +74,13 @@ final class DatasetImpl implements Dataset {
     }
 
     @Override
-    public DataSource<?> source() {
+    public DataSource source() {
         return source;
+    }
+
+    @Override
+    public Optional<RemoteSource> remoteSource() {
+        return Optional.ofNullable(remoteSource);
     }
 
     @Override
@@ -76,7 +96,9 @@ final class DatasetImpl implements Dataset {
             .map(t -> TargetMemento.apply(t.alias(), t.sink().memento()))
             .collect(Collectors.toList());
 
-        om.writeValue(os, DatasetMemento.apply(alias, source.memento(), schema, targets));
+        om.writeValue(os, DatasetMemento.apply(
+            alias, source.memento(),
+            schema, targets, remoteSource().map(RemoteSource::memento).orElse(null)));
     }
 
     @Override

@@ -6,11 +6,11 @@ import org.apache.avro.Schema;
 
 import java.util.concurrent.CompletionStage;
 
-public interface DataSource<T extends Context> extends FileSystemDependent<DataSource<T>> {
+public interface DataSource extends FileSystemDependent<DataSource> {
 
-    CompletionStage<ReadableDataSource<T>> analyze(Materializer materializer, Schema schema);
+    CompletionStage<ReadableDataSource> analyze(Materializer materializer, Schema schema);
 
-    CompletionStage<ReadableDataSource<T>> analyze(Materializer materializer);
+    CompletionStage<ReadableDataSource> analyze(Materializer materializer);
 
     String info();
 

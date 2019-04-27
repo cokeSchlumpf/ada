@@ -1,6 +1,5 @@
 package ada.vcs.client.core.dataset;
 
-import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.DataSinkFactory;
@@ -26,12 +25,10 @@ public final class DatasetFactory {
 
     private final DataSinkFactory dataSinkFactory;
 
-    public static DatasetFactory apply() {
-        return apply(ObjectMapperFactory.apply().create(true), DataSourceFactory.apply(), DataSinkFactory.apply());
-    }
+    private final RemoteSourceFactory remoteSourceFactory;
 
     public Dataset createDataset(
-        ResourceName alias, DataSource<?> source, Schema schema, List<TargetImpl> targets) {
+        ResourceName alias, DataSource source, Schema schema, List<TargetImpl> targets) {
 
         Map<String, Target> targetsMapped = targets
             .stream()
@@ -41,21 +38,24 @@ public final class DatasetFactory {
     }
 
     public Dataset createDataset(DatasetMemento memento) {
-        DataSource<?> source = dataSourceFactory.createDataSource(memento.getSource());
+        DataSource source = dataSourceFactory.createDataSource(memento.getSource());
+
         List<Target> targets = memento
             .getTargets()
             .stream()
             .map(m -> TargetImpl.apply(m.getAlias(), dataSinkFactory.createDataSink(m.getSink())))
             .collect(Collectors.toList());
 
-        return DatasetImpl.apply(om, memento.getAlias(), source,memento.getSchema(), targets);
+        return DatasetImpl.apply(
+            om, memento.getAlias(), source,memento.getSchema(), targets,
+            memento.getRemoteSource().map(remoteSourceFactory::apply).orElse(null));
     }
 
-    public Dataset createDataset(ResourceName alias, DataSource<?> source, Schema schema) {
+    public Dataset createDataset(ResourceName alias, DataSource source, Schema schema) {
         return createDataset(alias, source, schema, Maps.newHashMap());
     }
 
-    public Dataset createDataset(ResourceName alias, DataSource<?> source, Schema schema, Map<String, Target> targets) {
+    public Dataset createDataset(ResourceName alias, DataSource source, Schema schema, Map<String, Target> targets) {
         return DatasetImpl.apply(om, alias, source, schema, targets);
     }
 

@@ -5,9 +5,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class ReadSummary<T extends Context> {
-
-    private T context;
+public class ReadSummary {
 
     private long success;
 

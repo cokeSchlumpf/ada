@@ -3,14 +3,10 @@ package ada.vcs.client.core;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.csv.CSVSource;
-import ada.vcs.client.converters.internal.contexts.FileContext;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.DatasetFactory;
-import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import ada.vcs.client.util.AbstractAdaTest;
 import org.apache.avro.Schema;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -21,22 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 
-public class DatasetUTest {
-
-    private ActorSystem system;
-
-    @Before
-    public void before() {
-        system = ActorSystem.apply("test");
-    }
-
-    @After
-    public void after() {
-        if (system != null) {
-            system.terminate();
-            system = null;
-        }
-    }
+public class DatasetUTest extends AbstractAdaTest {
 
     @Test
     public void test() throws ExecutionException, InterruptedException, IOException {
@@ -46,14 +27,14 @@ public class DatasetUTest {
             .builder(p)
             .build();
 
-        ReadableDataSource<FileContext> rs = source
-            .analyze(ActorMaterializer.create(system))
+        ReadableDataSource rs = source
+            .analyze(getContext().materializer())
             .toCompletableFuture()
             .get();
 
-        Schema schema = rs.getSchema();
+        Schema schema = rs.schema();
 
-        DatasetFactory factory = DatasetFactory.apply();
+        DatasetFactory factory = getContext().factories().datasetFactory();
         Dataset ds = factory.createDataset(ResourceName.apply("foo"), source, schema);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 

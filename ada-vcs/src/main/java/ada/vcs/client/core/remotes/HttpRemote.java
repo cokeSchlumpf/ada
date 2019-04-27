@@ -94,12 +94,13 @@ final class HttpRemote implements Remote {
     }
 
     @Override
-    public Source<VersionDetails, NotUsed> history() {
+    public Source<VersionDetails, NotUsed> datasets() {
         return null;
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user) {
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(VersionDetails details) {
+        Schema schema = details.schema();
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
         Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {

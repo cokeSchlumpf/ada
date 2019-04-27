@@ -15,6 +15,8 @@ public interface VersionDetails extends Writable, Comparable<VersionDetails> {
 
     String id();
 
+    VersionDetailsMemento memento();
+
     Schema schema();
 
     Optional<Tag> tag();

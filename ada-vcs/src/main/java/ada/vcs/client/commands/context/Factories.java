@@ -5,6 +5,7 @@ import ada.vcs.client.converters.api.DataSourceFactory;
 import ada.vcs.client.core.AdaHome;
 import ada.vcs.client.core.configuration.AdaConfigurationFactory;
 import ada.vcs.client.core.dataset.DatasetFactory;
+import ada.vcs.client.core.dataset.RemoteSourceFactory;
 import ada.vcs.client.core.project.AdaProjectFactory;
 import ada.vcs.client.core.remotes.RemotesFactory;
 import ada.vcs.client.core.repository.api.version.VersionFactory;
@@ -26,7 +27,7 @@ public final class Factories {
     }
 
     public DatasetFactory datasetFactory() {
-        return DatasetFactory.apply(om, DataSourceFactory.apply(), DataSinkFactory.apply());
+        return DatasetFactory.apply(om, DataSourceFactory.apply(), DataSinkFactory.apply(), remoteSourceFactory());
     }
 
     public AdaProjectFactory projectFactory() {
@@ -37,6 +38,10 @@ public final class Factories {
 
     public RemotesFactory remotesFactory() {
         return RemotesFactory.apply(om, systemSupplier.get(), versionFactory());
+    }
+
+    public RemoteSourceFactory remoteSourceFactory() {
+        return RemoteSourceFactory.apply(om, versionFactory(), remotesFactory());
     }
 
     public VersionFactory versionFactory() {

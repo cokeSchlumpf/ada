@@ -95,7 +95,7 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
                             .createDataset(
                                 ResourceName.apply(alias),
                                 source.relativize(project.path()),
-                                readable.getSchema());
+                                readable.schema());
 
                         project.addDataset(ds);
 

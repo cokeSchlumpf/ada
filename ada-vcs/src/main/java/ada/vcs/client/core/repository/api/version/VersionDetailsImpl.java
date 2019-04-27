@@ -35,7 +35,8 @@ final class VersionDetailsImpl implements VersionDetails {
         return user;
     }
 
-    private VersionDetailsMemento memento() {
+    @Override
+    public VersionDetailsMemento memento() {
         return VersionDetailsMemento.apply(
             user, schema, date, id,
             tag().map(Tag::memento).orElse(null));

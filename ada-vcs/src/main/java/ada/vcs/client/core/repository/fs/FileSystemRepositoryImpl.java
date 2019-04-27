@@ -7,6 +7,7 @@ import ada.vcs.client.core.repository.api.Repository;
 import ada.vcs.client.core.repository.api.User;
 import ada.vcs.client.core.repository.api.exceptions.TagAlreadyExistsException;
 import ada.vcs.client.core.repository.api.exceptions.TagReferenceNotFoundException;
+import ada.vcs.client.core.repository.api.exceptions.VersionAlreadyExistsException;
 import ada.vcs.client.core.repository.api.exceptions.VersionReferenceNotFoundException;
 import ada.vcs.client.core.repository.api.version.Tag;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
@@ -91,14 +92,14 @@ final class FileSystemRepositoryImpl implements Repository {
 
     @Override
     public Source<Tag, NotUsed> tags() {
-        return history()
+        return datasets()
             .map(VersionDetails::tag)
             .filter(Optional::isPresent)
             .map(Optional::get);
     }
 
     @Override
-    public Source<VersionDetails, NotUsed> history() {
+    public Source<VersionDetails, NotUsed> datasets() {
         return Operators.suppressExceptions(() -> {
             List<VersionDetails> details = Lists
                 .newArrayList(Files
@@ -129,14 +130,20 @@ final class FileSystemRepositoryImpl implements Repository {
     }
 
     @Override
-    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user) {
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(VersionDetails details) {
         return Operators.suppressExceptions(() -> {
-            final VersionDetails details = versionFactory.createDetails(user, schema);
+            final Schema schema = details.schema();
             final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
             final Path root = settings.getRoot();
-            final Path target = Files.createDirectory(root.resolve(details.id()));
+            final Path target = root.resolve(details.id());
             final Path detailsFile = target.resolve(settings.getDetailsFileName());
+
+            if (Files.exists(target)) {
+                throw VersionAlreadyExistsException.apply(RefSpec.VersionRef.apply(details.id()));
+            } else {
+                Files.createDirectories(target);
+            }
 
             try (OutputStream fos = Files.newOutputStream(detailsFile)) {
                 details.writeTo(fos);
@@ -201,7 +208,7 @@ final class FileSystemRepositoryImpl implements Repository {
     public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
         CompletionStage<Source<GenericRecord, CompletionStage<VersionDetails>>> avro = refSpec
             .map(
-                tagRef -> history()
+                tagRef -> datasets()
                     .filter(version -> version
                         .tag()
                         .map(tag -> tag.alias().getValue().equals(tagRef.getAlias().getValue()))

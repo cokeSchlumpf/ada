@@ -4,8 +4,6 @@ import ada.commons.util.NameFactory;
 import ada.vcs.client.converters.api.DataSource;
 import ada.vcs.client.converters.api.DataSourceMemento;
 import ada.vcs.client.converters.api.ReadableDataSource;
-import ada.vcs.client.converters.internal.contexts.FileContext;
-import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.datatypes.DataTypeMatcher;
 import akka.NotUsed;
 import akka.japi.function.Function;
@@ -26,16 +24,18 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.commons.io.FilenameUtils;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CSVSource implements DataSource<FileContext> {
+public final class CSVSource implements DataSource {
 
     private final Path file;
 
@@ -78,7 +78,7 @@ public final class CSVSource implements DataSource<FileContext> {
     }
 
     @Override
-    public CompletionStage<ReadableDataSource<FileContext>> analyze(Materializer materializer, Schema schema) {
+    public CompletionStage<ReadableDataSource> analyze(Materializer materializer, Schema schema) {
         final NameFactory nf = NameFactory.apply(NameFactory.Defaults.LOWERCASE_UNDERSCORED);
         final int offset = headers != null && headers.size() > 0 ? 0 : 1;
 
@@ -130,7 +130,7 @@ public final class CSVSource implements DataSource<FileContext> {
     }
 
     @Override
-    public CompletionStage<ReadableDataSource<FileContext>> analyze(Materializer materializer) {
+    public CompletionStage<ReadableDataSource> analyze(Materializer materializer) {
         return analyze(materializer, null);
     }
 

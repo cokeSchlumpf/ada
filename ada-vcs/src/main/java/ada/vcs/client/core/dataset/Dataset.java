@@ -2,10 +2,12 @@ package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.converters.api.DataSource;
+import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.core.Writable;
 import org.apache.avro.Schema;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface Dataset extends Comparable<Dataset>, Writable {
@@ -14,7 +16,9 @@ public interface Dataset extends Comparable<Dataset>, Writable {
 
     Dataset withAlias(ResourceName alias);
 
-    Dataset withSource(DataSource<?> source);
+    Dataset withRemoteSource(RemoteSource source);
+
+    Dataset withSource(DataSource source);
 
     Dataset withSchema(Schema schema);
 
@@ -22,7 +26,9 @@ public interface Dataset extends Comparable<Dataset>, Writable {
 
     ResourceName alias();
 
-    DataSource<?> source();
+    DataSource source();
+
+    Optional<RemoteSource> remoteSource();
 
     Schema schema();
 

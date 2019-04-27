@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor(staticName = "apply")
 public final class DataSourceFactory {
 
-    public DataSource<? extends Context> createDataSource(DataSourceMemento memento) {
+    public DataSource createDataSource(DataSourceMemento memento) {
         if (memento instanceof CSVSourceMemento) {
             return CSVSource.apply((CSVSourceMemento) memento);
         } else {

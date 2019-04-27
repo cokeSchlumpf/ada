@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-final class VersionDetailsMemento {
+public final class VersionDetailsMemento {
 
     private final User user;
 

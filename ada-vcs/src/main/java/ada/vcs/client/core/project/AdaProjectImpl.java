@@ -3,6 +3,7 @@ package ada.vcs.client.core.project;
 import ada.vcs.client.core.AdaHome;
 import ada.vcs.client.core.configuration.AdaConfiguration;
 import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.core.dataset.RemoteSource;
 import ada.vcs.client.core.dataset.Target;
 import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.core.remotes.Remotes;
@@ -160,6 +161,12 @@ final class AdaProjectImpl implements AdaProject {
             })
             .orElseThrow(() -> RemoteNotExistingException.apply(alias));
 
+    }
+
+    @Override
+    public void updateRemoteSource(String dataset, RemoteSource rs) {
+        Dataset existing = getDataset(dataset);
+        dao.saveDataset(existing.withRemoteSource(rs));
     }
 
     @Override

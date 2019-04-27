@@ -6,7 +6,6 @@ import ada.vcs.client.core.repository.api.version.VersionDetails;
 import akka.NotUsed;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 
 import java.util.concurrent.CompletionStage;
@@ -17,9 +16,9 @@ public interface Repository {
 
     Source<Tag, NotUsed> tags();
 
-    Source<VersionDetails, NotUsed> history();
+    Source<VersionDetails, NotUsed> datasets();
 
-    Sink<GenericRecord, CompletionStage<VersionDetails>> push(Schema schema, User user);
+    Sink<GenericRecord, CompletionStage<VersionDetails>> push(VersionDetails version);
 
     Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec);
 

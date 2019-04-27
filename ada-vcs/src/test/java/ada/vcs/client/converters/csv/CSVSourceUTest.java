@@ -2,10 +2,8 @@ package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.api.DataSourceMemento;
 import ada.vcs.client.converters.api.ReadSummary;
 import ada.vcs.client.converters.api.ReadableDataSource;
-import ada.vcs.client.converters.internal.contexts.FileContext;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
@@ -47,7 +45,7 @@ public class CSVSourceUTest {
         ActorMaterializer materializer = ActorMaterializer.create(system);
         Path p = Paths.get("/Users/michael/Workspaces/notebook/Beispieldaten/sample-10000000.csv");
 
-        ReadableDataSource<FileContext> s = CSVSource
+        ReadableDataSource s = CSVSource
             .builder(p)
             .build()
             .analyze(materializer)
@@ -55,7 +53,7 @@ public class CSVSourceUTest {
             .get();
 
 
-        Schema schema = s.getSchema();
+        Schema schema = s.schema();
 
         CSVSink sink = CSVSink.apply(CommandLineConsole.apply());
 
