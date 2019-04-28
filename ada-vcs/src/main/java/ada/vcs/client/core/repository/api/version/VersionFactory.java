@@ -8,6 +8,7 @@ import com.google.common.hash.Hashing;
 import lombok.AllArgsConstructor;
 import org.apache.avro.Schema;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -51,6 +52,11 @@ public final class VersionFactory {
     public VersionDetails createDetails(InputStream is) throws IOException {
         VersionDetailsMemento memento = om.readValue(is, VersionDetailsMemento.class);
         return createDetails(memento);
+    }
+
+    public VersionDetails createDetails(byte[] bytes) throws IOException {
+        ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+        return createDetails(is);
     }
 
     public Tag createTag(ResourceName alias, User user) {

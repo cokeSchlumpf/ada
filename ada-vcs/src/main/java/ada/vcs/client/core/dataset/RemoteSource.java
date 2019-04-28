@@ -30,6 +30,10 @@ public final class RemoteSource implements ReadableDataSource, Writable {
         return RemoteSourceMemento.apply(details.memento(), remote.memento());
     }
 
+    public String info() {
+        return remote.info();
+    }
+
     @Override
     public Schema schema() {
         return details.schema();

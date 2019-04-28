@@ -35,7 +35,7 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
     private String remote;
 
     @CommandLine.Option(
-        names = { "-u", "--set-upstream" },
+        names = {"-u", "--set-upstream"},
         description = "if set, the remote will be set as default upstream remote")
     private boolean setUpstream = false;
 
@@ -108,18 +108,23 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
                         .source()
                         .analyze(materializer, dataset.schema())
                         .thenCompose(readableDataSource -> {
-                            VersionDetails details = context.factories().versionFactory().createDetails(user, dataset.schema(), readableDataSource.ref());
+                            VersionDetails details = context
+                                .factories()
+                                .versionFactory()
+                                .createDetails(user, dataset.schema(), readableDataSource.ref());
 
                             return readableDataSource
                                 .getRecords(NoOpMonitor.apply())
                                 .toMat(rm.push(details), (l, r) -> l.thenCompose(i -> r))
                                 .run(materializer)
-                                .thenApply(summary -> {
+                                .thenApply(versionDetails -> {
                                     RemoteSource rs = context.factories().remoteSourceFactory().apply(details, rm);
                                     project.updateRemoteSource(dataset.alias().getValue(), rs);
 
-                                    console.message("   Done.");
-                                    return summary;
+                                    console.message(
+                                        "   Pushed ref '%s' to '%s'.", versionDetails.id(), rm.alias().getValue());
+
+                                    return versionDetails;
                                 });
                         }))
                     .runWith(Sink.ignore(), materializer));

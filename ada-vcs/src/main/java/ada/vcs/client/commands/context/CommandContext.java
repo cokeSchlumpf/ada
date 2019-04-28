@@ -1,7 +1,6 @@
 package ada.vcs.client.commands.context;
 
 import ada.commons.databind.ObjectMapperFactory;
-import ada.vcs.client.core.AdaHome;
 import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.exceptions.NoProjectException;
 import akka.actor.ActorSystem;
@@ -42,7 +41,7 @@ public final class CommandContext {
 
         Supplier<Materializer> materializer = Suppliers.memoize(() -> ActorMaterializer.create(system.get()));
 
-        Factories factories = Factories.apply(ObjectMapperFactory.apply().create(true), system);
+        Factories factories = Factories.apply(ObjectMapperFactory.apply().create(true), system, materializer);
 
         return new CommandContext(materializer, system, shutdownActions, factories);
     }

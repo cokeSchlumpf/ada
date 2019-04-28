@@ -6,7 +6,7 @@ import ada.vcs.client.core.repository.api.Repository;
 import ada.vcs.client.core.repository.api.version.VersionFactory;
 import ada.vcs.client.core.repository.fs.FileSystemRepositoryFactory;
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 
@@ -24,22 +24,26 @@ public final class RemotesFactory {
 
     private ActorSystem system;
 
+    private Materializer materializer;
+
     private VersionFactory versionFactory;
 
-    public static RemotesFactory apply(ObjectMapperFactory omf, ActorSystem system, VersionFactory versionFactory) {
-        return apply(omf.create(true), system, versionFactory);
+    private FileSystemRepositoryFactory repositoryFactory;
+
+    public static RemotesFactory apply(
+        ObjectMapperFactory omf, ActorSystem system, Materializer materializer,
+        VersionFactory versionFactory, FileSystemRepositoryFactory repositoryFactory) {
+
+        return apply(omf.create(true), system, materializer, versionFactory, repositoryFactory);
     }
 
     public Remote createFileSystemRemote(ResourceName alias, Path dir) {
-        Repository delegate = FileSystemRepositoryFactory
-            .apply(om, ActorMaterializer.create(system), versionFactory)
-            .create(dir);
-
+        Repository delegate = repositoryFactory.create(dir);
         return FileSystemRemote.apply(om, alias, dir, delegate);
     }
 
     public  HttpRemote createHttpRemote(ResourceName alias, URL endpoint) {
-        return HttpRemote.apply(om, system, alias, endpoint);
+        return HttpRemote.apply(om, system, materializer, versionFactory, alias, endpoint);
     }
 
     public Remote createRemote(InputStream is) throws IOException {
@@ -52,7 +56,7 @@ public final class RemotesFactory {
             FileSystemRemoteMemento m = (FileSystemRemoteMemento) memento;
             return createFileSystemRemote(m.getAlias(), m.getDir());
         } else if (memento instanceof HttpRemoteMemento) {
-            return HttpRemote.apply(om, system, (HttpRemoteMemento) memento);
+            return HttpRemote.apply(om, system, materializer, versionFactory, (HttpRemoteMemento) memento);
         } else {
             String message = String.format("Unimplemented remote type `%s`.", memento.getClass());
             throw new RuntimeException(message);

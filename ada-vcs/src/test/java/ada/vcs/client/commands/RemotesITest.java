@@ -85,7 +85,7 @@ public class RemotesITest {
 
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
         context.run("datasets", "push", fsRemoteName$02, "--verbose");
-        // context.run("datasets", "push", "hippo-remote", "--verbose");
+        context.run("datasets", "push", "hippo-remote", "--verbose");
 
         System.out.println(context.getOutput());
     }
