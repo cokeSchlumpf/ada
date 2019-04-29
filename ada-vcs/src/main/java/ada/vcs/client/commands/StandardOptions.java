@@ -10,4 +10,7 @@ public abstract class StandardOptions {
     @CommandLine.Option(names = {"-v", "--verbose"}, description = "Verbose output including errors and traces")
     boolean debug;
 
+    @CommandLine.Option(names = {"--time"}, description = "Displays time to execute command")
+    boolean time;
+
 }

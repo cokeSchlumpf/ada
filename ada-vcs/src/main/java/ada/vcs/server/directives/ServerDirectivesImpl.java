@@ -42,12 +42,17 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
     private final FileSystemRepositoryFactory repositoryFactory;
 
     @Override
-    public <T extends Writable> Route onSuccess(CompletionStage<T> result) {
-        return super.onSuccess(result, r -> complete(
+    public <T extends Writable> Route complete(T result) {
+        return complete(
             StatusCodes.OK,
             HttpEntities.create(
                 ContentTypes.APPLICATION_JSON,
-                Operators.suppressExceptions(r::writeToString))));
+                Operators.suppressExceptions(result::writeToString)));
+    }
+
+    @Override
+    public <T extends Writable> Route onSuccess(CompletionStage<T> result) {
+        return super.onSuccess(result, this::complete);
     }
 
     public Route repository(Function<Repository, Route> next) {
@@ -64,53 +69,57 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
     }
 
     @Override
-    public Route records(Function2<VersionDetails, Source<GenericRecord, CompletionStage<VersionDetails>>, Route> next) {
+    public Route records(Function2<VersionDetails, Source<GenericRecord, CompletionStage<VersionDetails>>, CompletionStage<Route>> next) {
         return extractMaterializer(materializer ->
-            entity(Unmarshaller.entityToMultipartFormData(), formData -> {
-                CompletionStage<FormDataCollector> result = formData
-                    .getParts()
-                    .map(i -> ((Multipart.FormData.BodyPart) i))
-                    .runFoldAsync(FormDataCollector.empty(), (acc, bodyPart) -> {
-                        switch (bodyPart.getName()) {
-                            case "records":
-                                return CompletableFuture.completedFuture(acc.withData(bodyPart.getEntity().getDataBytes()));
-                            case "details":
-                                return bodyPart
-                                    .getEntity()
-                                    .getDataBytes()
-                                    .runFold(ByteString.empty(), ByteString::concat, materializer)
-                                    .toCompletableFuture()
-                                    .thenApply(ByteString::toByteBuffer)
-                                    .thenApply(ByteBuffer::array)
-                                    .thenApply(bytes -> Operators.suppressExceptions(() -> versionFactory.createDetails(bytes)))
-                                    .thenApply(acc::withDetails);
-                            default:
-                                bodyPart.getEntity().discardBytes(materializer);
-                                return CompletableFuture.completedFuture(acc);
-                        }
-                    }, materializer);
+                entity(Unmarshaller.entityToMultipartFormData(), formData -> {
+                    CompletionStage<RecordsUploadDataCollection> result = formData
+                        .getParts()
+                        .map(i -> ((Multipart.FormData.BodyPart) i))
+                        .runFoldAsync(RecordsUploadDataCollection.empty(), (acc, bodyPart) -> {
+                            switch (bodyPart.getName()) {
+                                case "records":
+                                    return acc
+                                        .process(details -> {
+                                            final InputStream is = bodyPart.getEntity().getDataBytes()
+                                                .via(Compression.gunzip(1024))
+                                                .runWith(StreamConverters.asInputStream(), materializer);
 
-                return onSuccess(result, r -> r
-                    .map((details, source) -> {
-                        final InputStream is = source
-                            .via(Compression.gunzip(1024))
-                            .runWith(StreamConverters.asInputStream(), materializer);
+                                            return CompletableFuture
+                                                .supplyAsync(() -> Operators.suppressExceptions(() -> {
+                                                    final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(details.schema());
+                                                    final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
 
-                        final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(details.schema());
-                        final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
+                                                    return Source
+                                                        .from(dataFileStream)
+                                                        .watchTermination(Keep.right())
+                                                        .mapMaterializedValue(done -> done.thenApply(ignore -> details));
+                                                }))
+                                                .thenCompose(source -> Operators.suppressExceptions(() -> next.apply(details, source)));
+                                        });
 
-                        final Source<GenericRecord, CompletionStage<VersionDetails>> records = Source
-                            .from(dataFileStream)
-                            .watchTermination(Keep.right())
-                            .mapMaterializedValue(done -> done.thenApply(ignore -> details));
+                                case "details":
+                                    return bodyPart
+                                        .getEntity()
+                                        .getDataBytes()
+                                        .runFold(ByteString.empty(), ByteString::concat, materializer)
+                                        .toCompletableFuture()
+                                        .thenApply(ByteString::toByteBuffer)
+                                        .thenApply(ByteBuffer::array)
+                                        .thenApply(bytes -> Operators.suppressExceptions(() -> versionFactory.createDetails(bytes)))
+                                        .thenApply(acc::withDetails);
 
-                        return next.apply(details, records);
-                    })
-                    .orElseGet(() -> complete(StatusCodes.BAD_REQUEST, "Wrong request format")));
-            })
+                                default:
+                                    bodyPart.getEntity().discardBytes(materializer);
+                                    return CompletableFuture.completedFuture(acc);
+                            }
+                        }, materializer);
+
+                    return onSuccess(result, r -> r
+                        .route()
+                        .orElseGet(() -> complete(StatusCodes.BAD_REQUEST, "Wrong request format")));
+                })
         );
     }
-
 
 
 }

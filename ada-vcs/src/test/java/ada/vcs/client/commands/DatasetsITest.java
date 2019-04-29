@@ -1,7 +1,9 @@
 package ada.vcs.client.commands;
 
+import ada.commons.util.FileSize;
 import ada.vcs.client.features.ApplicationContext;
 import ada.vcs.client.util.TestDataFactory;
+import cucumber.api.java.lv.Un;
 import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
@@ -42,12 +44,12 @@ public class DatasetsITest {
          */
 
         // Given two CSV-Files in the projects root directory
-        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv").toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(1, FileSize.Unit.GIGABYTES)).toAbsolutePath().toString();
         final String barFile = TestDataFactory.createSampleCSVFile(dir, "bar.csv").toAbsolutePath().toString();
 
         // When we add the twi files as a dataset
-        context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100", "--verbose");
-        context.run("datasets", "add", "csv", barFile, "bar", "-f", ";", "-a", "100", "--verbose");
+        context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100", "--verbose", "--time");
+        context.run("datasets", "add", "csv", barFile, "bar", "-f", ";", "-a", "100", "--verbose", "--time");
 
         // Then the CLI should print confirmations
         assertThat(context.getOutput())
@@ -116,7 +118,7 @@ public class DatasetsITest {
          */
 
         // When calling the extract command for the 'foo' dataset
-        context.run("dataset", "foo", "extract", "--verbose");
+        context.run("dataset", "foo", "extract", "--verbose", "--time");
 
 
         // Then all targets will be extracted

@@ -1,18 +1,19 @@
 package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
+import ada.commons.util.FileSize;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.api.ReadSummary;
 import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
-import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import ada.vcs.client.util.AbstractAdaTest;
+import ada.vcs.client.util.TestDataFactory;
+import akka.stream.Materializer;
+import akka.stream.javadsl.Sink;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import org.apache.avro.Schema;
 import org.assertj.core.util.Lists;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -22,28 +23,12 @@ import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class CSVSourceUTest {
-
-    private ActorSystem system;
-
-    @Before
-    public void before() {
-        system = ActorSystem.apply("test");
-    }
-
-    @After
-    public void after() {
-        if (system != null) {
-            system.terminate();
-            system = null;
-        }
-    }
+public class CSVSourceUTest extends AbstractAdaTest {
 
     @Test
     public void test() throws ExecutionException, InterruptedException {
-        Stopwatch sw = Stopwatch.createStarted();
-        ActorMaterializer materializer = ActorMaterializer.create(system);
-        Path p = Paths.get("/Users/michael/Workspaces/notebook/Beispieldaten/sample-10000000.csv");
+        Materializer materializer = getContext().materializer();
+        Path p = TestDataFactory.createSampleCSVFile(getDirectory(), "foo.csv", FileSize.apply(2, FileSize.Unit.GIGABYTES));
 
         ReadableDataSource s = CSVSource
             .builder(p)
@@ -55,16 +40,17 @@ public class CSVSourceUTest {
 
         Schema schema = s.schema();
 
-        CSVSink sink = CSVSink.apply(CommandLineConsole.apply());
+        // CSVSink sink = CSVSink.apply(CommandLineConsole.apply());
 
+        Stopwatch sw = Stopwatch.createStarted();
         ReadSummary result = s
             .getRecords(NoOpMonitor.apply())
-            .map(f -> f)
-            .take(100)
-            .toMat(sink.sink(schema), (summary, done) -> {
+            .toMat(Sink.ignore(), (summary, done) -> {
+                /*
                 done.thenAccept(sum -> {
                     System.out.println("Write Summary: " + sum);
                 });
+                */
                 return summary;
             })
             .run(materializer)
@@ -74,7 +60,8 @@ public class CSVSourceUTest {
         sw.stop();
         System.out.println(result);
         System.out.println(sw);
-        System.out.println(schema.toString(true));
+
+        // System.out.println(schema.toString(true));
     }
 
     @Test

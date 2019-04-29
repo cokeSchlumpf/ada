@@ -57,7 +57,7 @@ public class RemotesITest {
         final String fsRemoteName$02 = remoteDir$02.getFileName().toString();
         final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv").toAbsolutePath().toString();
 
-        context.run("init");
+        context.run("init", "--time", "--verbose");
 
         context.run("remotes", "add", "http://foo.bar/http-remote", "--verbose");
         assertThat(context.getOutput()).contains("Added new remote 'http-remote'.");
@@ -84,8 +84,8 @@ public class RemotesITest {
         context.clearOutput();
 
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
-        context.run("datasets", "push", fsRemoteName$02, "--verbose");
-        context.run("datasets", "push", "hippo-remote", "--verbose");
+        context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
+        context.run("datasets", "push", "hippo-remote", "--time", "--verbose");
 
         System.out.println(context.getOutput());
     }

@@ -129,3 +129,5 @@ gradle-app.setting
 
 # Ada local cache
 .ada/local/**/*
+
+**/*/.DS_Store

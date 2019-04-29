@@ -24,6 +24,7 @@ public class ApplicationContext {
     }
 
     public void clearOutput() {
+        System.out.print(output);
         output.delete(0, output.length());
     }
 

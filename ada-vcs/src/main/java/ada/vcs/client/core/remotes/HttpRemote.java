@@ -40,133 +40,135 @@ import java.util.stream.Collectors;
 @AllArgsConstructor(staticName = "apply")
 final class HttpRemote implements Remote {
 
-  private final ObjectMapper om;
+    private final ObjectMapper om;
 
-  private final ActorSystem system;
+    private final ActorSystem system;
 
-  private final Materializer materializer;
+    private final Materializer materializer;
 
-  private final VersionFactory versionFactory;
+    private final VersionFactory versionFactory;
 
-  private final ResourceName alias;
+    private final ResourceName alias;
 
-  private final URL endpoint;
+    private final URL endpoint;
 
-  public static HttpRemote apply(ObjectMapper om, ActorSystem system, Materializer materializer, VersionFactory versionFactory, HttpRemoteMemento memento) {
-    return HttpRemote.apply(om, system, materializer, versionFactory, memento.getAlias(), memento.getEndpoint());
-  }
-
-  @Override
-  public ResourceName alias() {
-    return alias;
-  }
-
-  @Override
-  public String info() {
-    return endpoint.toString();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Remote) {
-      return memento().equals(((Remote) obj).memento());
-    } else {
-      return false;
+    public static HttpRemote apply(ObjectMapper om, ActorSystem system, Materializer materializer, VersionFactory versionFactory, HttpRemoteMemento memento) {
+        return HttpRemote.apply(om, system, materializer, versionFactory, memento.getAlias(), memento.getEndpoint());
     }
-  }
 
-  @Override
-  public int hashCode() {
-    return memento().hashCode();
-  }
+    @Override
+    public ResourceName alias() {
+        return alias;
+    }
 
-  @Override
-  public RemoteMemento memento() {
-    return HttpRemoteMemento.apply(alias, endpoint);
-  }
+    @Override
+    public String info() {
+        return endpoint.toString();
+    }
 
-  @Override
-  public void writeTo(OutputStream os) throws IOException {
-    om.writeValue(os, HttpRemoteMemento.apply(alias, endpoint));
-  }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Remote) {
+            return memento().equals(((Remote) obj).memento());
+        } else {
+            return false;
+        }
+    }
 
-  @Override
-  public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
-    return null;
-  }
+    @Override
+    public int hashCode() {
+        return memento().hashCode();
+    }
 
-  @Override
-  public Source<Tag, NotUsed> tags() {
-    return null;
-  }
+    @Override
+    public RemoteMemento memento() {
+        return HttpRemoteMemento.apply(alias, endpoint);
+    }
 
-  @Override
-  public Source<VersionDetails, NotUsed> datasets() {
-    return null;
-  }
+    @Override
+    public void writeTo(OutputStream os) throws IOException {
+        om.writeValue(os, HttpRemoteMemento.apply(alias, endpoint));
+    }
 
-  @Override
-  public Sink<GenericRecord, CompletionStage<VersionDetails>> push(VersionDetails details) {
-    Schema schema = details.schema();
+    @Override
+    public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName name) {
+        return null;
+    }
 
-    Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
-      final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
-      final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
+    @Override
+    public Source<Tag, NotUsed> tags() {
+        return null;
+    }
 
-      DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, baos);
+    @Override
+    public Source<VersionDetails, NotUsed> datasets() {
+        return null;
+    }
 
-      return records -> records
-        .stream()
-        .map(record -> {
-          baos.reset();
-          Operators.suppressExceptions(() -> {
-            writer.append(record);
-            writer.flush();
-          });
+    @Override
+    public Sink<GenericRecord, CompletionStage<VersionDetails>> push(VersionDetails details) {
+        Schema schema = details.schema();
 
-          return ByteString.fromArray(baos.toByteArray());
-        })
-        .collect(Collectors.toList());
-    };
+        Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
+            final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
 
-    Function<Publisher<ByteString>, CompletionStage<HttpResponse>> consumer = publisher -> {
-      HttpEntity.Strict detailsField = HttpEntities.create(details.writeToString());
+            DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, baos);
 
-      HttpEntity.IndefiniteLength records = HttpEntities.createIndefiniteLength(
-        ContentTypes.APPLICATION_OCTET_STREAM,
-        Source.fromPublisher(publisher));
+            return records -> records
+                .stream()
+                .map(record -> {
+                    Operators.suppressExceptions(() -> {
+                        writer.append(record);
+                        writer.flush();
+                    });
 
-      Multipart.FormData formData = Multiparts.createFormDataFromParts(
-        Multiparts.createFormDataBodyPart("details", detailsField),
-        Multiparts.createFormDataBodyPart("records", records));
+                    ByteString byteString = ByteString.fromArray(baos.toByteArray());
+                    baos.reset();
 
-      return Http
-        .get(system)
-        .singleRequest(HttpRequest.PUT(endpoint.toString()).withEntity(formData.toEntity()));
-    };
+                    return byteString;
+                })
+                .collect(Collectors.toList());
+        };
 
-    return Flow
-      .of(GenericRecord.class)
-      .map(record -> (List<GenericRecord>) Lists.newArrayList(record))
-      .statefulMapConcat(writeBytes)
-      .via(Compression.gzip())
-      .toMat(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), Keep.right())
-      .mapMaterializedValue(consumer::apply)
-      .mapMaterializedValue(response -> response
-        .thenApply(r -> {
-          InputStream is = r
-            .entity()
-            .getDataBytes()
-            .runWith(StreamConverters.asInputStream(), materializer);
+        Function<Publisher<ByteString>, CompletionStage<HttpResponse>> consumer = publisher -> {
+            HttpEntity.Strict detailsField = HttpEntities.create(details.writeToString());
 
-          return Operators.suppressExceptions(() -> versionFactory.createDetails(is));
-        }));
-  }
+            HttpEntity.IndefiniteLength records = HttpEntities.createIndefiniteLength(
+                ContentTypes.APPLICATION_OCTET_STREAM,
+                Source.fromPublisher(publisher));
 
-  @Override
-  public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
-    return null;
-  }
+            Multipart.FormData formData = Multiparts.createFormDataFromParts(
+                Multiparts.createFormDataBodyPart("details", detailsField),
+                Multiparts.createFormDataBodyPart("records", records));
+
+            return Http
+                .get(system)
+                .singleRequest(HttpRequest.PUT(endpoint.toString()).withEntity(formData.toEntity()));
+        };
+
+        return Flow
+            .of(GenericRecord.class)
+            .map(record -> (List<GenericRecord>) Lists.newArrayList(record))
+            .statefulMapConcat(writeBytes)
+            .via(Compression.gzip())
+            .toMat(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), Keep.right())
+            .mapMaterializedValue(consumer::apply)
+            .mapMaterializedValue(response -> response
+                .thenApply(r -> {
+                    InputStream is = r
+                        .entity()
+                        .getDataBytes()
+                        .runWith(StreamConverters.asInputStream(), materializer);
+
+                    return Operators.suppressExceptions(() -> versionFactory.createDetails(is));
+                }));
+    }
+
+    @Override
+    public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
+        return null;
+    }
 
 }

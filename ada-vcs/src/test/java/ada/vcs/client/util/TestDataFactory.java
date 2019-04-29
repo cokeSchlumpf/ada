@@ -1,8 +1,8 @@
 package ada.vcs.client.util;
 
+import ada.commons.util.FileSize;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
-import com.google.common.collect.Lists;
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -80,10 +79,24 @@ public final class TestDataFactory {
     }
 
     public static Path createSampleCSVFile(Path path, String filename) {
+        String csvContent = TemplatesUtil.renderTemplateFromResources("/samples/sample-01-data.csv");
+        return createSampleCSVFile(path, filename, FileSize.apply(csvContent.length(), FileSize.Unit.BYTES));
+    }
+
+    public static Path createSampleCSVFile(Path path, String filename, FileSize size) {
         final Path file = path.resolve(filename);
         try (PrintWriter writer = new PrintWriter(new FileWriter(file.toFile(), false))) {
-            String csvContent = TemplatesUtil.renderTemplateFromResources("/samples/sample-01.csv");
-            writer.print(csvContent);
+            String header = TemplatesUtil.renderTemplateFromResources("/samples/sample-01-header.csv");
+            String csvContent = TemplatesUtil.renderTemplateFromResources("/samples/sample-01-data.csv");
+
+            int contentSize = csvContent.length();
+            long factor = size.getBytes() / contentSize + 1;
+
+            writer.print(header);
+
+            for (int i = 0; i < factor; i++){
+                writer.print(csvContent);
+            }
             return file;
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);

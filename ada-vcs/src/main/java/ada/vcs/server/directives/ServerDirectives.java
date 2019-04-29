@@ -14,10 +14,12 @@ import java.util.concurrent.CompletionStage;
 
 public interface ServerDirectives {
 
+    <T extends Writable> Route complete(T result);
+
     <T extends Writable> Route onSuccess(CompletionStage<T> result);
 
     Route repository(Function<Repository, Route> next);
 
-    Route records(Function2<VersionDetails, Source<GenericRecord, CompletionStage<VersionDetails>>, Route> next);
+    Route records(Function2<VersionDetails, Source<GenericRecord, CompletionStage<VersionDetails>>, CompletionStage<Route>> next);
 
 }

@@ -12,6 +12,7 @@ import ada.vcs.client.core.repository.api.version.VersionFactory;
 import ada.vcs.client.core.repository.fs.FileSystemRepositoryFactory;
 import ada.vcs.server.directives.ServerDirectivesFactory;
 import akka.actor.ActorSystem;
+import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
