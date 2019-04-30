@@ -87,6 +87,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
 
                             return src
                                 .getRecords(NoOpMonitor.apply())
+                                .async()
                                 .runWith(sink.sink(src.schema()), materializer)
                                 .thenApply(summary -> {
                                     console.message(

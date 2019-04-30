@@ -102,6 +102,7 @@ public final class CSVSink implements DataSink {
                 count.incrementAndGet();
                 return record;
             })
+            .async()
             .via(CsvFormatting.format(
                 fieldSeparator,
                 quoteChar,

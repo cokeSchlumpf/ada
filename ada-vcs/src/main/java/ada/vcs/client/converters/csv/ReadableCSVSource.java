@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -114,11 +112,11 @@ public final class ReadableCSVSource implements ReadableDataSource {
         return source
             .read()
             .drop(offset)
+            .async()
             .map(parseRecord::apply)
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .watchTermination((ignore, done) ->
-                done.thenApply(d -> ReadSummary.apply(success.get(), failures.get())));
+            .watchTermination((ignore, done) -> done.thenApply(d -> ReadSummary.apply(success.get(), failures.get())));
     }
 
 
