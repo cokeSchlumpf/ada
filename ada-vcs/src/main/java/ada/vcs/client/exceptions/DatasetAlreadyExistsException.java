@@ -1,6 +1,6 @@
 package ada.vcs.client.exceptions;
 
-public final class DatasetAlreadyExistsException extends IllegalArgumentException {
+public final class DatasetAlreadyExistsException extends IllegalArgumentException implements AdaException {
 
     private DatasetAlreadyExistsException(String message) {
         super(message);

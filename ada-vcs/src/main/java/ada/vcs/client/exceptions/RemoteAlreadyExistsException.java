@@ -1,6 +1,6 @@
 package ada.vcs.client.exceptions;
 
-public final class RemoteAlreadyExistsException extends IllegalArgumentException {
+public final class RemoteAlreadyExistsException extends IllegalArgumentException implements AdaException {
 
     private RemoteAlreadyExistsException(String message) {
         super(message);

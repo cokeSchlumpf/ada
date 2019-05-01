@@ -1,6 +1,6 @@
 package ada.vcs.client.exceptions;
 
-public final class TargetNotExistingException extends IllegalArgumentException {
+public final class TargetNotExistingException extends IllegalArgumentException implements AdaException {
 
     private TargetNotExistingException(String message) {
         super(message);

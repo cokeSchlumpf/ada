@@ -3,6 +3,7 @@ package ada.vcs.client.commands;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.exceptions.ExitWithErrorException;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
@@ -42,7 +43,7 @@ public final class Dataset$Targets extends StandardOptions implements Runnable {
                 .collect(Collectors.toList());
 
             if (targets.isEmpty()) {
-                console.message("Dataset '%s' does not contain any targets.", dataset.alias());
+                throw ExitWithErrorException.apply("Dataset '%s' does not contain any targets.", dataset.alias());
             } else {
                 console.table(
                     Lists.newArrayList("Alias", "Type"),

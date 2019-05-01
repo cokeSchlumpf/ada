@@ -10,8 +10,7 @@ import java.util.Optional;
     description = "adds a new target to the dataset",
     subcommands = {
         Dataset$Targets$Add$Avro.class,
-        Dataset$Targets$Add$CSV.class,
-        Dataset$Targets$Add$Local.class
+        Dataset$Targets$Add$CSV.class
     })
 @AllArgsConstructor(staticName = "apply")
 public final class Dataset$Targets$Add extends StandardOptions {

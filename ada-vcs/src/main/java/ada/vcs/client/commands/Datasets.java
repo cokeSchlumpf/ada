@@ -3,6 +3,7 @@ package ada.vcs.client.commands;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.core.dataset.Dataset;
+import ada.vcs.client.exceptions.ExitWithErrorException;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
@@ -42,7 +43,7 @@ public final class Datasets extends StandardOptions implements Runnable {
                         .collect(Collectors.toList()),
                     true);
             } else {
-                console.message("No datasets in project.");
+                throw ExitWithErrorException.apply("No datasets in project.");
             }
         });
     }

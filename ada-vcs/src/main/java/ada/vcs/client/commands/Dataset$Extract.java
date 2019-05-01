@@ -7,6 +7,7 @@ import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.exceptions.ExitWithErrorException;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
@@ -60,8 +61,8 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
             }
 
             if (targets.isEmpty()) {
-                console.message("Dataset '%s' does not contain any targets to extract data", dataset.alias());
-                return;
+                throw ExitWithErrorException
+                    .apply("Dataset '%s' does not contain any targets to extract data", dataset.alias());
             }
 
             context.withMaterializer(materializer -> {

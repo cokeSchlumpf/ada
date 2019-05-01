@@ -1,6 +1,6 @@
 package ada.vcs.client.exceptions;
 
-public final class NoUserConfiguredException extends RuntimeException {
+public final class NoUserConfiguredException extends RuntimeException implements AdaException {
 
     private NoUserConfiguredException(String message) {
         super(message);
