@@ -81,8 +81,12 @@ public class RemotesITest extends AbstractAdaTest {
         context.clearOutput();
 
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
-        // context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
+        context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
         context.run("datasets", "push", "hippo-remote", "--time", "--verbose");
+
+        context.run("dataset", "foo", "targets", "add", "csv", dir.resolve("out-csv.csv").toString(), "--verbose");
+
+        context.run("dataset", "foo", "pull", "--verbose");
 
         System.out.println(context.getOutput());
     }

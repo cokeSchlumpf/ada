@@ -171,7 +171,13 @@ final class HttpRemote implements Remote {
         CompletionStage<Source<GenericRecord, CompletionStage<VersionDetails>>> sourceCS = Http
             .get(system)
             .singleRequest(HttpRequest.GET(endpoint + "/" + refSpec.toString()))
-            .thenCompose(response -> Unmarshaller.entityToMultipartFormData().unmarshal(response.entity(), materializer))
+            .thenCompose(response -> Unmarshaller
+                .entityToMultipartFormData()
+                .unmarshal(
+                    response
+                        .entity()
+                        .withoutSizeLimit(),
+                    materializer))
             .thenCompose(formData -> formData
                 .getParts()
                 .map(i -> ((Multipart.FormData.BodyPart) i))
