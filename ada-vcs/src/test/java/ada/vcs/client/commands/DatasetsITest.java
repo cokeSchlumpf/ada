@@ -25,7 +25,7 @@ public class DatasetsITest extends AbstractAdaTest {
          */
 
         // Given two CSV-Files in the projects root directory
-        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(500, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(200, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
         final String barFile = TestDataFactory.createSampleCSVFile(dir, "bar.csv").toAbsolutePath().toString();
 
         // When we add the twi files as a dataset

@@ -1,5 +1,6 @@
 package ada.vcs.client.core.remotes;
 
+import ada.commons.util.Either;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.core.repository.api.RefSpec;
@@ -38,9 +39,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -168,62 +172,68 @@ final class HttpRemote implements Remote {
 
     @Override
     public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
-        CompletionStage<Source<GenericRecord, CompletionStage<VersionDetails>>> sourceCS = Http
-            .get(system)
-            .singleRequest(HttpRequest.GET(endpoint + "/" + refSpec.toString()))
-            .thenCompose(response -> Unmarshaller
+        CompletableFuture<VersionDetails> mat = new CompletableFuture<>();
+
+        InputStream is = Source
+            .fromCompletionStage(Http
+                .get(system)
+                .singleRequest(HttpRequest.GET(endpoint + "/" + refSpec.toString())))
+            .mapAsync(1, response -> Unmarshaller
                 .entityToMultipartFormData()
-                .unmarshal(
-                    response
-                        .entity()
-                        .withoutSizeLimit(),
-                    materializer))
-            .thenCompose(formData -> formData
-                .getParts()
-                .map(i -> ((Multipart.FormData.BodyPart) i))
-                .foldAsync(RecordsUploadDataCollection.<Source<GenericRecord, CompletionStage<VersionDetails>>>empty(), (acc, bodyPart) -> {
-                    switch (bodyPart.getName()) {
-                        case "records":
-                            return acc
-                                .process(details -> {
-                                    InputStream is = bodyPart
-                                        .getEntity()
-                                        .getDataBytes()
-                                        .runWith(StreamConverters.asInputStream(), materializer);
+                .unmarshal(response.entity().withoutSizeLimit(), materializer))
+            .flatMapConcat(Multipart.FormData::getParts)
+            .map(i -> ((Multipart.FormData.BodyPart) i))
+            .<Source<Either<VersionDetails, ByteString>, NotUsed>>map(bodyPart -> {
+                switch (bodyPart.getName()) {
+                    case "details":
+                        CompletableFuture<VersionDetails> versionDetailsCS = bodyPart
+                            .getEntity()
+                            .getDataBytes()
+                            .runFold(ByteString.empty(), ByteString::concat, materializer)
+                            .toCompletableFuture()
+                            .thenApply(ByteString::toByteBuffer)
+                            .thenApply(ByteBuffer::array)
+                            .thenApply(bytes -> Operators.suppressExceptions(() -> versionFactory.createDetails(bytes)));
 
-                                    final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(details.schema());
-                                    final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
+                        return Source
+                            .fromCompletionStage(versionDetailsCS)
+                            .map(Either::left);
 
-                                    Source<GenericRecord, CompletionStage<VersionDetails>> genericRecordObjectSource = Source
-                                        .from(dataFileStream)
-                                        .watchTermination(Keep.right())
-                                        .mapMaterializedValue(done -> done.thenApply(ignore -> details));
+                    case "records":
+                        return bodyPart
+                            .getEntity()
+                            .getDataBytes()
+                            .mapMaterializedValue(o -> NotUsed.getInstance())
+                            .map(Either::right);
 
-                                    return CompletableFuture.completedFuture(genericRecordObjectSource);
-                                });
+                    default:
+                        return Source.empty();
+                }
+            })
+            .flatMapConcat(s -> s)
+            .filter(element -> element.map(
+                versionDetails -> {
+                    mat.complete(versionDetails);
+                    return false;
+                },
+                bs -> true))
+            .map(element -> element.map(
+                versionDetails -> ByteString.empty(),
+                bs -> bs))
+            .via(Compression.gunzip(8192))
+            .runWith(StreamConverters.asInputStream(), materializer);
 
-                        case "details":
-                            return bodyPart
-                                .getEntity()
-                                .getDataBytes()
-                                .runFold(ByteString.empty(), ByteString::concat, materializer)
-                                .toCompletableFuture()
-                                .thenApply(ByteString::toByteBuffer)
-                                .thenApply(ByteBuffer::array)
-                                .thenApply(bytes -> Operators.suppressExceptions(() -> versionFactory.createDetails(bytes)))
-                                .thenApply(acc::withDetails);
-
-                        default:
-                            bodyPart.getEntity().discardBytes(materializer);
-                            return CompletableFuture.completedFuture(acc);
-                    }
-                })
-                .runWith(Sink.head(), materializer)
-                .thenApply(result -> result.result().orElseThrow(() -> new RuntimeException("Something went wrong ..."))));
 
         return Source
-            .fromSourceCompletionStage(sourceCS)
-            .mapMaterializedValue(cs -> cs.thenCompose(vd -> vd));
+            .fromCompletionStage(mat)
+            .flatMapConcat(details -> {
+                final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(details.schema());
+                final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
+
+                return Source.from(dataFileStream);
+            })
+            .watchTermination(Keep.right())
+            .mapMaterializedValue(done -> done.thenCompose(i -> mat));
     }
 
 }

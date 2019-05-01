@@ -52,7 +52,7 @@ public class RemotesITest extends AbstractAdaTest {
 
         final String fsRemoteName$01 = remoteDir$01.getFileName().toString();
         final String fsRemoteName$02 = remoteDir$02.getFileName().toString();
-        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(2, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(1, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
 
         context.run("init", "--time", "--verbose");
 
@@ -83,12 +83,11 @@ public class RemotesITest extends AbstractAdaTest {
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
         context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
         context.run("datasets", "push", "hippo-remote", "--time", "--verbose");
-
         context.run("dataset", "foo", "targets", "add", "csv", dir.resolve("out-csv.csv").toString(), "--verbose");
+        context.clearOutput();
 
-        context.run("dataset", "foo", "pull", "--verbose");
-
-        System.out.println(context.getOutput());
+        context.run("dataset", "foo", "pull", "--verbose", "--time");
+        context.clearOutput();
     }
 
 }

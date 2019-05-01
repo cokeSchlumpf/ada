@@ -94,13 +94,13 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
     public Route pushRecords(Function2<VersionDetails, Source<ByteString, CompletionStage<VersionDetails>>, CompletionStage<Route>> next) {
         return extractMaterializer(materializer ->
             entity(Unmarshaller.entityToMultipartFormData(), formData -> {
-                CompletionStage<RecordsUploadDataCollection<Route>> result = formData
+                CompletionStage<RecordsUploadDataCollection<CompletionStage<Route>>> result = formData
                     .getParts()
                     .map(i -> ((Multipart.FormData.BodyPart) i))
-                    .runFoldAsync(RecordsUploadDataCollection.<Route>empty(), (acc, bodyPart) -> {
+                    .runFoldAsync(RecordsUploadDataCollection.<CompletionStage<Route>>empty(), (acc, bodyPart) -> {
                         switch (bodyPart.getName()) {
                             case "records":
-                                return acc
+                                RecordsUploadDataCollection<CompletionStage<Route>> collection = acc
                                     .process(details -> {
                                         Source<ByteString, CompletionStage<VersionDetails>> data = bodyPart
                                             .getEntity()
@@ -110,12 +110,16 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
                                         return next.apply(details, data);
                                     });
 
+                                return collection
+                                    .result()
+                                    .map(route -> route.thenApply(r -> collection))
+                                    .orElseGet(() -> CompletableFuture.completedFuture(collection));
+
                             case "details":
                                 return bodyPart
                                     .getEntity()
                                     .getDataBytes()
                                     .runFold(ByteString.empty(), ByteString::concat, materializer)
-                                    .toCompletableFuture()
                                     .thenApply(ByteString::toByteBuffer)
                                     .thenApply(ByteBuffer::array)
                                     .thenApply(bytes -> Operators.suppressExceptions(() -> versionFactory.createDetails(bytes)))
@@ -129,6 +133,7 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
 
                 return onSuccess(result, r -> r
                     .result()
+                    .map(routeCS -> onSuccess(routeCS, route -> route))
                     .orElseGet(() -> complete(StatusCodes.BAD_REQUEST, "Wrong request format")));
             })
         );

@@ -64,7 +64,7 @@ public final class Dataset$Pull extends StandardOptions implements Runnable {
                 final ada.vcs.client.core.dataset.Dataset ds = project.getDataset(dataset.alias());
                 final RemoteSource source = ds.remoteSource().orElseThrow(() -> DatasetHasNoRemoteSourceException.apply(ds.alias().getValue()));
 
-                console.message("Extracting '%s from '%s' to %d target(s)", source.ref(), source.info(), targets.size());
+                console.message("Pulling and extracting '%s from '%s' to %d target(s)", source.ref(), source.info(), targets.size());
 
                 return Source
                     .from(targets)
@@ -80,7 +80,7 @@ public final class Dataset$Pull extends StandardOptions implements Runnable {
                             .resolve(project.path());
 
                         console.message(
-                            "-> Starting to extract dataset '%s' to target '%s' (%d of %d).",
+                            "-> Starting to pull and extract dataset '%s' to target '%s' (%d of %d)",
                             ds.alias().getValue(), target, idx + 1, targets.size());
 
 
@@ -89,7 +89,7 @@ public final class Dataset$Pull extends StandardOptions implements Runnable {
                             .runWith(sink.sink(source.schema()), materializer)
                             .thenApply(summary -> {
                                 console.message(
-                                    "   Done. Extracted %d records from dataset '%s' to target '%s'.",
+                                    "   Pulled and extracted %d records from dataset '%s' to target '%s'",
                                     summary.getCount(), ds.alias().getValue(), target);
 
                                 return summary;

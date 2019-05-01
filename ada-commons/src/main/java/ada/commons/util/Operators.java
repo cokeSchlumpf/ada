@@ -18,6 +18,12 @@ public final class Operators {
         return result;
     }
 
+    public static <T> CompletionStage<T> completeExceptionally() {
+        CompletableFuture<T> result = new CompletableFuture<>();
+        result.completeExceptionally(new RuntimeException());
+        return result;
+    }
+
     public static <T> Optional<T> exceptionToNone(ExceptionalSupplier<T> supplier) {
         try {
             return Optional.of(supplier.get());

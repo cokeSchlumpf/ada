@@ -6,12 +6,10 @@ import akka.japi.function.Function;
 import lombok.AllArgsConstructor;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public abstract class RecordsUploadDataCollection<T> {
 
-    public abstract CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route);
+    public abstract RecordsUploadDataCollection<T> process(Function<VersionDetails, T> route);
 
     public abstract RecordsUploadDataCollection<T> withDetails(VersionDetails details);
 
@@ -30,8 +28,8 @@ public abstract class RecordsUploadDataCollection<T> {
 
 
         @Override
-        public CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route) {
-            return CompletableFuture.completedFuture(this);
+        public RecordsUploadDataCollection<T> process(Function<VersionDetails, T> route) {
+            return this;
         }
 
         @Override
@@ -53,10 +51,8 @@ public abstract class RecordsUploadDataCollection<T> {
 
 
         @Override
-        public CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route) {
-            return Operators.suppressExceptions(() -> route
-                .apply(details)
-                .thenApply(Processed::apply));
+        public RecordsUploadDataCollection<T> process(Function<VersionDetails, T> route) {
+            return Processed.apply(Operators.suppressExceptions(() -> route.apply(details)));
         }
 
         @Override
@@ -78,8 +74,8 @@ public abstract class RecordsUploadDataCollection<T> {
 
 
         @Override
-        public CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route) {
-            return CompletableFuture.completedFuture(this);
+        public RecordsUploadDataCollection<T> process(Function<VersionDetails, T> route) {
+            return this;
         }
 
         @Override

@@ -81,7 +81,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
                                 .resolve(project.path());
 
                             console.message(
-                                "-> Starting to extract dataset '%s' to target '%s' (%d of %d).",
+                                "-> Starting to extract dataset '%s' to target '%s' (%d of %d)",
                                 ds.alias().getValue(), target, idx + 1, targets.size());
 
 
@@ -90,7 +90,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
                                 .runWith(sink.sink(src.schema()), materializer)
                                 .thenApply(summary -> {
                                     console.message(
-                                        "   Done. Extracted %d records from dataset '%s' to target '%s'.",
+                                        "   Extracted %d records from dataset '%s' to target '%s'",
                                         summary.getCount(), ds.alias().getValue(), target);
 
                                     return summary;
