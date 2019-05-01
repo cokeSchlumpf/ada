@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileSystemRepositorySettingsMemento {
+public final class FileSystemRepositorySettingsMemento {
 
     private static final String BATCH_SIZE = "batch-size";
     private static final String DETAILS_FILENAME = "details-filename";

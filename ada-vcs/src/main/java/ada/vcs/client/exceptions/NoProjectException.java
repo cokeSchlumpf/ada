@@ -1,6 +1,6 @@
 package ada.vcs.client.exceptions;
 
-public class NoProjectException extends RuntimeException {
+public final class NoProjectException extends RuntimeException {
 
     private NoProjectException(String message) {
         super(message);
