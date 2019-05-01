@@ -9,6 +9,7 @@ import ada.vcs.client.core.repository.api.version.VersionDetails;
 import akka.NotUsed;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
+import akka.util.ByteString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.apache.avro.generic.GenericRecord;

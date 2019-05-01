@@ -13,8 +13,9 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;
 
@@ -32,15 +33,15 @@ public final class AvroSink implements DataSink {
         final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
         try {
-            final FileOutputStream fos = new FileOutputStream(path.toFile());
+            final OutputStream fos = Files.newOutputStream(path);
             final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
             DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, fos);
 
             return Flow
                 .of(GenericRecord.class)
-                .map(record -> {
-                    writer.append(record);
-                    return record;
+                .map(records -> {
+                    writer.append(records);
+                    return records;
                 })
                 .toMat(
                     Sink.fold(0L, (count, record) -> count + 1),

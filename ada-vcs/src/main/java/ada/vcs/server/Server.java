@@ -16,13 +16,17 @@ public final class Server extends HttpApp {
     protected Route routes() {
         return extractMaterializer(materializer ->
             concat(
+                directives.repository(repository ->
+                    concat(
+                        put(() ->
+                            withoutSizeLimit(() ->
+                                directives.pushRecords((details, records) -> records
+                                    .runWith(repository.insert(details), materializer)
+                                    .thenApply(directives::complete)))),
+                        directives.refSpec(refSpec ->
+                            directives.fromRecords(repository.read(refSpec))))),
                 get(() ->
-                    complete(HttpEntities.create(ContentTypes.TEXT_HTML_UTF8, "<h1>Say hello to akka-http</h1>"))),
-                put(() ->
-                    directives.repository(repository ->
-                        directives.records((details, records) -> records
-                            .runWith(repository.push(details), materializer)
-                            .thenApply(directives::complete))))));
+                    complete(HttpEntities.create(ContentTypes.TEXT_HTML_UTF8, "<h1>Say hello to akka-http</h1>")))));
     }
 
 }

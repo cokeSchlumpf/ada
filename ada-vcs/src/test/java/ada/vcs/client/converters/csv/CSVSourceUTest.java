@@ -28,7 +28,7 @@ public class CSVSourceUTest extends AbstractAdaTest {
     @Test
     public void test() throws ExecutionException, InterruptedException {
         Materializer materializer = getContext().materializer();
-        Path p = TestDataFactory.createSampleCSVFile(getDirectory(), "foo.csv", FileSize.apply(2, FileSize.Unit.GIGABYTES));
+        Path p = TestDataFactory.createSampleCSVFile(getDirectory(), "foo.csv", FileSize.apply(500, FileSize.Unit.MEGABYTES));
 
         ReadableDataSource s = CSVSource
             .builder(p)

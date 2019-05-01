@@ -2,40 +2,21 @@ package ada.vcs.client.commands;
 
 import ada.commons.util.FileSize;
 import ada.vcs.client.features.ApplicationContext;
+import ada.vcs.client.util.AbstractAdaTest;
 import ada.vcs.client.util.TestDataFactory;
-import cucumber.api.java.lv.Un;
-import org.assertj.core.util.Files;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class DatasetsITest {
-
-    private Path dir;
-
-    private ApplicationContext context;
-
-    @Before
-    public void setup() {
-        context = ApplicationContext.apply();
-        dir = Files.newTemporaryFolder().toPath();
-        System.setProperty("user.dir", dir.toAbsolutePath().toString());
-    }
-
-    @After
-    public void cleanup() {
-        if (dir != null) {
-            Files.delete(dir.toFile());
-            dir = null;
-        }
-    }
+public class DatasetsITest extends AbstractAdaTest {
 
     @Test
     public void test() {
+        ApplicationContext context = this.getApplication();
+        Path dir = this.getDirectory();
+
         // Given an initialized project
         context.run("init");
 
@@ -113,6 +94,7 @@ public class DatasetsITest {
             .contains("avro(out-avro.avro)")
             .contains("csv(out-csv.csv)");
 
+        context.clearOutput();
         /*
          * Extracting data.
          */
@@ -120,12 +102,11 @@ public class DatasetsITest {
         // When calling the extract command for the 'foo' dataset
         context.run("dataset", "foo", "extract", "out-avro", "--verbose", "--time");
 
-
         // Then all targets will be extracted
-        //assertThat(dir.resolve("out-avro.avro"))
-        //    .exists();
-        // assertThat(dir.resolve("out-csv.csv"))
-        //    .exists();
+        assertThat(dir.resolve("out-avro.avro"))
+            .exists();
+        /*assertThat(dir.resolve("out-csv.csv"))
+            .exists(); */
 
         System.out.println(context.getOutput());
     }

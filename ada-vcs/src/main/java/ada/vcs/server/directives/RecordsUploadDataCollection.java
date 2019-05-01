@@ -2,7 +2,6 @@ package ada.vcs.server.directives;
 
 import ada.commons.util.Operators;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
-import akka.http.javadsl.server.Route;
 import akka.japi.function.Function;
 import lombok.AllArgsConstructor;
 
@@ -10,87 +9,87 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-abstract class RecordsUploadDataCollection {
+public abstract class RecordsUploadDataCollection<T> {
 
-    public abstract CompletionStage<RecordsUploadDataCollection> process(Function<VersionDetails, CompletionStage<Route>> route);
+    public abstract CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route);
 
-    public abstract RecordsUploadDataCollection withDetails(VersionDetails details);
+    public abstract RecordsUploadDataCollection<T> withDetails(VersionDetails details);
 
-    public abstract Optional<Route> route();
+    public abstract Optional<T> result();
 
     private RecordsUploadDataCollection() {
 
     }
 
-    public static RecordsUploadDataCollection empty() {
+    public static <T> RecordsUploadDataCollection<T> empty() {
         return Empty.apply();
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class Empty extends RecordsUploadDataCollection {
+    private static class Empty<T> extends RecordsUploadDataCollection<T> {
 
 
         @Override
-        public CompletionStage<RecordsUploadDataCollection> process(Function<VersionDetails, CompletionStage<Route>> route) {
+        public CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route) {
             return CompletableFuture.completedFuture(this);
         }
 
         @Override
-        public RecordsUploadDataCollection withDetails(VersionDetails details) {
+        public RecordsUploadDataCollection<T> withDetails(VersionDetails details) {
             return HasDetails.apply(details);
         }
 
         @Override
-        public Optional<Route> route() {
+        public Optional<T> result() {
             return Optional.empty();
         }
 
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class HasDetails extends RecordsUploadDataCollection {
+    private static class HasDetails<T> extends RecordsUploadDataCollection<T> {
 
         private final VersionDetails details;
 
 
         @Override
-        public CompletionStage<RecordsUploadDataCollection> process(Function<VersionDetails, CompletionStage<Route>> route) {
+        public CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route) {
             return Operators.suppressExceptions(() -> route
                 .apply(details)
                 .thenApply(Processed::apply));
         }
 
         @Override
-        public RecordsUploadDataCollection withDetails(VersionDetails details) {
+        public RecordsUploadDataCollection<T> withDetails(VersionDetails details) {
             return this;
         }
 
         @Override
-        public Optional<Route> route() {
+        public Optional<T> result() {
             return Optional.empty();
         }
 
     }
 
     @AllArgsConstructor(staticName = "apply")
-    private static class Processed extends RecordsUploadDataCollection {
+    private static class Processed<T> extends RecordsUploadDataCollection<T> {
 
-        private final Route route;
+        private final T result;
 
 
         @Override
-        public CompletionStage<RecordsUploadDataCollection> process(Function<VersionDetails, CompletionStage<Route>> route) {
+        public CompletionStage<RecordsUploadDataCollection<T>> process(Function<VersionDetails, CompletionStage<T>> route) {
             return CompletableFuture.completedFuture(this);
         }
 
         @Override
-        public RecordsUploadDataCollection withDetails(VersionDetails details) {
+        public RecordsUploadDataCollection<T> withDetails(VersionDetails details) {
             return this;
         }
 
         @Override
-        public Optional<Route> route() {
-            return Optional.of(route);
+        public Optional<T> result() {
+            return Optional.of(result);
         }
 
     }

@@ -3,7 +3,7 @@ package ada.vcs.client.core.repository.fs;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.core.repository.api.RefSpec;
-import ada.vcs.client.core.repository.api.Repository;
+import ada.vcs.client.core.repository.api.RepositoryDirectAccess;
 import ada.vcs.client.core.repository.api.User;
 import ada.vcs.client.core.repository.api.exceptions.TagAlreadyExistsException;
 import ada.vcs.client.core.repository.api.exceptions.TagReferenceNotFoundException;
@@ -13,6 +13,7 @@ import ada.vcs.client.core.repository.api.version.Tag;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
 import ada.vcs.client.core.repository.api.version.VersionFactory;
 import akka.NotUsed;
+import akka.japi.Pair;
 import akka.japi.function.Creator;
 import akka.japi.function.Function;
 import akka.stream.Materializer;
@@ -33,19 +34,16 @@ import org.apache.avro.io.DatumWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AllArgsConstructor(staticName = "apply")
-final class FileSystemRepositoryImpl implements Repository {
+final class FileSystemRepositoryImpl implements RepositoryDirectAccess {
 
     private final FileSystemRepositorySettings settings;
 
@@ -135,20 +133,6 @@ final class FileSystemRepositoryImpl implements Repository {
             final Schema schema = details.schema();
             final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
 
-            final Path root = settings.getRoot();
-            final Path target = root.resolve(details.id());
-            final Path detailsFile = target.resolve(settings.getDetailsFileName());
-
-            if (Files.exists(target)) {
-                throw VersionAlreadyExistsException.apply(RefSpec.VersionRef.apply(details.id()));
-            } else {
-                Files.createDirectories(target);
-            }
-
-            try (OutputStream fos = Files.newOutputStream(detailsFile)) {
-                details.writeTo(fos);
-            }
-
             Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
@@ -171,6 +155,33 @@ final class FileSystemRepositoryImpl implements Repository {
                     .collect(Collectors.toList());
             };
 
+
+            return Flow
+                .of(GenericRecord.class)
+                .grouped(settings.getBatchSize())
+                .statefulMapConcat(writeBytes)
+                .via(Compression.gzip())
+                .toMat(insert(details), Keep.right());
+        });
+    }
+
+    @Override
+    public Sink<ByteString, CompletionStage<VersionDetails>> insert(VersionDetails details) {
+        return Operators.suppressExceptions(() -> {
+            final Path root = settings.getRoot();
+            final Path target = root.resolve(details.id());
+            final Path detailsFile = target.resolve(settings.getDetailsFileName());
+
+            if (Files.exists(target)) {
+                throw VersionAlreadyExistsException.apply(RefSpec.VersionRef.apply(details.id()));
+            } else {
+                Files.createDirectories(target);
+            }
+
+            try (OutputStream fos = Files.newOutputStream(detailsFile)) {
+                details.writeTo(fos);
+            }
+
             Creator<Function<ByteString, Optional<Path>>> rotationFunction = () -> {
                 final long max = settings.getMaxFileSize().getBytes();
                 final long[] size = new long[]{max};
@@ -192,11 +203,7 @@ final class FileSystemRepositoryImpl implements Repository {
                 };
             };
 
-            return Flow
-                .of(GenericRecord.class)
-                .grouped(settings.getBatchSize())
-                .statefulMapConcat(writeBytes)
-                .via(Compression.gzip())
+            return Flow.of(ByteString.class)
                 .toMat(
                     LogRotatorSink.createFromFunction(rotationFunction),
                     Keep.right())
@@ -205,8 +212,8 @@ final class FileSystemRepositoryImpl implements Repository {
     }
 
     @Override
-    public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
-        CompletionStage<Source<GenericRecord, CompletionStage<VersionDetails>>> avro = refSpec
+    public Source<ByteString, CompletionStage<VersionDetails>> read(RefSpec refSpec) {
+        CompletionStage<Source<ByteString, VersionDetails>> data = refSpec
             .map(
                 tagRef -> datasets()
                     .filter(version -> version
@@ -220,7 +227,7 @@ final class FileSystemRepositoryImpl implements Repository {
                     .thenApply(VersionDetails::id)
                     .thenApply(RefSpec.VersionRef::apply),
                 CompletableFuture::completedFuture)
-            .thenCompose(versionRef -> {
+            .thenApply(versionRef -> {
                 final Path root = settings.getRoot();
                 final Path source = root.resolve(versionRef.getId());
                 final Path detailsFile = source.resolve(settings.getDetailsFileName());
@@ -235,37 +242,88 @@ final class FileSystemRepositoryImpl implements Repository {
                     throw VersionReferenceNotFoundException.apply(versionRef);
                 }
 
-                return CompletableFuture
-                    .completedFuture(source)
-                    .thenApply(src ->
-                        Operators.suppressExceptions(
-                            () -> Files.newDirectoryStream(src, path -> path.toString().endsWith("avro"))))
-                    .thenApply(DirectoryStream::iterator)
-                    .thenApply(Lists::newArrayList)
-                    .thenApply(files -> {
-                        files.sort(Comparator.naturalOrder());
-                        return files;
-                    })
-                    .thenApply(files -> Operators.suppressExceptions(() -> {
-                        final InputStream is = Source
-                            .from(files)
-                            .flatMapConcat(FileIO::fromPath)
-                            .via(Compression.gunzip(1024))
-                            .runWith(StreamConverters.asInputStream(), materializer);
+                Iterator<Path> pathsIt = Operators
+                    .suppressExceptions(() -> Files.newDirectoryStream(source, path -> path.toString().endsWith("avro")))
+                    .iterator();
 
-                        final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(versionDetails.schema());
-                        final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
+                ArrayList<Path> paths = Lists.newArrayList(pathsIt);
+                paths.sort(Comparator.naturalOrder());
 
-                        return Source
-                            .from(dataFileStream)
-                            .watchTermination(Keep.right())
-                            .mapMaterializedValue(done -> done.thenApply(ignore -> versionDetails));
-                    }));
+                return Operators.suppressExceptions(() -> Source
+                    .from(paths)
+                    .flatMapConcat(FileIO::fromPath)
+                    .mapMaterializedValue(done -> versionDetails));
             });
 
+        Source<Source<ByteString, VersionDetails>, NotUsed> avro = Source
+            .fromCompletionStage(refSpec
+                .map(
+                    tagRef -> datasets()
+                        .filter(version -> version
+                            .tag()
+                            .map(tag -> tag.alias().getValue().equals(tagRef.getAlias().getValue()))
+                            .orElse(false))
+                        .runWith(Sink.seq(), materializer)
+                        .thenApply(List::stream)
+                        .thenApply(Stream::findFirst)
+                        .thenApply(tag -> tag.orElseThrow(() -> TagReferenceNotFoundException.apply(tagRef)))
+                        .thenApply(VersionDetails::id)
+                        .thenApply(RefSpec.VersionRef::apply),
+                    CompletableFuture::completedFuture))
+            .map(versionRef -> {
+                final Path root = settings.getRoot();
+                final Path source = root.resolve(versionRef.getId());
+                final Path detailsFile = source.resolve(settings.getDetailsFileName());
+
+                final VersionDetails versionDetails = Operators.suppressExceptions(() -> {
+                    try (InputStream is = Files.newInputStream(detailsFile)) {
+                        return versionFactory.createDetails(is);
+                    }
+                });
+
+                if (!Files.isDirectory(source)) {
+                    throw VersionReferenceNotFoundException.apply(versionRef);
+                }
+
+                Iterator<Path> pathsIt = Operators
+                    .suppressExceptions(() -> Files.newDirectoryStream(source, path -> path.toString().endsWith("avro")))
+                    .iterator();
+
+                ArrayList<Path> paths = Lists.newArrayList(pathsIt);
+                paths.sort(Comparator.naturalOrder());
+
+                return Operators.suppressExceptions(() -> Source
+                    .from(paths)
+                    .flatMapConcat(FileIO::fromPath)
+                    .mapMaterializedValue(done -> versionDetails));
+            });
+
+        return Source
+            .fromSourceCompletionStage(data)
+            .mapMaterializedValue(s -> s);
+    }
+
+    @Override
+    public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
+        final Pair<CompletionStage<VersionDetails>, InputStream> run = read(refSpec)
+            .via(Compression.gunzip(1024))
+            .toMat(StreamConverters.asInputStream(), Keep.both())
+            .run(materializer);
+
+        final CompletionStage<Source<GenericRecord, CompletionStage<VersionDetails>>> avro = run
+            .first()
+            .thenApply(versionDetails -> Operators.suppressExceptions(() -> {
+                final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(versionDetails.schema());
+                final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(run.second(), datumReader);
+
+                return Source
+                    .from(dataFileStream)
+                    .watchTermination(Keep.right())
+                    .mapMaterializedValue(done -> done.thenApply(ignore -> versionDetails));
+            }));
 
         return Source.fromSourceCompletionStage(avro)
-            .mapMaterializedValue(cs -> cs.thenCompose(self -> self));
+            .mapMaterializedValue(cs -> cs.thenCompose(vd -> vd));
     }
 
 }

@@ -1,20 +1,19 @@
 package ada.vcs.client.commands;
 
+import ada.commons.util.FileSize;
 import ada.vcs.client.features.ApplicationContext;
+import ada.vcs.client.util.AbstractAdaTest;
 import ada.vcs.client.util.TestDataFactory;
 import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class RemotesITest {
-
-    private Path dir;
+public class RemotesITest extends AbstractAdaTest {
 
     private Path remotesDir;
 
@@ -22,40 +21,38 @@ public class RemotesITest {
 
     private Path remoteDir$02;
 
-    private ApplicationContext context;
-
     @Before
-    public void setup() throws IOException {
-        context = ApplicationContext.apply();
-        dir = Files.newTemporaryFolder().toPath();
+    public void before() throws Exception {
+        super.before();
+
         remotesDir = Files.newTemporaryFolder().toPath();
         remoteDir$01 = remotesDir.resolve("first-remote");
         remoteDir$02 = remotesDir.resolve("second-remote");
 
         java.nio.file.Files.createDirectory(remoteDir$01);
         java.nio.file.Files.createDirectory(remoteDir$02);
-
-        System.setProperty("user.dir", dir.toAbsolutePath().toString());
     }
 
     @After
-    public void cleanup() {
-        if (dir != null) {
-            Files.delete(dir.toFile());
-            dir = null;
-        }
+    public void after() throws Exception {
+        super.after();
 
         if (remotesDir != null) {
             Files.delete(remotesDir.toFile());
-            dir = null;
+            remotesDir = null;
         }
     }
 
     @Test
-    public void test()  {
+    public void test() {
+        final ApplicationContext context = getApplication();
+        final Path dir = getDirectory();
+
+        final String host = getServer();
+
         final String fsRemoteName$01 = remoteDir$01.getFileName().toString();
         final String fsRemoteName$02 = remoteDir$02.getFileName().toString();
-        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv").toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(2, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
 
         context.run("init", "--time", "--verbose");
 
@@ -68,7 +65,7 @@ public class RemotesITest {
         context.run("remotes", "add", "file://" + remoteDir$02.toAbsolutePath(), "--verbose");
         assertThat(context.getOutput()).contains("Added new remote '" + fsRemoteName$02 + "'.");
 
-        context.run("remotes", "add", "http://localhost:8080/hello", "hippo-remote");
+        context.run("remotes", "add", "http://" + host + "/hello", "hippo-remote");
         assertThat(context.getOutput()).contains("Added new remote 'hippo-remote'.");
 
         context.clearOutput();
@@ -84,7 +81,7 @@ public class RemotesITest {
         context.clearOutput();
 
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
-        context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
+        // context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
         context.run("datasets", "push", "hippo-remote", "--time", "--verbose");
 
         System.out.println(context.getOutput());
