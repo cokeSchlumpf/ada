@@ -32,6 +32,17 @@ public final class Operators {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<T> hasCause(Throwable t, Class<T> exType) {
+        if (exType.isInstance(t)) {
+            return Optional.of((T) t);
+        } else if (t.getCause() != null) {
+            return hasCause(t.getCause(), exType);
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public static void suppressExceptions(ExceptionalRunnable runnable) {
         try {
             runnable.run();
