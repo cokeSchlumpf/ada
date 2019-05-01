@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
     description = "work with datasets",
     subcommands = {
         Datasets$Add.class,
+        Datasets$Extract.class,
         Datasets$Push.class
     })
 @AllArgsConstructor(staticName = "apply")

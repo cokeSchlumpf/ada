@@ -9,6 +9,8 @@ import java.util.concurrent.CompletionStage;
 
 public interface ReadableDataSource {
 
+    String info();
+
     Schema schema();
 
     RefSpec.VersionRef ref();

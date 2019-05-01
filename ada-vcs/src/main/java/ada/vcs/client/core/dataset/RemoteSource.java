@@ -31,7 +31,7 @@ public final class RemoteSource implements ReadableDataSource, Writable {
     }
 
     public String info() {
-        return remote.info();
+        return String.format("%s:/%s", remote.info(), ref());
     }
 
     @Override

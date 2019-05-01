@@ -25,7 +25,7 @@ public class DatasetsITest extends AbstractAdaTest {
          */
 
         // Given two CSV-Files in the projects root directory
-        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(200, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(2, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
         final String barFile = TestDataFactory.createSampleCSVFile(dir, "bar.csv").toAbsolutePath().toString();
 
         // When we add the twi files as a dataset
@@ -100,15 +100,18 @@ public class DatasetsITest extends AbstractAdaTest {
          */
 
         // When calling the extract command for the 'foo' dataset
-        context.run("dataset", "foo", "extract", "out-avro", "--verbose", "--time");
+        context.run("dataset", "foo", "extract", "--verbose", "--time");
 
         // Then all targets will be extracted
         assertThat(dir.resolve("out-avro.avro"))
             .exists();
-        /*assertThat(dir.resolve("out-csv.csv"))
-            .exists(); */
+        assertThat(dir.resolve("out-csv.csv"))
+            .exists();
 
-        System.out.println(context.getOutput());
+        context.clearOutput();
+
+        context.run("datasets", "extract");
+        context.clearOutput();
     }
 
 }

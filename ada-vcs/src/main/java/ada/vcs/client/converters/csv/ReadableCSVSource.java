@@ -43,6 +43,11 @@ public final class ReadableCSVSource implements ReadableDataSource {
     }
 
     @Override
+    public String info() {
+        return String.format("file://%s:/%s", source.getFile().toAbsolutePath(), ref());
+    }
+
+    @Override
     public Schema schema() {
         return schema;
     }

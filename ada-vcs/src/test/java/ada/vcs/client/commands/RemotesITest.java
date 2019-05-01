@@ -47,12 +47,14 @@ public class RemotesITest extends AbstractAdaTest {
     public void test() {
         final ApplicationContext context = getApplication();
         final Path dir = getDirectory();
+        final Path outputCSV = dir.resolve("out-csv.csv");
 
         final String host = getServer();
 
         final String fsRemoteName$01 = remoteDir$01.getFileName().toString();
         final String fsRemoteName$02 = remoteDir$02.getFileName().toString();
-        final String fooFile = TestDataFactory.createSampleCSVFile(dir, "foo.csv", FileSize.apply(1, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
+        final String fooFile = TestDataFactory.createSampleCSVFile(
+            dir, "foo.csv", FileSize.apply(1, FileSize.Unit.MEGABYTES)).toAbsolutePath().toString();
 
         context.run("init", "--time", "--verbose");
 
@@ -83,10 +85,28 @@ public class RemotesITest extends AbstractAdaTest {
         context.run("datasets", "add", "csv", fooFile, "foo", "-f", ";", "-a", "100");
         context.run("datasets", "push", fsRemoteName$02, "--time", "--verbose");
         context.run("datasets", "push", "hippo-remote", "--time", "--verbose");
-        context.run("dataset", "foo", "targets", "add", "csv", dir.resolve("out-csv.csv").toString(), "--verbose");
+
+        context.run("dataset", "foo", "targets", "add", "csv", outputCSV.toString(), "--verbose");
+        assertThat(context.getOutput())
+            .contains("Uploading data to from dataset 'foo' (1 of 1)")
+            .contains("Pushed ref");
         context.clearOutput();
 
-        context.run("dataset", "foo", "pull", "--verbose", "--time");
+        context.run("dataset", "foo", "extract", "--verbose", "--time");
+        assertThat(context.getOutput())
+            .contains("Starting to extract target 'out-csv' (1 of 1)")
+            .contains("records to target 'out-csv'")
+            .contains("Extracted");
+        assertThat(java.nio.file.Files.exists(outputCSV)).isTrue();
+        context.clearOutput();
+
+        Files.delete(outputCSV.toFile());
+
+        context.run("dataset", "foo", "extract", "--original", "--verbose", "--time");
+        assertThat(java.nio.file.Files.exists(outputCSV)).isTrue();
+        context.clearOutput();
+
+        context.run("datasets", "extract");
         context.clearOutput();
     }
 

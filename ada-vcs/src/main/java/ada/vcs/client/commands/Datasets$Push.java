@@ -7,6 +7,7 @@ import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.RemoteSource;
 import ada.vcs.client.core.remotes.Remote;
+import ada.vcs.client.core.repository.api.RefSpec;
 import ada.vcs.client.core.repository.api.User;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
 import ada.vcs.client.exceptions.NoUserConfiguredException;
@@ -122,7 +123,8 @@ public final class Datasets$Push extends StandardOptions implements Runnable {
                                     project.updateRemoteSource(dataset.alias().getValue(), rs);
 
                                     console.message(
-                                        "   Pushed ref '%s' to '%s'.", versionDetails.id(), rm.alias().getValue());
+                                        "   Pushed ref '%s' to '%s'.",
+                                        RefSpec.VersionRef.apply(versionDetails.id()), rm.alias().getValue());
 
                                     return versionDetails;
                                 });
