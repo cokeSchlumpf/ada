@@ -37,7 +37,8 @@ public final class CommandFactory implements CommandLine.IFactory {
             Datasets$Push.apply(console, context),
             Init.apply(console, context),
             Remotes.apply(console, context),
-            Remotes$Add.apply(console, context));
+            Remotes$Add.apply(console, context),
+            Server.apply(context));
 
         return (K) commands
             .stream()

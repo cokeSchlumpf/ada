@@ -10,7 +10,8 @@ import picocli.CommandLine;
         Dataset.class,
         Datasets.class,
         Init.class,
-        Remotes.class
+        Remotes.class,
+        Server.class
     })
 public final class Root extends StandardOptions {
 
