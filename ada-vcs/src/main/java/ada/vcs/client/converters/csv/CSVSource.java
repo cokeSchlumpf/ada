@@ -17,6 +17,7 @@ import akka.stream.javadsl.*;
 import akka.util.ByteString;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -33,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Value
@@ -85,10 +87,12 @@ public final class CSVSource implements DataSource {
         final int offset = headers != null && headers.size() > 0 ? 0 : 1;
 
         return headers(materializer)
-            .thenApply(headers -> headers
-                .stream()
-                .map(nf::create)
-                .collect(Collectors.toList()))
+            .thenApply(headers ->
+                Streams
+                    .mapWithIndex(headers.stream(), (s, i) -> Operators
+                        .exceptionToNone(() -> nf.create(s))
+                        .orElse("col_" + i))
+                    .collect(Collectors.toList()))
             .thenCompose(headers -> read()
                 .drop(offset)
                 .grouped(recordsAnalyzed)
