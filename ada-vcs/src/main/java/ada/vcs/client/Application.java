@@ -58,7 +58,7 @@ public class Application {
     }
 
     public int run(String... args) {
-        int[] exitCode = new int[] { 0 };
+        int[] exitCode = new int[]{0};
 
         List<String> argsL = Lists.newArrayList(args);
         Optional<Stopwatch> timer = Optional.empty();
@@ -76,20 +76,26 @@ public class Application {
                 CommandLine.defaultExceptionHandler().useOut(ps).useErr(ps).useAnsi(AUTO),
                 args);
         } catch (CommandLine.ExecutionException exception) {
-            Operators
-                .hasCause(exception, AdaException.class)
-                .ifPresent(ex -> {
-                    commandFactory.getConsole().message(ex.getMessage());
+            Optional<AdaException> adaException = Operators.hasCause(exception, AdaException.class);
 
-                    if (ex instanceof ExitWithErrorException) {
-                        exitCode[0] = ((ExitWithErrorException) ex).getExitCode();
-                    }
-                });
+            if (adaException.isPresent()) {
+                AdaException ex = adaException.get();
 
-            try {
-                CommandLine.usage(exception.getCommandLine(), ps);
-            } catch (Exception e) {
-                e.printStackTrace(ps);
+                commandFactory.getConsole().message(ex.getMessage());
+
+                if (ex instanceof ExitWithErrorException) {
+                    exitCode[0] = ((ExitWithErrorException) ex).getExitCode();
+                }
+            } else {
+                commandFactory
+                    .getConsole()
+                    .message("Uuups... something went wrong ¯\\_(ツ)_/¯");
+
+                try {
+                    CommandLine.usage(exception.getCommandLine(), ps);
+                } catch (Exception ignore) {
+                    // Silently ignore this
+                }
             }
 
             if (argsL.contains("-v") || argsL.contains("--verbose")) {
