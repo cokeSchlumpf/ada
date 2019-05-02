@@ -105,12 +105,29 @@ public class DatasetsITest extends AbstractAdaTest {
         // Then all targets will be extracted
         assertThat(dir.resolve("out-avro.avro"))
             .exists();
+
         assertThat(dir.resolve("out-csv.csv"))
             .exists();
 
         context.clearOutput();
 
         context.run("datasets", "extract");
+        context.clearOutput();
+    }
+
+    @Test
+    public void testAddTargetWithRelativePath() {
+        final ApplicationContext context = this.getApplication();
+        final Path dir = this.getDirectory();
+        final String barFile = TestDataFactory.createSampleCSVFile(dir, "bar.csv").getFileName().toString();
+
+        context.run("init");
+        context.run("datasets", "add", "csv", barFile, "bar", "-f", ";", "-a", "100", "--verbose", "--time");
+        context.run("datasets");
+
+        context.run("dataset", "bar", "targets", "add", "csv", dir.resolve("out-csv.csv").toString(), "--verbose");
+        context.run("datasets", "extract");
+
         context.clearOutput();
     }
 

@@ -41,6 +41,16 @@ final class AdaProjectImpl implements AdaProject {
     }
 
     @Override
+    public void addGitIgnore(Path ignore, boolean directory, String comment) {
+        dao.addGitIgnore(ignore, directory, comment);
+    }
+
+    @Override
+    public void addGitIgnore(String ignorePattern, String comment) {
+        dao.addGitIgnore(ignorePattern, comment);
+    }
+
+    @Override
     public void addRemote(Remote remote) {
         String name = remote.alias().getValue();
         Remotes remotes = dao.readRemotes();

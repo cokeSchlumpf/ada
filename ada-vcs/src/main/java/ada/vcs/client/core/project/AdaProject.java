@@ -14,6 +14,10 @@ public interface AdaProject {
 
     void addDataset(Dataset ds);
 
+    void addGitIgnore(Path ignore, boolean directory, String comment);
+
+    void addGitIgnore(String ignorePattern, String comment);
+
     void addRemote(Remote remote);
 
     void addTarget(String dataset, Target target);

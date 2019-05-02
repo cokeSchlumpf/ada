@@ -79,6 +79,14 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
     @Override
     public void run() {
         context.withProject(project -> {
+            if (!file.isAbsolute()) {
+                file = project.path().resolve(file.toPath()).toFile();
+
+                if (project.path().toAbsolutePath().startsWith(file.toPath().toAbsolutePath())) {
+                    project.addGitIgnore(file.toPath(), false, "original data file");
+                }
+            }
+
             if (alias == null) {
                 alias = FilenameUtils.removeExtension(file.getName());
             }
