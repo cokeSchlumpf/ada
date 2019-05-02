@@ -5,7 +5,7 @@ import ada.vcs.client.commands.CommandFactory;
 import ada.vcs.client.commands.Root;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.exceptions.AdaException;
+import ada.commons.exceptions.AdaException;
 import ada.vcs.client.exceptions.ExitWithErrorException;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -89,13 +89,8 @@ public class Application {
             } else {
                 commandFactory
                     .getConsole()
-                    .message("Uuups... something went wrong ¯\\_(ツ)_/¯");
-
-                try {
-                    CommandLine.usage(exception.getCommandLine(), ps);
-                } catch (Exception ignore) {
-                    // Silently ignore this
-                }
+                    .message("¯\\_(ツ)_/¯ Ups... something went wrong...\n" +
+                        "           " + Operators.extractMessage(exception) + "\n");
             }
 
             if (argsL.contains("-v") || argsL.contains("--verbose")) {

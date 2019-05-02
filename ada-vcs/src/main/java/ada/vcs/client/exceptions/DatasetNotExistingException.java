@@ -1,5 +1,7 @@
 package ada.vcs.client.exceptions;
 
+import ada.commons.exceptions.AdaException;
+
 public final class DatasetNotExistingException extends IllegalArgumentException implements AdaException {
 
     private DatasetNotExistingException(String message) {

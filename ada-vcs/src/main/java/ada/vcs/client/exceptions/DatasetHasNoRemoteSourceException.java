@@ -1,5 +1,7 @@
 package ada.vcs.client.exceptions;
 
+import ada.commons.exceptions.AdaException;
+
 public final class DatasetHasNoRemoteSourceException extends IllegalArgumentException implements AdaException {
 
     private DatasetHasNoRemoteSourceException(String message) {

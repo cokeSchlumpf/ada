@@ -1,6 +1,6 @@
 package ada.commons.exceptions;
 
-public final class InvalidResourceNameException extends IllegalArgumentException {
+public final class InvalidResourceNameException extends IllegalArgumentException implements AdaException {
 
     private InvalidResourceNameException(String message) {
         super(message);

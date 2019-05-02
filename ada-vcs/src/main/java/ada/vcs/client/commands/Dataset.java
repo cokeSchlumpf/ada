@@ -12,6 +12,8 @@ import picocli.CommandLine;
     subcommands = {
         Dataset$Extract.class,
         Dataset$Print.class,
+        Dataset$Remove.class,
+        Dataset$Rename.class,
         Dataset$Targets.class
     })
 @AllArgsConstructor(staticName = "apply")

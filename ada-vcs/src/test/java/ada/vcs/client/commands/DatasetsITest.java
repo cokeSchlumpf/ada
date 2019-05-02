@@ -156,4 +156,38 @@ public class DatasetsITest extends AbstractAdaTest {
         context.clearOutput();
     }
 
+    @Test
+    public void testRenameRemoveDataset() {
+        final ApplicationContext context = this.getApplication();
+        final Path dir = this.getDirectory();
+        final String barFile = TestDataFactory.createSampleCSVFile(dir, "some-file.csv").getFileName().toString();
+
+        context.run("init");
+        context.run("datasets", "add", "csv", barFile, "bar", "-f", ";", "-a", "100", "--verbose", "--time");
+        context.clearOutput();
+
+        context.run("datasets");
+        assertThat(context.getOutput()).contains("bar");
+        context.clearOutput();
+
+        context.run("dataset", "bar", "rename", "foo");
+        context.clearOutput();
+
+        context.run("datasets");
+        assertThat(context.getOutput()).contains("foo");
+        assertThat(context.getOutput()).doesNotContain("bar");
+        context.clearOutput();
+
+        context.run("dataset", "foo", "remove");
+        context.clearOutput();
+
+        context.run("datasets");
+        assertThat(context.getOutput()).doesNotContain("foo");
+        assertThat(context.getOutput()).doesNotContain("bar");
+        context.clearOutput();
+
+        context.run("datasets", "add", "csv", "does-not.exist.csv", "bar", "-f", ";", "-a", "100");
+        context.clearOutput();
+    }
+
 }

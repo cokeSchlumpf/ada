@@ -1,5 +1,7 @@
 package ada.vcs.client.exceptions;
 
+import ada.commons.exceptions.AdaException;
+
 public final class RemoteNotExistingException extends IllegalArgumentException implements AdaException {
 
     private RemoteNotExistingException(String message) {

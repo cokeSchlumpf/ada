@@ -1,4 +1,4 @@
-package ada.vcs.client.exceptions;
+package ada.commons.exceptions;
 
 public interface AdaException {
 

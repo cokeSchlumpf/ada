@@ -2,7 +2,7 @@ package ada.vcs.client.commands;
 
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.exceptions.AdaException;
+import ada.commons.exceptions.AdaException;
 import com.google.common.collect.Lists;
 import picocli.CommandLine;
 

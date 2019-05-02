@@ -43,6 +43,16 @@ public final class Operators {
         }
     }
 
+    public static String extractMessage(Throwable ex) {
+        return Optional
+            .ofNullable(ExceptionUtils.getRootCause(ex))
+            .map(t -> String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()))
+            .orElse(Optional
+                .ofNullable(ex.getMessage())
+                .map(str -> String.format("%s: %s", ex.getClass().getSimpleName(), ex.getMessage()))
+                .orElse(String.format("%s: No details provided.", ex.getClass().getSimpleName())));
+    }
+
     public static void suppressExceptions(ExceptionalRunnable runnable) {
         try {
             runnable.run();
