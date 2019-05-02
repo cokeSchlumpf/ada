@@ -40,37 +40,37 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Ru
     @CommandLine.Option(
         names = {"-f", "--field-separator"},
         defaultValue = ",",
-        description = "the column separator used in the csv file")
+        description = "the column separator used in the csv file; default: '${DEFAULT-VALUE}'")
     private char fieldSeparator = ',';
 
     @CommandLine.Option(
         names = {"-l", "--eol"},
         defaultValue = "\r\n",
-        description = "the character which is used to separate records")
+        description = "the character which is used to separate records; default: '${DEFAULT-VALUE}'")
     private String endOfLine = "\r\n";
 
     @CommandLine.Option(
         names = {"-q", "--quote"},
         defaultValue = "\"",
-        description = "the character which surrounds quoted values")
+        description = "the character which surrounds quoted values; default: '${DEFAULT-VALUE}'")
     private char quoteChar = '\"';
 
     @CommandLine.Option(
         names = {"-e", "--escape"},
         defaultValue = "\\",
-        description = "the character to escape other control characters")
+        description = "the character to escape other control characters; default: '${DEFAULT-VALUE}'")
     private char escapeChar = '\\';
 
     @CommandLine.Option(
         names = {"-n", "--null"},
         defaultValue = "",
-        description = "the value which is used to indicate a null field")
+        description = "the value which is used to indicate a null field; default: '${DEFAULT-VALUE}'")
     private String nullValue = "";
 
     @CommandLine.Option(
         names = {"--nf"},
         defaultValue = "#,##0.0000",
-        description = "the number-format which is used to format floating-point numbers")
+        description = "the number-format which is used to format floating-point numbers; default: '${DEFAULT-VALUE}'")
     private String numberFormat = null;
 
     private Dataset$Targets$Add$CSV(CommandLineConsole console, CommandContext context) {

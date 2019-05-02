@@ -34,25 +34,25 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
     @CommandLine.Option(
         names = {"-f", "--field-separator"},
         defaultValue = ",",
-        description = "the column separator used in the csv file")
+        description = "the column separator used in the csv file; default: '${DEFAULT-VALUE}'")
     private char fieldSeparator = ',';
 
     @CommandLine.Option(
         names = {"-c", "--comment"},
         defaultValue = "#",
-        description = "the character which indicates comment lines")
+        description = "the character which indicates comment lines; default: '${DEFAULT-VALUE}'")
     private char commentChar = '#';
 
     @CommandLine.Option(
         names = {"-q", "--quote"},
         defaultValue = "\"",
-        description = "the character which surrounds quoted values")
+        description = "the character which surrounds quoted values; default: '${DEFAULT-VALUE}'")
     private char quoteChar = '\"';
 
     @CommandLine.Option(
         names = {"-e", "--escape"},
         defaultValue = "\\",
-        description = "the character to escape other control characters")
+        description = "the character to escape other control characters; default: '${DEFAULT-VALUE}'")
     private char escapeChar = '\\';
 
     @CommandLine.Option(
@@ -64,7 +64,7 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
     @CommandLine.Option(
         names = {"-a", "--analyze"},
         defaultValue = "100",
-        description = "the number of records which are analyzed to detect missing information (e.g. schema)")
+        description = "the number of records which are analyzed to detect missing information (e.g. schema); default: '${DEFAULT-VALUE}'")
     private int recordsAnalyzed = 100;
 
     private Datasets$Add$CSV(CommandLineConsole console, CommandContext context) {

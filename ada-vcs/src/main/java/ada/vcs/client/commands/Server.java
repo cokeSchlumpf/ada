@@ -21,19 +21,19 @@ public final class Server extends StandardOptions implements Runnable {
         arity = "0..1",
         defaultValue = ".",
         paramLabel = "DIRECTORY",
-        description = "the servers data root directory")
+        description = "the servers data root directory; default: '${DEFAULT-VALUE}'")
     private File dir = null;
 
     @CommandLine.Option(
         names = {"-i", "--hostname"},
         defaultValue = "0.0.0.0",
-        description = "the servers hostname")
+        description = "the servers hostname; default: '${DEFAULT-VALUE}'")
     private String hostname;
 
     @CommandLine.Option(
         names = {"-p", "--port"},
         defaultValue = "8080",
-        description = "the servers port")
+        description = "the servers port; default: '${DEFAULT-VALUE}'")
     private int port;
 
     public static Server apply(CommandContext context) {
