@@ -4,6 +4,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.avro.AvroSink;
+import ada.vcs.client.exceptions.CommandNotInitializedException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
@@ -48,11 +49,13 @@ public final class Dataset$Targets$Add$Avro extends StandardOptions implements R
             Dataset dataset = getAdd()
                 .flatMap(Dataset$Targets$Add::getTargets)
                 .flatMap(Dataset$Targets::getDataset)
-                .orElseThrow(() -> new IllegalStateException(""));
+                .orElseThrow(CommandNotInitializedException::apply);
 
             if (alias == null) {
                 alias = FilenameUtils.removeExtension(file.getName());
             }
+
+            project.addGitIgnore(file.toPath(), false, "avcs extracted file");
 
             AvroSink sink = AvroSink
                 .apply(file.toPath())

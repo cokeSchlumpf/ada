@@ -82,6 +82,13 @@ public class DatasetsITest extends AbstractAdaTest {
 
         context.clearOutput();
 
+        // When adding targets with files outside the project root
+        context.run("dataset", "foo", "targets", "add", "csv", dir.resolve("..").resolve("out-csv.csv").toString());
+
+        // Then the CLI should respond with an error
+        assertThat(context.getOutput())
+            .contains("The file '../out-csv.csv' is not within the project root directory.");
+
         /*
          * Listing targets.
          */

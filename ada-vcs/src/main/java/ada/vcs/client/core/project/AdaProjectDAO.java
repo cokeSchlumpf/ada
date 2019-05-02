@@ -7,6 +7,7 @@ import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.core.remotes.Remotes;
 import ada.vcs.client.core.remotes.RemotesFactory;
+import ada.vcs.client.exceptions.ExitWithErrorException;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -89,10 +90,17 @@ final class AdaProjectDAO {
     }
 
     public void addGitIgnore(Path ignore, boolean directory, String comment) {
+        Path file = root.relativize(ignore).normalize();
+
+        if (!root.resolve(file).toAbsolutePath().normalize().startsWith(root)) {
+            throw ExitWithErrorException.apply(
+                String.format("The file '%s' is not within the project root directory.", file));
+        }
+
         if (directory) {
-            addGitIgnore(root.relativize(ignore).toString() + "/**/*", comment);
+            addGitIgnore(file.toString() + "/**/*", comment);
         } else {
-            addGitIgnore(root.relativize(ignore).toString(), comment);
+            addGitIgnore(file.toString(), comment);
         }
     }
 

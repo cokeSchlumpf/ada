@@ -82,7 +82,7 @@ public final class Datasets$Add$CSV extends StandardOptions implements Runnable 
             if (!file.isAbsolute()) {
                 file = project.path().resolve(file.toPath()).toFile();
 
-                if (project.path().toAbsolutePath().startsWith(file.toPath().toAbsolutePath())) {
+                if (file.toPath().toAbsolutePath().startsWith(project.path().toAbsolutePath())) {
                     project.addGitIgnore(file.toPath(), false, "original data file");
                 }
             }

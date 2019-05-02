@@ -6,6 +6,8 @@ import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.csv.CSVSink;
 import ada.vcs.client.datatypes.BooleanFormat;
+import ada.vcs.client.exceptions.CommandNotInitializedException;
+import ada.vcs.client.exceptions.ExitWithErrorException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 
@@ -87,10 +89,12 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Ru
                 alias = FilenameUtils.removeExtension(file.getName());
             }
 
+            project.addGitIgnore(file.toPath(), false, "avcs extracted file");
+
             Dataset dataset = getAdd()
                 .flatMap(Dataset$Targets$Add::getTargets)
                 .flatMap(Dataset$Targets::getDataset)
-                .orElseThrow(() -> new IllegalStateException(""));
+                .orElseThrow(CommandNotInitializedException::apply);
 
             CSVSink sink = CSVSink.apply(
                 Either.left(file.toPath()), fieldSeparator, quoteChar, escapeChar, endOfLine,
