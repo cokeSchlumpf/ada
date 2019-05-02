@@ -90,7 +90,7 @@ public class Application {
                 commandFactory
                     .getConsole()
                     .message("¯\\_(ツ)_/¯ Ups... something went wrong...\n" +
-                        "           " + Operators.extractMessage(exception) + "\n");
+                        "           " + Operators.extractMessage(exception));
             }
 
             if (argsL.contains("-v") || argsL.contains("--verbose")) {

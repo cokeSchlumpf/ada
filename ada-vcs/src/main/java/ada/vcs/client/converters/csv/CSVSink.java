@@ -5,10 +5,8 @@ import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.DataSinkMemento;
 import ada.vcs.client.converters.api.WriteSummary;
-import ada.vcs.client.core.FileSystemDependent;
 import ada.vcs.client.datatypes.BooleanFormat;
 import akka.NotUsed;
-import akka.stream.OverflowStrategy;
 import akka.stream.alpakka.csv.javadsl.CsvFormatting;
 import akka.stream.alpakka.csv.javadsl.CsvQuotingStyle;
 import akka.stream.javadsl.FileIO;
@@ -27,11 +25,9 @@ import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Value
