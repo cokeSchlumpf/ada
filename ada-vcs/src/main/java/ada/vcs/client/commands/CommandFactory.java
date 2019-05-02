@@ -26,6 +26,7 @@ public final class CommandFactory implements CommandLine.IFactory {
             Config.apply(console, context),
             Dataset.apply(console),
             Dataset$Extract.apply(console, context),
+            Dataset$Print.apply(console, context),
             Dataset$Targets.apply(console, context),
             Dataset$Targets$Add.apply(),
             Dataset$Targets$Add$Avro.apply(console, context),

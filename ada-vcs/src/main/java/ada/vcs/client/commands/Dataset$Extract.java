@@ -7,6 +7,7 @@ import ada.vcs.client.converters.api.DataSink;
 import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.core.dataset.Target;
+import ada.vcs.client.exceptions.CommandNotInitializedException;
 import ada.vcs.client.exceptions.ExitWithErrorException;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
@@ -50,7 +51,7 @@ public final class Dataset$Extract extends StandardOptions implements Runnable {
     @Override
     public void run() {
         context.withProject(project -> {
-            final Dataset dataset = getDataset().orElseThrow(() -> new IllegalStateException(""));
+            final Dataset dataset = getDataset().orElseThrow(CommandNotInitializedException::apply);
 
             if (targets == null || targets.isEmpty()) {
                 targets = project

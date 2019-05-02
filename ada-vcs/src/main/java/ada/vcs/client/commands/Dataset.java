@@ -11,6 +11,7 @@ import picocli.CommandLine;
     description = "work with a specific dataset",
     subcommands = {
         Dataset$Extract.class,
+        Dataset$Print.class,
         Dataset$Targets.class
     })
 @AllArgsConstructor(staticName = "apply")

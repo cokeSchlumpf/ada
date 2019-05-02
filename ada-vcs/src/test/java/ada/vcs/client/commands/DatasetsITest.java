@@ -138,4 +138,22 @@ public class DatasetsITest extends AbstractAdaTest {
         context.clearOutput();
     }
 
+    @Test
+    public void testPrint() {
+        final ApplicationContext context = this.getApplication();
+        final Path dir = this.getDirectory();
+        final String barFile = TestDataFactory.createSampleCSVFile(dir, "bar.csv").getFileName().toString();
+
+        context.run("init");
+        context.run("datasets", "add", "csv", barFile, "bar", "-f", ";", "-a", "100", "--verbose", "--time");
+        context.run("datasets");
+
+        context.run("dataset", "bar", "print");
+        context.clearOutput();
+
+        context.run("dataset", "bar", "print", "-l", "10");
+        assertThat(context.getOutput().toString().trim().split("\n")).hasSize(11);
+        context.clearOutput();
+    }
+
 }
