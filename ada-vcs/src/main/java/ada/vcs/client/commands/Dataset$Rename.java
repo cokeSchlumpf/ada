@@ -41,8 +41,8 @@ public final class Dataset$Rename  extends StandardOptions implements Runnable {
                 .getDataset(dataset.alias())
                 .withAlias(ResourceName.apply(alias));
 
-            project.removeDataset(dataset.alias());
             project.addDataset(ds$new);
+            project.removeDataset(dataset.alias());
 
             console.message("Renamed dataset '%s' to '%s'", dataset.alias(), ds$new.alias().getValue());
         });

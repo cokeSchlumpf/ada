@@ -8,7 +8,6 @@ import ada.vcs.client.core.repository.api.User;
 import ada.vcs.client.core.repository.api.version.Tag;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
 import ada.vcs.client.core.repository.api.version.VersionFactory;
-import ada.vcs.server.directives.RecordsUploadDataCollection;
 import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.http.javadsl.Http;
@@ -39,12 +38,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Stream;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
@@ -93,6 +89,11 @@ final class HttpRemote implements Remote {
     @Override
     public RemoteMemento memento() {
         return HttpRemoteMemento.apply(alias, endpoint);
+    }
+
+    @Override
+    public Remote withAlias(ResourceName alias) {
+        return apply(om, system, materializer, versionFactory, alias, endpoint);
     }
 
     @Override

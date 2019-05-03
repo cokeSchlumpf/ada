@@ -20,6 +20,8 @@ public interface Remote
 
     RemoteMemento memento();
 
+    Remote withAlias(ResourceName alias);
+
     @Override
     default int compareTo(Remote o) {
         return this.alias().getValue().compareTo(o.alias().getValue());

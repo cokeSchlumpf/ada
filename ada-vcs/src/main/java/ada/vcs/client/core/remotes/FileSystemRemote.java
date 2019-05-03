@@ -60,6 +60,11 @@ final class FileSystemRemote implements Remote {
     }
 
     @Override
+    public Remote withAlias(ResourceName alias) {
+        return apply(om, alias, dir, delegate);
+    }
+
+    @Override
     public void writeTo(OutputStream os) throws IOException {
         om.writeValue(os, FileSystemRemoteMemento.apply(alias, dir));
     }

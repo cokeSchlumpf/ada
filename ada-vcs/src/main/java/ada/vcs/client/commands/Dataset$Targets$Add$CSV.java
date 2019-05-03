@@ -89,6 +89,14 @@ public final class Dataset$Targets$Add$CSV extends StandardOptions implements Ru
                 alias = FilenameUtils.removeExtension(file.getName());
             }
 
+            if (!file.isAbsolute()) {
+                file = project
+                    .path()
+                    .resolve(file.toPath())
+                    .normalize()
+                    .toFile();
+            }
+
             project.addGitIgnore(file.toPath(), false, "avcs extracted file");
 
             Dataset dataset = getAdd()

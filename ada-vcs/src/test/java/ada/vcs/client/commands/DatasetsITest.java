@@ -170,7 +170,20 @@ public class DatasetsITest extends AbstractAdaTest {
         assertThat(context.getOutput()).contains("bar");
         context.clearOutput();
 
+        context.run("dataset", "bar", "targets", "add", "csv", dir.resolve("some-file.csv").toString(), "out");
+        context.run("dataset", "bar", "target", "out", "rename", "next");
+        context.clearOutput();
+
+        context.run("dataset", "bar", "targets");
+        assertThat(context.getOutput()).contains("next");
+        assertThat(context.getOutput()).doesNotContain("out");
+        context.clearOutput();
+
         context.run("dataset", "bar", "rename", "foo");
+        context.clearOutput();
+
+        context.run("dataset", "foo", "targets", "add", "csv", "some-file.csv", "out");
+        assertThat(context.getOutput()).contains("Added");
         context.clearOutput();
 
         context.run("datasets");

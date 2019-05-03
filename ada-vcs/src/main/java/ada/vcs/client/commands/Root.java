@@ -10,6 +10,7 @@ import picocli.CommandLine;
         Dataset.class,
         Datasets.class,
         Init.class,
+        Remote.class,
         Remotes.class,
         Server.class
     })

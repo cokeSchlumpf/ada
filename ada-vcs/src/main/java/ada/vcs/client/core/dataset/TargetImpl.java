@@ -22,6 +22,11 @@ final class TargetImpl implements Target {
     }
 
     @Override
+    public Target withAlias(ResourceName alias) {
+        return TargetImpl.apply(alias, sink);
+    }
+
+    @Override
     public int compareTo(Target o) {
         return 0;
     }
