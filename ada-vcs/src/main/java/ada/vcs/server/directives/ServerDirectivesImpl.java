@@ -1,12 +1,11 @@
 package ada.vcs.server.directives;
 
 import ada.commons.util.Operators;
+import ada.commons.util.ResourceName;
 import ada.vcs.client.core.Writable;
 import ada.vcs.client.core.repository.api.RefSpec;
-import ada.vcs.client.core.repository.api.RepositoryDirectAccess;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
 import ada.vcs.client.core.repository.api.version.VersionFactory;
-import ada.vcs.client.core.repository.fs.FileSystemRepositoryFactory;
 import akka.NotUsed;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
@@ -21,18 +20,13 @@ import akka.util.ByteString;
 import lombok.AllArgsConstructor;
 
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @AllArgsConstructor(staticName = "apply")
 final class ServerDirectivesImpl extends AllDirectives implements ServerDirectives {
 
-    private final Path repositoryRoot;
-
     private final VersionFactory versionFactory;
-
-    private final FileSystemRepositoryFactory repositoryFactory;
 
     @Override
     public <T extends Writable> Route complete(T result) {
@@ -57,21 +51,14 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
             }));
     }
 
-    public Route repository(Function<RepositoryDirectAccess, Route> next) {
-        return pathPrefix(alias -> {
-            RepositoryDirectAccess repository = repositoryFactory.create(repositoryRoot.resolve(alias));
-
-            try {
-                return next.apply(repository);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return complete(StatusCodes.INTERNAL_SERVER_ERROR, "Something went wrong ...");
-            }
-        });
+    @Override
+    public Route resource(Function<ResourceName, Route> next) {
+        return pathPrefix(value ->
+            Operators.suppressExceptions(() -> next.apply(ResourceName.apply(value))));
     }
 
     @Override
-    public Route fromRecords(Source<ByteString, CompletionStage<VersionDetails>> data) {
+    public Route complete(Source<ByteString, CompletionStage<VersionDetails>> data) {
         return extractMaterializer(materializer -> {
             Pair<CompletionStage<VersionDetails>, Source<ByteString, NotUsed>> pair = data.preMaterialize(materializer);
 
@@ -91,13 +78,13 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
     }
 
     @Override
-    public Route pushRecords(Function2<VersionDetails, Source<ByteString, CompletionStage<VersionDetails>>, CompletionStage<Route>> next) {
+    public Route records(Function2<VersionDetails, Source<ByteString, CompletionStage<VersionDetails>>, CompletionStage<Route>> next) {
         return extractMaterializer(materializer ->
             entity(Unmarshaller.entityToMultipartFormData(), formData -> {
                 CompletionStage<RecordsUploadDataCollection<CompletionStage<Route>>> result = formData
                     .getParts()
                     .map(i -> ((Multipart.FormData.BodyPart) i))
-                    .runFoldAsync(RecordsUploadDataCollection.<CompletionStage<Route>>empty(), (acc, bodyPart) -> {
+                    .runFoldAsync(RecordsUploadDataCollection.empty(), (acc, bodyPart) -> {
                         switch (bodyPart.getName()) {
                             case "records":
                                 RecordsUploadDataCollection<CompletionStage<Route>> collection = acc

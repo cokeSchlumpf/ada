@@ -30,8 +30,9 @@ public class FileSystemRepositoryImplUTest extends AbstractAdaTest {
         final FileSystemRepositoryImpl repository = FileSystemRepositoryImpl.apply(
             FileSystemRepositorySettings
                 .Builder
-                .apply(getDirectory(), ObjectMapperFactory.apply().create(true))
+                .apply(ObjectMapperFactory.apply().create(true))
                 .build(),
+            getDirectory(),
             versionFactory,
             getContext().materializer());
 

@@ -34,24 +34,24 @@ public final class FileSystemRepositoryFactory {
 
             settings = Operators.suppressExceptions(() -> {
                 try (InputStream is = Files.newInputStream(root.resolve(SETTINGS))) {
-                    return createSettings(root, is);
+                    return createSettings(is);
                 }
             });
         } else {
-            settings = createSettingsBuilder(root).build();
+            settings = createSettingsBuilder().build();
         }
 
-        return create(settings);
+        return create(root, settings);
     }
 
-    public FileSystemRepositoryImpl create(FileSystemRepositorySettings settings) {
-        if (!Files.exists(settings.getRoot())) {
+    public FileSystemRepositoryImpl create(Path root, FileSystemRepositorySettings settings) {
+        if (!Files.exists(root)) {
             Operators.suppressExceptions(() -> {
-                Files.createDirectories(settings.getRoot());
+                Files.createDirectories(root);
             });
         }
 
-        Path settingsFile = settings.getRoot().resolve(SETTINGS);
+        Path settingsFile = root.resolve(SETTINGS);
         if (!Files.exists(settingsFile)) {
             Operators.suppressExceptions(() -> {
                 try (OutputStream os = Files.newOutputStream(settingsFile)) {
@@ -60,21 +60,19 @@ public final class FileSystemRepositoryFactory {
             });
         }
 
-        return FileSystemRepositoryImpl.apply(settings, versionFactory, materializer);
+        return FileSystemRepositoryImpl.apply(settings, root, versionFactory, materializer);
     }
 
-    public FileSystemRepositorySettings.Builder createSettingsBuilder(Path root) {
-        return FileSystemRepositorySettings.builder(root, om);
+    public FileSystemRepositorySettings.Builder createSettingsBuilder() {
+        return FileSystemRepositorySettings.builder(om);
     }
 
-    public FileSystemRepositorySettings createSettings(Path root, FileSystemRepositorySettingsMemento memento) {
-        return FileSystemRepositorySettings.apply(
-            root, om, memento.getBatchSize(), memento.getDetailsFilename(),
-            memento.getMaxFileSize(), memento.getRecordsFilenameTemplate());
+    public FileSystemRepositorySettings createSettings(FileSystemRepositorySettingsMemento memento) {
+        return FileSystemRepositorySettings.apply(om, memento);
     }
 
-    public FileSystemRepositorySettings createSettings(Path root, InputStream is) throws IOException {
-        return createSettings(root, om.readValue(is, FileSystemRepositorySettingsMemento.class));
+    public FileSystemRepositorySettings createSettings(InputStream is) throws IOException {
+        return createSettings(om.readValue(is, FileSystemRepositorySettingsMemento.class));
     }
 
 }

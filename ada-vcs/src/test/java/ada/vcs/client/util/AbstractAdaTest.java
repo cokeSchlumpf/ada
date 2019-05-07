@@ -3,6 +3,7 @@ package ada.vcs.client.util;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.features.ApplicationContext;
 import ada.vcs.server.Server;
+import ada.vcs.server.ServerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.assertj.core.util.Files;
 import org.junit.After;
@@ -10,7 +11,6 @@ import org.junit.Before;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class AbstractAdaTest {
 
@@ -61,7 +61,7 @@ public class AbstractAdaTest {
     }
 
     protected String getServer() {
-        Server server = Server.apply(context.factories().serverDirectivesFactory().create(serverDirectory));
+        Server server = ServerFactory.apply(context).create(directory);
 
         CompletableFuture.runAsync(() -> {
             try {

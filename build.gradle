@@ -24,9 +24,8 @@ subprojects {
          * Dependency Management
          */
         libs = [
-                'akka-actor'             : "com.typesafe.akka:akka-actor_${versions['scala']}:${versions['akka']}",
                 'akka-actor-typed'       : "com.typesafe.akka:akka-actor-typed_${versions['scala']}:${versions['akka']}",
-                'akka-streams'           : "com.typesafe.akka:akka-stream_${versions['scala']}:${versions['akka']}",
+                'akka-streams'           : "com.typesafe.akka:akka-stream-typed_${versions['scala']}:${versions['akka']}",
                 'assertj-core'           : 'org.assertj:assertj-core:3.9.1',
                 'avro'                   : 'org.apache.avro:avro:1.8.2',
                 'easymock'               : 'org.easymock:easymock:4.0.1',

@@ -8,11 +8,12 @@ import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.core.dataset.RemoteSourceFactory;
 import ada.vcs.client.core.project.AdaProjectFactory;
 import ada.vcs.client.core.remotes.RemotesFactory;
+import ada.vcs.client.core.repository.api.RepositorySinkFactory;
+import ada.vcs.client.core.repository.api.RepositorySourceFactory;
 import ada.vcs.client.core.repository.api.version.VersionFactory;
 import ada.vcs.client.core.repository.fs.FileSystemRepositoryFactory;
 import ada.vcs.server.directives.ServerDirectivesFactory;
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -50,12 +51,20 @@ public final class Factories {
     return RemoteSourceFactory.apply(om, versionFactory(), remotesFactory());
   }
 
+  public RepositorySinkFactory repositorySinkFactory() {
+      return RepositorySinkFactory.apply(om, versionFactory());
+  }
+
+  public RepositorySourceFactory repositorySourceFactory() {
+      return RepositorySourceFactory.apply(om, versionFactory(), materializerSupplier.get());
+  }
+
   public FileSystemRepositoryFactory repositoryFactory() {
       return FileSystemRepositoryFactory.apply(om, materializerSupplier.get(), versionFactory());
   }
 
   public ServerDirectivesFactory serverDirectivesFactory() {
-      return ServerDirectivesFactory.apply(versionFactory(), repositoryFactory());
+      return ServerDirectivesFactory.apply(versionFactory());
   }
 
   public VersionFactory versionFactory() {

@@ -1,7 +1,17 @@
 package ada.commons.util;
 
+import akka.Done;
+import akka.actor.typed.ActorRef;
+import akka.actor.typed.Behavior;
+import akka.actor.typed.RecipientRef;
+import akka.actor.typed.javadsl.Adapter;
+import akka.actor.typed.javadsl.Behaviors;
+import akka.japi.function.Function;
+import akka.japi.function.Function2;
+import com.google.common.hash.Hashing;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -30,6 +40,15 @@ public final class Operators {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public static String hash() {
+        return Hashing
+            .goodFastHash(8)
+            .newHasher()
+            .putLong(System.currentTimeMillis())
+            .hash()
+            .toString();
     }
 
     @SuppressWarnings("unchecked")

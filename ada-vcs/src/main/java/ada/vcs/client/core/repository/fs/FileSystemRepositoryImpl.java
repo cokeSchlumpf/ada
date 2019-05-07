@@ -46,6 +46,8 @@ import java.util.stream.Stream;
 final class FileSystemRepositoryImpl implements RepositoryDirectAccess {
 
     private final FileSystemRepositorySettings settings;
+    
+    private final Path root;
 
     private final VersionFactory versionFactory;
 
@@ -53,7 +55,7 @@ final class FileSystemRepositoryImpl implements RepositoryDirectAccess {
 
     @Override
     public CompletionStage<RefSpec.TagRef> tag(User user, RefSpec.VersionRef ref, ResourceName alias) {
-        Path source = settings.getRoot().resolve(ref.getId());
+        Path source = root.resolve(ref.getId());
 
         if (!Files.exists(source) || !Files.isDirectory(source)) {
             return Operators.completeExceptionally(VersionReferenceNotFoundException.apply(ref));
@@ -101,7 +103,7 @@ final class FileSystemRepositoryImpl implements RepositoryDirectAccess {
         return Operators.suppressExceptions(() -> {
             List<VersionDetails> details = Lists
                 .newArrayList(Files
-                    .newDirectoryStream(settings.getRoot())
+                    .newDirectoryStream(root)
                     .iterator())
                 .stream()
                 .map(version -> {
@@ -168,7 +170,6 @@ final class FileSystemRepositoryImpl implements RepositoryDirectAccess {
     @Override
     public Sink<ByteString, CompletionStage<VersionDetails>> insert(VersionDetails details) {
         return Operators.suppressExceptions(() -> {
-            final Path root = settings.getRoot();
             final Path target = root.resolve(details.id());
             final Path detailsFile = target.resolve(settings.getDetailsFileName());
 
@@ -228,50 +229,6 @@ final class FileSystemRepositoryImpl implements RepositoryDirectAccess {
                     .thenApply(RefSpec.VersionRef::apply),
                 CompletableFuture::completedFuture)
             .thenApply(versionRef -> {
-                final Path root = settings.getRoot();
-                final Path source = root.resolve(versionRef.getId());
-                final Path detailsFile = source.resolve(settings.getDetailsFileName());
-
-                final VersionDetails versionDetails = Operators.suppressExceptions(() -> {
-                    try (InputStream is = Files.newInputStream(detailsFile)) {
-                        return versionFactory.createDetails(is);
-                    }
-                });
-
-                if (!Files.isDirectory(source)) {
-                    throw VersionReferenceNotFoundException.apply(versionRef);
-                }
-
-                Iterator<Path> pathsIt = Operators
-                    .suppressExceptions(() -> Files.newDirectoryStream(source, path -> path.toString().endsWith("avro")))
-                    .iterator();
-
-                ArrayList<Path> paths = Lists.newArrayList(pathsIt);
-                paths.sort(Comparator.naturalOrder());
-
-                return Operators.suppressExceptions(() -> Source
-                    .from(paths)
-                    .flatMapConcat(FileIO::fromPath)
-                    .mapMaterializedValue(done -> versionDetails));
-            });
-
-        Source<Source<ByteString, VersionDetails>, NotUsed> avro = Source
-            .fromCompletionStage(refSpec
-                .map(
-                    tagRef -> datasets()
-                        .filter(version -> version
-                            .tag()
-                            .map(tag -> tag.alias().getValue().equals(tagRef.getAlias().getValue()))
-                            .orElse(false))
-                        .runWith(Sink.seq(), materializer)
-                        .thenApply(List::stream)
-                        .thenApply(Stream::findFirst)
-                        .thenApply(tag -> tag.orElseThrow(() -> TagReferenceNotFoundException.apply(tagRef)))
-                        .thenApply(VersionDetails::id)
-                        .thenApply(RefSpec.VersionRef::apply),
-                    CompletableFuture::completedFuture))
-            .map(versionRef -> {
-                final Path root = settings.getRoot();
                 final Path source = root.resolve(versionRef.getId());
                 final Path detailsFile = source.resolve(settings.getDetailsFileName());
 

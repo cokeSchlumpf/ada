@@ -10,13 +10,10 @@ import lombok.experimental.Wither;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Path;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
 public class FileSystemRepositorySettings implements Writable {
-
-    private final Path root;
 
     private final ObjectMapper om;
 
@@ -28,20 +25,28 @@ public class FileSystemRepositorySettings implements Writable {
 
     private final String recordsFileNameTemplate;
 
-    public static Builder builder(Path root, ObjectMapper om) {
-        return Builder.apply(root, om);
+    public static FileSystemRepositorySettings apply(ObjectMapper om, FileSystemRepositorySettingsMemento memento) {
+        return apply(
+            om, memento.getBatchSize(), memento.getDetailsFilename(),
+            memento.getMaxFileSize(), memento.getRecordsFilenameTemplate());
+    }
+
+    public static Builder builder(ObjectMapper om) {
+        return Builder.apply(om);
+    }
+
+    public FileSystemRepositorySettingsMemento memento() {
+        return FileSystemRepositorySettingsMemento.apply(batchSize, detailsFileName, maxFileSize, recordsFileNameTemplate);
     }
 
     @Override
     public void writeTo(OutputStream os) throws IOException {
-        om.writeValue(os, FileSystemRepositorySettingsMemento.apply(batchSize, detailsFileName, maxFileSize, recordsFileNameTemplate));
+        om.writeValue(os, memento());
     }
 
     @Wither
     @AllArgsConstructor(access = AccessLevel.PRIVATE, staticName = "apply")
     public static class Builder {
-
-        private final Path root;
 
         private final ObjectMapper om;
 
@@ -53,9 +58,8 @@ public class FileSystemRepositorySettings implements Writable {
 
         private final String recordsFileNameTemplate;
 
-        public static Builder apply(Path root, ObjectMapper om) {
+        public static Builder apply(ObjectMapper om) {
             return Builder.apply(
-                root,
                 om,
                 128,
                 "details.json",
@@ -64,8 +68,7 @@ public class FileSystemRepositorySettings implements Writable {
         }
 
         public FileSystemRepositorySettings build() {
-            return FileSystemRepositorySettings.apply(
-                root, om, batchSize, detailsFileName, maxFileSize, recordsFileNameTemplate);
+            return FileSystemRepositorySettings.apply(om, batchSize, detailsFileName, maxFileSize, recordsFileNameTemplate);
         }
 
     }

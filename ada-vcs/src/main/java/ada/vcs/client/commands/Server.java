@@ -1,6 +1,7 @@
 package ada.vcs.client.commands;
 
 import ada.vcs.client.commands.context.CommandContext;
+import ada.vcs.server.ServerFactory;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import picocli.CommandLine;
@@ -42,8 +43,7 @@ public final class Server extends StandardOptions implements Runnable {
 
     @Override
     public void run() {
-        final ada.vcs.server.Server myServer = ada.vcs.server.Server
-            .apply(context.factories().serverDirectivesFactory().create(dir.toPath()));
+        final ada.vcs.server.Server myServer = ServerFactory.apply(context).create(dir.toPath());
 
         try {
             myServer.startServer(hostname, port, context.system());
