@@ -2,8 +2,8 @@ package ada.vcs.client.util;
 
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.features.ApplicationContext;
-import ada.vcs.server.Server;
-import ada.vcs.server.ServerFactory;
+import ada.vcs.server.adapters.Server;
+import ada.vcs.server.adapters.ServerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.assertj.core.util.Files;
 import org.junit.After;

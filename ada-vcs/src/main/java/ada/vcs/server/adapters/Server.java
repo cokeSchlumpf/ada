@@ -1,7 +1,7 @@
-package ada.vcs.server;
+package ada.vcs.server.adapters;
 
 import ada.vcs.server.api.RepositoriesResource;
-import ada.vcs.server.directives.ServerDirectives;
+import ada.vcs.server.adapters.directives.ServerDirectives;
 import akka.http.javadsl.model.ContentTypes;
 import akka.http.javadsl.model.HttpEntities;
 import akka.http.javadsl.server.HttpApp;
