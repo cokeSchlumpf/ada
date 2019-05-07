@@ -1,4 +1,4 @@
-package ada.vcs.server.actors.repository;
+package ada.vcs.server.domain.repository;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;

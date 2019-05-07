@@ -5,7 +5,7 @@ import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.core.repository.api.*;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
-import ada.vcs.server.actors.repository.Protocol;
+import ada.vcs.server.domain.repository.Protocol;
 import akka.actor.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.stream.ActorMaterializer;
@@ -16,7 +16,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.concurrent.CompletionStage;
 
-import static ada.vcs.server.actors.repository.Protocol.*;
+import static ada.vcs.server.domain.repository.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
 public final class RepositoriesResource {

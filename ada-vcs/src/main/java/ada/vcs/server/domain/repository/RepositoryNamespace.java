@@ -1,4 +1,4 @@
-package ada.vcs.server.actors.repository;
+package ada.vcs.server.domain.repository;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
@@ -15,7 +15,7 @@ import lombok.Value;
 
 import java.util.HashMap;
 
-import static ada.vcs.server.actors.repository.Protocol.*;
+import static ada.vcs.server.domain.repository.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
 public final class RepositoryNamespace extends AbstractBehavior<Protocol.RepositoryNamespaceMessage> {

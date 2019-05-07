@@ -1,7 +1,7 @@
 package ada.vcs.client.core.repository.watcher;
 
 import ada.vcs.client.core.repository.api.RepositorySourceMemento;
-import ada.vcs.server.actors.repository.Protocol;
+import ada.vcs.server.domain.repository.Protocol;
 import akka.actor.typed.ActorRef;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

@@ -2,7 +2,6 @@ package ada.vcs.client.converters.csv;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.FileSize;
-import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.converters.api.ReadSummary;
 import ada.vcs.client.converters.api.ReadableDataSource;
 import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
@@ -12,7 +11,6 @@ import akka.stream.Materializer;
 import akka.stream.javadsl.Sink;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
-import org.apache.avro.Schema;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 
@@ -37,11 +35,6 @@ public class CSVSourceUTest extends AbstractAdaTest {
             .toCompletableFuture()
             .get();
 
-
-        Schema schema = s.schema();
-
-        // CSVSink sink = CSVSink.apply(CommandLineConsole.apply());
-
         Stopwatch sw = Stopwatch.createStarted();
         ReadSummary result = s
             .getRecords(NoOpMonitor.apply())
@@ -60,8 +53,6 @@ public class CSVSourceUTest extends AbstractAdaTest {
         sw.stop();
         System.out.println(result);
         System.out.println(sw);
-
-        // System.out.println(schema.toString(true));
     }
 
     @Test

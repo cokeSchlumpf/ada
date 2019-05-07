@@ -2,7 +2,7 @@ package ada.vcs.client.core.repository.watcher;
 
 import ada.vcs.client.core.repository.api.RepositorySink;
 import ada.vcs.client.core.repository.api.version.VersionDetails;
-import ada.vcs.server.actors.repository.Protocol;
+import ada.vcs.server.domain.repository.Protocol;
 import akka.actor.typed.ActorRef;
 import akka.stream.javadsl.Sink;
 import akka.util.ByteString;
