@@ -3,6 +3,7 @@ package ada.vcs.server.api;
 import ada.commons.util.ActorPatterns;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
+import ada.vcs.server.domain.repository.valueobjects.User;
 import ada.vcs.shared.repository.api.*;
 import ada.vcs.shared.repository.api.version.VersionDetails;
 import akka.actor.ActorSystem;
@@ -15,7 +16,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.concurrent.CompletionStage;
 
-import static ada.vcs.server.domain.repository.Protocol.*;
+import static ada.vcs.server.domain.repository.entities.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
 public final class RepositoriesResource {
@@ -31,7 +32,7 @@ public final class RepositoriesResource {
     private final ActorPatterns patterns;
 
     public CompletionStage<VersionDetails> push(
-        ResourceName namespace, ResourceName repository, VersionDetails details,
+        User user, ResourceName namespace, ResourceName repository, VersionDetails details,
         Source<ByteString, CompletionStage<VersionDetails>> records) {
 
         final String correlationId = Operators.hash();
@@ -40,11 +41,11 @@ public final class RepositoriesResource {
             .ask(
                 repositories,
                 (ActorRef<RepositoryCreated> actor) ->
-                    CreateRepository.apply(correlationId, namespace, repository, actor))
+                    CreateRepository.apply(correlationId, user, namespace, repository, actor))
             .thenCompose(created -> patterns.ask(
                 repositories,
                 (ActorRef<RepositorySinkMemento> actor, ActorRef<RefSpecAlreadyExistsError> error) ->
-                    Push.apply(correlationId, namespace, repository, details.memento(), actor, error)))
+                    Push.apply(correlationId, user, namespace, repository, details.memento(), actor, error)))
             .thenCompose(sinkMemento -> {
                 Sink<ByteString, CompletionStage<VersionDetails>> sink = sinkFactory.create(sinkMemento).get();
 
@@ -60,7 +61,7 @@ public final class RepositoriesResource {
     }
 
     public Source<ByteString, CompletionStage<VersionDetails>> pull(
-        ResourceName namespace, ResourceName repository, RefSpec refSpec) {
+        User user, ResourceName namespace, ResourceName repository, RefSpec refSpec) {
 
         final String correlationId = Operators.hash();
 
@@ -69,11 +70,11 @@ public final class RepositoriesResource {
                 .ask(
                     repositories,
                     (ActorRef<RepositoryCreated> actor) ->
-                        CreateRepository.apply(correlationId, namespace, repository, actor))
+                        CreateRepository.apply(correlationId, user, namespace, repository, actor))
                 .thenCompose(created -> patterns.ask(
                     repositories,
                     (ActorRef<RepositorySourceMemento> actor, ActorRef<RefSpecNotFoundError> error) ->
-                        Pull.apply(correlationId, namespace, repository, refSpec, actor, error)))
+                        Pull.apply(correlationId, user, namespace, repository, refSpec, actor, error)))
                 .thenApply(sourceMemento ->
                     sourceFactory.create(sourceMemento).get()))
             .mapMaterializedValue(cs -> cs.thenCompose(vd -> vd));

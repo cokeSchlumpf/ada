@@ -1,7 +1,10 @@
-package ada.vcs.server.domain.repository;
+package ada.vcs.server.domain.repository.entities;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
+import ada.vcs.server.domain.repository.valueobjects.Authorization;
+import ada.vcs.server.domain.repository.valueobjects.GrantedAuthorization;
+import ada.vcs.server.domain.repository.valueobjects.User;
 import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.version.VersionDetailsMemento;
 import ada.vcs.shared.repository.api.RepositorySinkMemento;
@@ -31,6 +34,8 @@ public abstract class Protocol {
 
         ResourceName getRepository();
 
+        User getExecutor();
+
     }
 
     @Value
@@ -39,11 +44,80 @@ public abstract class Protocol {
 
         private final String id;
 
+        private final User executor;
+
         private final ResourceName namespace;
 
         private final ResourceName repository;
 
         private final ActorRef<RepositoryCreated> replyTo;
+
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static final class GrantAccessToRepository implements RepositoryMessage {
+
+        private final String id;
+
+        private final User executor;
+
+        private final ResourceName namespace;
+
+        private final ResourceName repository;
+
+        private final Authorization authorization;
+
+        private final ActorRef<GrantedAccessToRepository> replyTo;
+
+        private final ActorRef<UserNotAuthorizedError> errorTo;
+
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static final class GrantedAccessToRepository {
+
+        private final String id;
+
+        private final ResourceName namespace;
+
+        private final ResourceName repository;
+
+        private final GrantedAuthorization authorization;
+
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static final class RevokeAccessToRepository implements RepositoryMessage {
+
+        private final String id;
+
+        private final User executor;
+
+        private final ResourceName namespace;
+
+        private final ResourceName repository;
+
+        private final Authorization authorization;
+
+        private final ActorRef<RevokeAccessToRepository> replyTo;
+
+        private final ActorRef<UserNotAuthorizedError> errorTo;
+
+    }
+
+    @Value
+    public static final class RevokedAccessToRepository {
+
+        private final String id;
+
+        private final ResourceName namespace;
+
+        private final ResourceName repository;
+
+        private final GrantedAuthorization authorization;
 
     }
 
@@ -67,6 +141,8 @@ public abstract class Protocol {
 
         private final String id;
 
+        private final User executor;
+
         private final ResourceName namespace;
 
         private final ResourceName repository;
@@ -84,6 +160,8 @@ public abstract class Protocol {
     public static final class Pull implements RepositoryMessage {
 
         private final String id;
+
+        private final User executor;
 
         private final ResourceName namespace;
 
@@ -137,6 +215,21 @@ public abstract class Protocol {
             return String.format(
                 "The reference '%s' already exists in %s/%s",
                 refSpec, namespace.getValue(), repository.getValue());
+        }
+
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static final class UserNotAuthorizedError implements ErrorMessage {
+
+        private final String id;
+
+        private final User user;
+
+        @Override
+        public String getMessage() {
+            return "The user is not authorized to execute the operation.";
         }
 
     }

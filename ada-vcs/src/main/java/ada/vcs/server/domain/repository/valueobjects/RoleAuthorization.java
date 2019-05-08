@@ -18,7 +18,7 @@ public final class RoleAuthorization implements Authorization {
     }
 
     @Override
-    public boolean hasAuthorization(User user) {
+    public boolean hasAuthorization(AuthenticatedUser user) {
         return user.getRoles().contains(name);
     }
 

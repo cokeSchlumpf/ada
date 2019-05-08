@@ -19,21 +19,22 @@ public final class Server extends HttpApp {
     protected Route routes() {
         return extractMaterializer(materializer ->
             concat(
-                directives.resource(namespace ->
-                    directives.resource(repository ->
-                        concat(
-                            put(() ->
-                                withoutSizeLimit(() ->
-                                    directives.records((details, records) ->
-                                        repositories
-                                            .push(namespace, repository, details, records)
-                                            .thenApply(directives::complete)))),
-                            directives.refSpec(refSpec ->
-                                get(() ->
-                                    directives.complete(
-                                        repositories
-                                            .pull(namespace, repository, refSpec))))
-                        ))),
+                directives.user(user ->
+                    directives.resource(namespace ->
+                        directives.resource(repository ->
+                            concat(
+                                put(() ->
+                                    withoutSizeLimit(() ->
+                                        directives.records((details, records) ->
+                                            repositories
+                                                .push(user, namespace, repository, details, records)
+                                                .thenApply(directives::complete)))),
+                                directives.refSpec(refSpec ->
+                                    get(() ->
+                                        directives.complete(
+                                            repositories
+                                                .pull(user, namespace, repository, refSpec))))
+                            )))),
                 get(() ->
                     complete(HttpEntities.create(ContentTypes.TEXT_HTML_UTF8, "<h1>Say hello to akka-http</h1>")))));
     }

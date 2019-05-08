@@ -1,8 +1,11 @@
 package ada.vcs.server.adapters.directives;
 
+import ada.commons.io.Writable;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.commons.io.Writable;
+import ada.vcs.server.domain.repository.valueobjects.AnonymousUser;
+import ada.vcs.server.domain.repository.valueobjects.AuthenticatedUser;
+import ada.vcs.server.domain.repository.valueobjects.User;
 import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.version.VersionDetails;
 import ada.vcs.shared.repository.api.version.VersionFactory;
@@ -17,9 +20,11 @@ import akka.japi.function.Function;
 import akka.japi.function.Function2;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 
 import java.nio.ByteBuffer;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -124,6 +129,20 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
                     .orElseGet(() -> complete(StatusCodes.BAD_REQUEST, "Wrong request format")));
             })
         );
+    }
+
+    @Override
+    public Route user(Function<User, Route> next) {
+        return optionalHeaderValueByName("x-user-id", userId ->
+            optionalHeaderValueByName("x-user-name", userName ->
+                optionalHeaderValueByName("x-user-roles", roles -> {
+                    Set<String> rolesS = roles.map(s -> Sets.newHashSet(s.split(","))).orElse(Sets.newHashSet());
+                    User user = userId
+                        .map(id -> AuthenticatedUser.apply(id, userName.orElse(id), rolesS))
+                        .orElse(AnonymousUser.apply(rolesS));
+
+                    return Operators.suppressExceptions(() -> next.apply(user));
+                })));
     }
 
 

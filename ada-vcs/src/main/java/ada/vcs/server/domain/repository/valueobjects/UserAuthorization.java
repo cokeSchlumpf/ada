@@ -19,7 +19,11 @@ public final class UserAuthorization implements Authorization {
 
     @Override
     public boolean hasAuthorization(User user) {
-        return user.getName().equals(name);
+        if (user instanceof AuthenticatedUser) {
+            return ((AuthenticatedUser) user).getName().equals(name);
+        } else {
+            return false;
+        }
     }
     
 }
