@@ -18,32 +18,32 @@ import java.util.HashMap;
 import static ada.vcs.server.domain.repository.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
-public final class RepositoryManager extends AbstractBehavior<RepositoryManagerMessage> {
+public final class DataVersionControl extends AbstractBehavior<DataVersionControlMessage> {
 
-    private final ActorContext<RepositoryManagerMessage> actor;
+    private final ActorContext<DataVersionControlMessage> actor;
 
     private final CommandContext context;
 
     private final RepositoryStorageAdapter repositoryStorageAdapter;
 
-    private final HashMap<ResourceName, ActorRef<RepositoryNamespaceMessage>> namespaceToActorRef;
+    private final HashMap<ResourceName, ActorRef<NamespaceMessage>> namespaceToActorRef;
 
-    public static Behavior<RepositoryManagerMessage> createBehavior(
+    public static Behavior<DataVersionControlMessage> createBehavior(
         CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter) {
-        return Behaviors.setup(ctx -> RepositoryManager.apply(ctx, context, repositoryStorageAdapter, Maps.newHashMap()));
+        return Behaviors.setup(ctx -> DataVersionControl.apply(ctx, context, repositoryStorageAdapter, Maps.newHashMap()));
     }
 
     @Override
-    public Receive<RepositoryManagerMessage> createReceive() {
+    public Receive<DataVersionControlMessage> createReceive() {
         return newReceiveBuilder()
             .onMessage(CreateRepository.class, this::onCreateRepository)
             .onMessage(NamespaceRemoved.class, this::onNamespaceRemoved)
-            .onMessage(RepositoryNamespaceMessage.class, this::forward)
+            .onMessage(NamespaceMessage.class, this::forward)
             .build();
     }
 
-    private Behavior<RepositoryManagerMessage> forward(RepositoryNamespaceMessage msg) {
-        ActorRef<RepositoryNamespaceMessage> namespaceActor = namespaceToActorRef.get(msg.getNamespace());
+    private Behavior<DataVersionControlMessage> forward(NamespaceMessage msg) {
+        ActorRef<NamespaceMessage> namespaceActor = namespaceToActorRef.get(msg.getNamespace());
 
         if (namespaceActor != null) {
             namespaceActor.tell(msg);
@@ -54,14 +54,14 @@ public final class RepositoryManager extends AbstractBehavior<RepositoryManagerM
         return this;
     }
 
-    private Behavior<RepositoryManagerMessage> onCreateRepository(CreateRepository create) {
-        ActorRef<RepositoryNamespaceMessage> namespaceActor = namespaceToActorRef.get(create.getNamespace());
+    private Behavior<DataVersionControlMessage> onCreateRepository(CreateRepository create) {
+        ActorRef<NamespaceMessage> namespaceActor = namespaceToActorRef.get(create.getNamespace());
 
         if (namespaceActor == null) {
             actor.getLog().info("Creating repository namespace '{}'", create.getNamespace().getValue());
 
             namespaceActor = actor.spawn(
-                RepositoryNamespace.createBehavior(context, repositoryStorageAdapter, create.getNamespace()),
+                Namespace.createBehavior(context, repositoryStorageAdapter, create.getNamespace()),
                 create.getNamespace().getValue());
 
             namespaceToActorRef.put(create.getNamespace(), namespaceActor);
@@ -74,7 +74,7 @@ public final class RepositoryManager extends AbstractBehavior<RepositoryManagerM
         return this;
     }
 
-    private Behavior<RepositoryManagerMessage> onNamespaceRemoved(NamespaceRemoved removed) {
+    private Behavior<DataVersionControlMessage> onNamespaceRemoved(NamespaceRemoved removed) {
         actor.getLog().info("Repository namespace '{}' has been removed", removed.namespace.getValue());
         namespaceToActorRef.remove(removed.getNamespace());
         return this;
@@ -82,7 +82,7 @@ public final class RepositoryManager extends AbstractBehavior<RepositoryManagerM
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    private static class NamespaceRemoved implements RepositoryManagerMessage {
+    private static class NamespaceRemoved implements DataVersionControlMessage {
 
         private final ResourceName namespace;
 

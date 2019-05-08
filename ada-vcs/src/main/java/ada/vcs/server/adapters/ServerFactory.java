@@ -6,7 +6,7 @@ import ada.vcs.shared.repository.fs.FileSystemRepositorySettings;
 import ada.vcs.shared.repository.fs.FileSystemRepositoryStorageAdapter;
 import ada.vcs.server.adapters.directives.ServerDirectives;
 import ada.vcs.server.domain.repository.Protocol;
-import ada.vcs.server.domain.repository.RepositoryManager;
+import ada.vcs.server.domain.repository.DataVersionControl;
 import ada.vcs.server.api.RepositoriesResource;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
@@ -29,8 +29,8 @@ public final class ServerFactory {
         final FileSystemRepositoryStorageAdapter storageAdapter = FileSystemRepositoryStorageAdapter
             .apply(settings, repositoryRootDirectory);
 
-        final ActorRef<Protocol.RepositoryManagerMessage> repositoriesActor = Adapter
-            .spawn(context.system(), RepositoryManager.createBehavior(context, storageAdapter), "repositories");
+        final ActorRef<Protocol.DataVersionControlMessage> repositoriesActor = Adapter
+            .spawn(context.system(), DataVersionControl.createBehavior(context, storageAdapter), "repositories");
 
         final RepositoriesResource repositories = RepositoriesResource.apply(
             repositoriesActor, context.factories().repositorySinkFactory(),

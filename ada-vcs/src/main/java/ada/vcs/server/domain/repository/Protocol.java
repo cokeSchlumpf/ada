@@ -17,17 +17,17 @@ public abstract class Protocol {
 
     }
 
-    public interface RepositoryManagerMessage {
+    public interface DataVersionControlMessage {
 
     }
 
-    public interface RepositoryNamespaceMessage extends RepositoryManagerMessage {
+    public interface NamespaceMessage extends DataVersionControlMessage {
 
         ResourceName getNamespace();
 
     }
 
-    public interface RepositoryMessage extends RepositoryNamespaceMessage {
+    public interface RepositoryMessage extends NamespaceMessage {
 
         ResourceName getRepository();
 
@@ -35,7 +35,7 @@ public abstract class Protocol {
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    public static final class CreateRepository implements RepositoryNamespaceMessage {
+    public static final class CreateRepository implements NamespaceMessage {
 
         private final String id;
 

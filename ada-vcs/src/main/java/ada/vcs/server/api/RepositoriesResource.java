@@ -5,7 +5,6 @@ import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.shared.repository.api.*;
 import ada.vcs.shared.repository.api.version.VersionDetails;
-import ada.vcs.server.domain.repository.Protocol;
 import akka.actor.ActorSystem;
 import akka.actor.typed.ActorRef;
 import akka.stream.ActorMaterializer;
@@ -21,7 +20,7 @@ import static ada.vcs.server.domain.repository.Protocol.*;
 @AllArgsConstructor(staticName = "apply")
 public final class RepositoriesResource {
 
-    private final ActorRef<Protocol.RepositoryManagerMessage> repositories;
+    private final ActorRef<DataVersionControlMessage> repositories;
 
     private final RepositorySinkFactory sinkFactory;
 

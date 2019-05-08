@@ -18,9 +18,9 @@ import java.util.HashMap;
 import static ada.vcs.server.domain.repository.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
-public final class RepositoryNamespace extends AbstractBehavior<Protocol.RepositoryNamespaceMessage> {
+public final class Namespace extends AbstractBehavior<NamespaceMessage> {
 
-    private final ActorContext<Protocol.RepositoryNamespaceMessage> actor;
+    private final ActorContext<NamespaceMessage> actor;
 
     private final CommandContext context;
 
@@ -30,14 +30,14 @@ public final class RepositoryNamespace extends AbstractBehavior<Protocol.Reposit
 
     private final HashMap<ResourceName, ActorRef<RepositoryMessage>> nameToActorRef;
 
-    public static Behavior<Protocol.RepositoryNamespaceMessage> createBehavior(
+    public static Behavior<NamespaceMessage> createBehavior(
         CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter, ResourceName name) {
 
         return Behaviors.setup(actor -> apply(actor, context, repositoryStorageAdapter, name, Maps.newHashMap()));
     }
 
     @Override
-    public Receive<Protocol.RepositoryNamespaceMessage> createReceive() {
+    public Receive<NamespaceMessage> createReceive() {
         return newReceiveBuilder()
             .onMessage(CreateRepository.class, this::onCreateRepository)
             .onMessage(RepositoryRemoved.class, this::onRepositoryRemoved)
@@ -45,7 +45,7 @@ public final class RepositoryNamespace extends AbstractBehavior<Protocol.Reposit
             .build();
     }
 
-    private Behavior<RepositoryNamespaceMessage> forward(RepositoryMessage msg) {
+    private Behavior<NamespaceMessage> forward(RepositoryMessage msg) {
         if (msg.getNamespace().equals(name)) {
             ActorRef<RepositoryMessage> repo = nameToActorRef.get(msg.getRepository());
 
@@ -64,7 +64,7 @@ public final class RepositoryNamespace extends AbstractBehavior<Protocol.Reposit
         return this;
     }
 
-    private Behavior<RepositoryNamespaceMessage> onCreateRepository(CreateRepository create) {
+    private Behavior<NamespaceMessage> onCreateRepository(CreateRepository create) {
         if (create.getNamespace().equals(name)) {
             ActorRef<RepositoryMessage> repo = nameToActorRef.get(create.getRepository());
 
@@ -93,7 +93,7 @@ public final class RepositoryNamespace extends AbstractBehavior<Protocol.Reposit
         return this;
     }
 
-    private Behavior<RepositoryNamespaceMessage> onRepositoryRemoved(RepositoryRemoved removed) {
+    private Behavior<NamespaceMessage> onRepositoryRemoved(RepositoryRemoved removed) {
         actor.getLog().info(
             "Repository '{}/{}' has been removed",
             removed.getNamespace().getValue(), removed.name.getValue());
@@ -103,7 +103,7 @@ public final class RepositoryNamespace extends AbstractBehavior<Protocol.Reposit
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    private static class RepositoryRemoved implements RepositoryNamespaceMessage {
+    private static class RepositoryRemoved implements NamespaceMessage {
 
         private final ResourceName namespace;
 
