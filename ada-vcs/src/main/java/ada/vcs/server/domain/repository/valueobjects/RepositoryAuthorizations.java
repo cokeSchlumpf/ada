@@ -50,7 +50,7 @@ public class RepositoryAuthorizations {
 
     @JsonIgnore
     public Optional<Boolean> isAuthorized(RepositoryMessage message) {
-        return Optional.of(isOwner(message) || isExecutedByAuthorizedUser(message));
+        return Optional.of(isPublic() || isOwner(message) || isExecutedByAuthorizedUser(message));
     }
 
     private boolean isExecutedByAuthorizedUser(RepositoryMessage create) {
@@ -62,6 +62,10 @@ public class RepositoryAuthorizations {
 
     private boolean isOwner(RepositoryMessage message) {
         return UserAuthorization.apply(namespace.getValue()).hasAuthorization(message.getExecutor());
+    }
+
+    private boolean isPublic() {
+        return namespace.getValue().equals("public");
     }
 
     @JsonIgnore

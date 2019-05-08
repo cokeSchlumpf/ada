@@ -5,6 +5,7 @@ import ada.commons.util.ResourceName;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,6 +60,7 @@ public abstract class RefSpec {
         Operators.ExceptionalFunction<TagRef, T> mapTagRef,
         Operators.ExceptionalFunction<VersionRef, T> mapPushRef);
 
+    @EqualsAndHashCode
     @AllArgsConstructor(staticName = "apply")
     public static final class TagRef extends RefSpec {
 
@@ -79,6 +81,7 @@ public abstract class RefSpec {
         }
     }
 
+    @EqualsAndHashCode
     @AllArgsConstructor(staticName = "apply")
     public static class VersionRef extends RefSpec {
 

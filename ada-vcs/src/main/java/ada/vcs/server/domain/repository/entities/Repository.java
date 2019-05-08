@@ -104,6 +104,7 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
             RepositorySinkMemento actualSinkMemento = repositoryStorageAdapter.push(namespace, name, details);
             WatcherSinkMemento watcherSinkMemento = WatcherSinkMemento.apply(actualSinkMemento, actor.getSelf());
 
+            versions.add(versionRef);
             push.getReplyTo().tell(watcherSinkMemento);
         } else {
             RefSpecAlreadyExistsError error = RefSpecAlreadyExistsError.apply(

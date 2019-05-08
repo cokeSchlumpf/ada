@@ -33,4 +33,8 @@ public final class AuthenticatedUser implements User {
         return apply(id, name, Sets.newHashSet(roles));
     }
 
+    public Set<String> getRoles() {
+        return roles;
+    }
+
 }

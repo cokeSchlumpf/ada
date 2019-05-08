@@ -67,7 +67,7 @@ public class RemotesITest extends AbstractAdaTest {
         context.run("remotes", "add", "file://" + remoteDir$02.toAbsolutePath(), "--verbose");
         assertThat(context.getOutput()).contains("Added new remote '" + fsRemoteName$02 + "'.");
 
-        context.run("remotes", "add", "http://" + host + "/hello", "hippo-remote");
+        context.run("remotes", "add", "http://" + host + "/public/hello", "hippo-remote");
         assertThat(context.getOutput()).contains("Added new remote 'hippo-remote'.");
 
         context.clearOutput();

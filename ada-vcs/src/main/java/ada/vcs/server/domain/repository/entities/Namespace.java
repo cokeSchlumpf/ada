@@ -77,6 +77,7 @@ public final class Namespace extends AbstractBehavior<NamespaceMessage> {
                     context, repositoryStorageAdapter, create.getNamespace(), create.getRepository());
 
                 repo = actor.spawn(repoBehavior, create.getNamespace().getValue());
+                nameToActorRef.put(create.getRepository(), repo);
 
                 actor.watchWith(repo, RepositoryRemoved.apply(create.getNamespace(), create.getRepository()));
             }

@@ -61,7 +61,7 @@ public class AbstractAdaTest {
     }
 
     protected String getServer() {
-        Server server = ServerFactory.apply(context).create(directory);
+        Server server = ServerFactory.apply(context).create(serverDirectory);
 
         CompletableFuture.runAsync(() -> {
             try {
