@@ -2,10 +2,10 @@ package ada.vcs.server.domain.repository;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.core.repository.api.RefSpec;
-import ada.vcs.client.core.repository.api.version.VersionDetailsMemento;
-import ada.vcs.client.core.repository.api.RepositorySinkMemento;
-import ada.vcs.client.core.repository.api.RepositorySourceMemento;
+import ada.vcs.shared.repository.api.RefSpec;
+import ada.vcs.shared.repository.api.version.VersionDetailsMemento;
+import ada.vcs.shared.repository.api.RepositorySinkMemento;
+import ada.vcs.shared.repository.api.RepositorySourceMemento;
 import akka.actor.typed.ActorRef;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

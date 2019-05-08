@@ -2,10 +2,10 @@ package ada.vcs.server.adapters.directives;
 
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.core.Writable;
-import ada.vcs.client.core.repository.api.RefSpec;
-import ada.vcs.client.core.repository.api.version.VersionDetails;
-import ada.vcs.client.core.repository.api.version.VersionFactory;
+import ada.commons.io.Writable;
+import ada.vcs.shared.repository.api.RefSpec;
+import ada.vcs.shared.repository.api.version.VersionDetails;
+import ada.vcs.shared.repository.api.version.VersionFactory;
 import akka.NotUsed;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;

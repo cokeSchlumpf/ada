@@ -1,7 +1,7 @@
 package ada.vcs.client.core.dataset;
 
 import ada.vcs.client.core.remotes.RemoteMemento;
-import ada.vcs.client.core.repository.api.version.VersionDetailsMemento;
+import ada.vcs.shared.repository.api.version.VersionDetailsMemento;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

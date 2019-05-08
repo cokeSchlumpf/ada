@@ -1,15 +1,8 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.WriteSummary;
-import ada.vcs.client.core.FileSystemDependent;
-import ada.vcs.client.core.Writable;
-import ada.vcs.client.core.repository.api.Repository;
-import akka.stream.javadsl.Sink;
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
-
-import java.util.concurrent.CompletionStage;
+import ada.commons.io.Writable;
+import ada.vcs.shared.repository.api.Repository;
 
 public interface Remote
     extends Comparable<Remote>, Writable, Repository {

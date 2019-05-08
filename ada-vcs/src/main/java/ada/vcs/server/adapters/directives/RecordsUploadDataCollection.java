@@ -1,7 +1,7 @@
 package ada.vcs.server.adapters.directives;
 
 import ada.commons.util.Operators;
-import ada.vcs.client.core.repository.api.version.VersionDetails;
+import ada.vcs.shared.repository.api.version.VersionDetails;
 import akka.japi.function.Function;
 import lombok.AllArgsConstructor;
 

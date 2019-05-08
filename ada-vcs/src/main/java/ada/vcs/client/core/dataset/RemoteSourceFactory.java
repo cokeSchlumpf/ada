@@ -2,8 +2,8 @@ package ada.vcs.client.core.dataset;
 
 import ada.vcs.client.core.remotes.Remote;
 import ada.vcs.client.core.remotes.RemotesFactory;
-import ada.vcs.client.core.repository.api.version.VersionDetails;
-import ada.vcs.client.core.repository.api.version.VersionFactory;
+import ada.vcs.shared.repository.api.version.VersionDetails;
+import ada.vcs.shared.repository.api.version.VersionFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 

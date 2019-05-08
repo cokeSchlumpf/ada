@@ -1,9 +1,8 @@
 package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.DataSource;
-import ada.vcs.client.converters.api.ReadableDataSource;
-import ada.vcs.client.core.Writable;
+import ada.vcs.shared.converters.api.DataSource;
+import ada.commons.io.Writable;
 import org.apache.avro.Schema;
 
 import java.util.Map;

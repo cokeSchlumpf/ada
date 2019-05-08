@@ -2,8 +2,8 @@ package ada.vcs.server.adapters;
 
 import ada.commons.util.ActorPatterns;
 import ada.vcs.client.commands.context.CommandContext;
-import ada.vcs.client.core.repository.fs.FileSystemRepositorySettings;
-import ada.vcs.client.core.repository.fs.FileSystemRepositoryStorageAdapter;
+import ada.vcs.shared.repository.fs.FileSystemRepositorySettings;
+import ada.vcs.shared.repository.fs.FileSystemRepositoryStorageAdapter;
 import ada.vcs.server.adapters.directives.ServerDirectives;
 import ada.vcs.server.domain.repository.Protocol;
 import ada.vcs.server.domain.repository.RepositoryManager;

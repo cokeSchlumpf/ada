@@ -2,13 +2,12 @@ package ada.vcs.client.commands;
 
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.api.ReadSummary;
-import ada.vcs.client.converters.api.ReadableDataSource;
-import ada.vcs.client.converters.csv.CSVSink;
-import ada.vcs.client.converters.internal.monitors.NoOpMonitor;
+import ada.vcs.shared.converters.api.ReadSummary;
+import ada.vcs.shared.converters.api.ReadableDataSource;
+import ada.vcs.shared.converters.csv.CSVSink;
+import ada.vcs.shared.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.client.exceptions.CommandNotInitializedException;
 import akka.stream.javadsl.Source;
-import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import org.apache.avro.generic.GenericRecord;
 import picocli.CommandLine;

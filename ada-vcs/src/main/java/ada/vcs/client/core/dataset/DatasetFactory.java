@@ -1,10 +1,10 @@
 package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.DataSink;
-import ada.vcs.client.converters.api.DataSinkFactory;
-import ada.vcs.client.converters.api.DataSource;
-import ada.vcs.client.converters.api.DataSourceFactory;
+import ada.vcs.shared.converters.api.DataSink;
+import ada.vcs.shared.converters.api.DataSinkFactory;
+import ada.vcs.shared.converters.api.DataSource;
+import ada.vcs.shared.converters.api.DataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;

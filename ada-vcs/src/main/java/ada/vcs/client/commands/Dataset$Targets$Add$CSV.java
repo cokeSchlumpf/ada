@@ -4,10 +4,9 @@ import ada.commons.util.Either;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.converters.csv.CSVSink;
-import ada.vcs.client.datatypes.BooleanFormat;
+import ada.vcs.shared.converters.csv.CSVSink;
+import ada.vcs.shared.datatypes.BooleanFormat;
 import ada.vcs.client.exceptions.CommandNotInitializedException;
-import ada.vcs.client.exceptions.ExitWithErrorException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 

@@ -1,7 +1,7 @@
 package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.DataSinkMemento;
+import ada.vcs.shared.converters.api.DataSinkMemento;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

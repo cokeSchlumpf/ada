@@ -1,8 +1,8 @@
 package ada.vcs.client.core;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.ReadableDataSource;
-import ada.vcs.client.converters.csv.CSVSource;
+import ada.vcs.shared.converters.api.ReadableDataSource;
+import ada.vcs.shared.converters.csv.CSVSource;
 import ada.vcs.client.core.dataset.Dataset;
 import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.util.AbstractAdaTest;

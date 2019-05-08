@@ -1,7 +1,7 @@
 package ada.vcs.client.util;
 
 import ada.commons.util.Operators;
-import ada.vcs.client.core.Writable;
+import ada.commons.io.Writable;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 

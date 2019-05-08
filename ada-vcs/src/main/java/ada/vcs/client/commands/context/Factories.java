@@ -1,17 +1,17 @@
 package ada.vcs.client.commands.context;
 
-import ada.vcs.client.converters.api.DataSinkFactory;
-import ada.vcs.client.converters.api.DataSourceFactory;
+import ada.vcs.shared.converters.api.DataSinkFactory;
+import ada.vcs.shared.converters.api.DataSourceFactory;
 import ada.vcs.client.core.AdaHome;
 import ada.vcs.client.core.configuration.AdaConfigurationFactory;
 import ada.vcs.client.core.dataset.DatasetFactory;
 import ada.vcs.client.core.dataset.RemoteSourceFactory;
 import ada.vcs.client.core.project.AdaProjectFactory;
 import ada.vcs.client.core.remotes.RemotesFactory;
-import ada.vcs.client.core.repository.api.RepositorySinkFactory;
-import ada.vcs.client.core.repository.api.RepositorySourceFactory;
-import ada.vcs.client.core.repository.api.version.VersionFactory;
-import ada.vcs.client.core.repository.fs.FileSystemRepositoryFactory;
+import ada.vcs.shared.repository.api.RepositorySinkFactory;
+import ada.vcs.shared.repository.api.RepositorySourceFactory;
+import ada.vcs.shared.repository.api.version.VersionFactory;
+import ada.vcs.shared.repository.fs.FileSystemRepositoryFactory;
 import ada.vcs.server.adapters.directives.ServerDirectivesFactory;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;

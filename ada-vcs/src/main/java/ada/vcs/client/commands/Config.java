@@ -2,7 +2,7 @@ package ada.vcs.client.commands;
 
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
-import ada.vcs.client.core.repository.api.User;
+import ada.vcs.shared.repository.api.User;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

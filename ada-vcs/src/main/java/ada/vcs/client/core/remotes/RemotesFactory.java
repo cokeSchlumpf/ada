@@ -2,9 +2,9 @@ package ada.vcs.client.core.remotes;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.core.repository.api.Repository;
-import ada.vcs.client.core.repository.api.version.VersionFactory;
-import ada.vcs.client.core.repository.fs.FileSystemRepositoryFactory;
+import ada.vcs.shared.repository.api.Repository;
+import ada.vcs.shared.repository.api.version.VersionFactory;
+import ada.vcs.shared.repository.fs.FileSystemRepositoryFactory;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;

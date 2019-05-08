@@ -1,15 +1,14 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.core.repository.api.RefSpec;
-import ada.vcs.client.core.repository.api.Repository;
-import ada.vcs.client.core.repository.api.User;
-import ada.vcs.client.core.repository.api.version.Tag;
-import ada.vcs.client.core.repository.api.version.VersionDetails;
+import ada.vcs.shared.repository.api.RefSpec;
+import ada.vcs.shared.repository.api.Repository;
+import ada.vcs.shared.repository.api.User;
+import ada.vcs.shared.repository.api.version.Tag;
+import ada.vcs.shared.repository.api.version.VersionDetails;
 import akka.NotUsed;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.apache.avro.generic.GenericRecord;

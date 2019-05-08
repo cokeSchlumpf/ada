@@ -1,6 +1,6 @@
 package ada.vcs.server.adapters.directives;
 
-import ada.vcs.client.core.repository.api.version.VersionFactory;
+import ada.vcs.shared.repository.api.version.VersionFactory;
 import lombok.AllArgsConstructor;
 
 import java.nio.file.Path;

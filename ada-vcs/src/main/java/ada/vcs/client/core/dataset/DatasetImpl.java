@@ -1,7 +1,7 @@
 package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.DataSource;
+import ada.vcs.shared.converters.api.DataSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.AccessLevel;

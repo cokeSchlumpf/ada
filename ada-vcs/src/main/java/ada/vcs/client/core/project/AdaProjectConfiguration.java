@@ -3,7 +3,7 @@ package ada.vcs.client.core.project;
 import ada.commons.util.ProcessUtils;
 import ada.vcs.client.core.AdaHome;
 import ada.vcs.client.core.configuration.AdaConfiguration;
-import ada.vcs.client.core.repository.api.User;
+import ada.vcs.shared.repository.api.User;
 import lombok.AllArgsConstructor;
 
 import java.io.OutputStream;

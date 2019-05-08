@@ -1,9 +1,9 @@
 package ada.vcs.server.adapters.directives;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.core.Writable;
-import ada.vcs.client.core.repository.api.RefSpec;
-import ada.vcs.client.core.repository.api.version.VersionDetails;
+import ada.commons.io.Writable;
+import ada.vcs.shared.repository.api.RefSpec;
+import ada.vcs.shared.repository.api.version.VersionDetails;
 import akka.http.javadsl.server.Route;
 import akka.japi.function.Function;
 import akka.japi.function.Function2;

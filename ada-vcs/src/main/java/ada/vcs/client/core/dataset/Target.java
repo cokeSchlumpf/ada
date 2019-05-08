@@ -1,7 +1,7 @@
 package ada.vcs.client.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.converters.api.DataSink;
+import ada.vcs.shared.converters.api.DataSink;
 
 public interface Target extends Comparable<Target> {
 

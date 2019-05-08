@@ -1,7 +1,7 @@
 package ada.vcs.client.core.remotes;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.client.core.Writable;
+import ada.commons.io.Writable;
 
 import java.util.Optional;
 import java.util.stream.Stream;

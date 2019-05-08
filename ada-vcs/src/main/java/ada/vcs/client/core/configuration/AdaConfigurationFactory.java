@@ -1,6 +1,6 @@
 package ada.vcs.client.core.configuration;
 
-import ada.vcs.client.core.repository.api.User;
+import ada.vcs.shared.repository.api.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 

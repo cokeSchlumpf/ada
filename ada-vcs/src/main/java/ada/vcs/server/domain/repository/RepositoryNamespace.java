@@ -2,7 +2,7 @@ package ada.vcs.server.domain.repository;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
-import ada.vcs.client.core.repository.api.RepositoryStorageAdapter;
+import ada.vcs.shared.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
