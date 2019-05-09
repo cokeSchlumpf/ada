@@ -30,12 +30,11 @@ public final class AvroSink implements DataSink {
 
     @Override
     public Sink<GenericRecord, CompletionStage<WriteSummary>> sink(Schema schema) {
-        final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
-
         try {
+            final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
             final OutputStream fos = Files.newOutputStream(path);
             final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
-            DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, fos);
+            final DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, fos);
 
             return Flow
                 .of(GenericRecord.class)

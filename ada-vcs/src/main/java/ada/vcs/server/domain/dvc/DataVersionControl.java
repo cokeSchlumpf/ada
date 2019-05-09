@@ -1,11 +1,15 @@
 package ada.vcs.server.domain.dvc;
 
+import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.server.domain.dvc.entities.Namespace;
 import ada.vcs.server.domain.dvc.protocol.commands.CreateRepository;
 import ada.vcs.server.domain.dvc.protocol.api.DataVersionControlMessage;
 import ada.vcs.server.domain.dvc.protocol.api.NamespaceMessage;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesRequest;
+import ada.vcs.server.domain.dvc.services.RepositoriesQuery;
+import ada.vcs.server.domain.dvc.services.StartRepositoriesQuery;
 import ada.vcs.shared.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -38,6 +42,7 @@ public final class DataVersionControl extends AbstractBehavior<DataVersionContro
     @Override
     public Receive<DataVersionControlMessage> createReceive() {
         return newReceiveBuilder()
+            .onMessage(RepositoriesRequest.class, this::onRepositoriesRequest)
             .onMessage(CreateRepository.class, this::onCreateRepository)
             .onMessage(NamespaceRemoved.class, this::onNamespaceRemoved)
             .onMessage(NamespaceMessage.class, this::forward)
@@ -82,9 +87,18 @@ public final class DataVersionControl extends AbstractBehavior<DataVersionContro
         return this;
     }
 
+    private Behavior<DataVersionControlMessage> onRepositoriesRequest(RepositoriesRequest request) {
+        final Behavior<Object> behavior = RepositoriesQuery.createBehavior();
+        final ActorRef<Object> query = actor.spawn(behavior, String.format("repositories-query-%s", Operators.hash()));
+
+        query.tell(StartRepositoriesQuery.apply(request.getExecutor(), request.getReplyTo(), namespaceToActorRef));
+        return this;
+    }
+
     @Value
     @AllArgsConstructor(staticName = "apply")
     private static class NamespaceRemoved implements DataVersionControlMessage {
+
 
         private final ResourceName namespace;
 

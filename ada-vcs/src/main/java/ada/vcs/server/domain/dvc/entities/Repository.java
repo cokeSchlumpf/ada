@@ -3,14 +3,17 @@ package ada.vcs.server.domain.dvc.entities;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
-import ada.vcs.server.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
-import ada.vcs.server.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.server.domain.dvc.protocol.commands.GrantAccessToRepository;
-import ada.vcs.server.domain.dvc.protocol.queries.Pull;
 import ada.vcs.server.domain.dvc.protocol.commands.Push;
 import ada.vcs.server.domain.dvc.protocol.commands.RevokeAccessToRepository;
+import ada.vcs.server.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
+import ada.vcs.server.domain.dvc.protocol.errors.RefSpecNotFoundError;
+import ada.vcs.server.domain.dvc.protocol.errors.UserNotAuthorizedError;
+import ada.vcs.server.domain.dvc.protocol.queries.Pull;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.vcs.server.domain.dvc.values.GrantedAuthorization;
 import ada.vcs.server.domain.dvc.values.RepositoryAuthorizations;
+import ada.vcs.server.domain.dvc.values.RepositorySummary;
 import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.RepositorySinkMemento;
 import ada.vcs.shared.repository.api.RepositorySourceMemento;
@@ -23,8 +26,8 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import lombok.AllArgsConstructor;
 
 import java.util.Date;
@@ -45,20 +48,22 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
 
     private final ResourceName name;
 
-    private final List<RefSpec.VersionRef> versions;
+    private final Map<RefSpec.VersionRef, VersionDetails> versions;
 
     private final Map<RefSpec.TagRef, RefSpec.VersionRef> tags;
 
     private RepositoryAuthorizations authorizations;
 
+    private Date created;
+
     public static Behavior<RepositoryMessage> createBehavior(
         CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter,
-        ResourceName namespace, ResourceName name) {
+        ResourceName namespace, ResourceName name, Date created) {
 
         return Behaviors.setup(ctx -> apply(
             ctx, context, repositoryStorageAdapter, namespace,
-            name, Lists.newArrayList(), Maps.newHashMap(),
-            RepositoryAuthorizations.apply(namespace, name)));
+            name, Maps.newHashMap(), Maps.newHashMap(),
+            RepositoryAuthorizations.apply(namespace, name), created));
     }
 
     @Override
@@ -67,8 +72,30 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
             .onMessage(GrantAccessToRepository.class, whenChecked(this::onGrant)::apply)
             .onMessage(Pull.class, whenChecked(this::onPull)::apply)
             .onMessage(Push.class, whenChecked(this::onPush)::apply)
+            .onMessage(RepositorySummaryRequest.class, whenChecked(this::onSummaryRequest)::apply)
             .onMessage(RevokeAccessToRepository.class, whenChecked(this::onRevoke)::apply)
             .build();
+    }
+
+    private Behavior<RepositoryMessage> onSummaryRequest(RepositorySummaryRequest request) {
+        RepositorySummary summary;
+
+        if (versions.isEmpty()) {
+            summary = RepositorySummary.apply(namespace, name, created);
+        } else {
+            VersionDetails details = Ordering
+                .natural()
+                .reverse()
+                .onResultOf(VersionDetails::date)
+                .sortedCopy(versions.values())
+                .get(0);
+
+            summary = RepositorySummary.apply(namespace, name, details.date(), details.id());
+        }
+
+        request.getReplyTo().tell(summary);
+
+        return this;
     }
 
     private Behavior<RepositoryMessage> onGrant(GrantAccessToRepository grant) {
@@ -95,7 +122,7 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
                 pull.getRepository(),
                 pull.getRefSpec());
 
-            pull.getHandleError().tell(response);
+            pull.getErrorTo().tell(response);
         }
 
         return this;
@@ -104,12 +131,12 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
     private Behavior<RepositoryMessage> onPush(Push push) {
         RefSpec.VersionRef versionRef = RefSpec.VersionRef.apply(push.getDetails().getId());
 
-        if (!versions.contains(versionRef)) {
+        if (!versions.containsKey(versionRef)) {
             VersionDetails details = context.factories().versionFactory().createDetails(push.getDetails());
             RepositorySinkMemento actualSinkMemento = repositoryStorageAdapter.push(namespace, name, details);
             WatcherSinkMemento watcherSinkMemento = WatcherSinkMemento.apply(actualSinkMemento, actor.getSelf());
 
-            versions.add(versionRef);
+            versions.put(versionRef, details);
             push.getReplyTo().tell(watcherSinkMemento);
         } else {
             RefSpecAlreadyExistsError error = RefSpecAlreadyExistsError.apply(
@@ -118,7 +145,7 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
                 push.getRepository(),
                 versionRef);
 
-            push.getHandleError().tell(error);
+            push.getErrorTo().tell(error);
         }
 
         return this;
@@ -130,7 +157,7 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
     }
 
     private RefSpec.VersionRef refSpecToVersionRef(RefSpec refSpec) {
-        if (refSpec instanceof RefSpec.VersionRef && versions.contains(refSpec)) {
+        if (refSpec instanceof RefSpec.VersionRef && versions.containsKey(refSpec)) {
             return (RefSpec.VersionRef) refSpec;
         } else if (refSpec instanceof RefSpec.TagRef) {
             return tags.get(refSpec);
@@ -154,13 +181,13 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
                 if (authorized) {
                     return then.apply(message);
                 } else {
-                    // TODO sendToErrorHandler
                     actor.getLog().warning(
                         "Refusing operation in repository '{}/{}' for user {}",
                         message.getNamespace().getValue(),
                         message.getRepository().getValue(),
                         message.getExecutor());
 
+                    message.getErrorTo().tell(UserNotAuthorizedError.apply(message.getId(), message.getExecutor()));
                     return this;
                 }
             })

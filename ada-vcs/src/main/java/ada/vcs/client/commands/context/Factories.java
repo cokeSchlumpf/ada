@@ -64,7 +64,7 @@ public final class Factories {
   }
 
   public ServerDirectivesFactory serverDirectivesFactory() {
-      return ServerDirectivesFactory.apply(versionFactory());
+      return ServerDirectivesFactory.apply(versionFactory(), om);
   }
 
   public VersionFactory versionFactory() {

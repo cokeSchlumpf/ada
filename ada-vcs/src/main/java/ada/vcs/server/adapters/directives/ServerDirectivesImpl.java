@@ -10,6 +10,7 @@ import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.version.VersionDetails;
 import ada.vcs.shared.repository.api.version.VersionFactory;
 import akka.NotUsed;
+import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.PathMatchers;
@@ -20,6 +21,7 @@ import akka.japi.function.Function;
 import akka.japi.function.Function2;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 
@@ -32,6 +34,13 @@ import java.util.concurrent.CompletionStage;
 final class ServerDirectivesImpl extends AllDirectives implements ServerDirectives {
 
     private final VersionFactory versionFactory;
+
+    private final ObjectMapper om;
+
+    @Override
+    public <T> Route complete(T result) {
+        return complete(StatusCodes.OK, result, Jackson.marshaller());
+    }
 
     @Override
     public <T extends Writable> Route complete(T result) {

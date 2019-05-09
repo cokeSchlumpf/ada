@@ -1,5 +1,6 @@
 package ada.vcs.server.domain.dvc.protocol.commands;
 
+import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
 import ada.vcs.server.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
@@ -26,6 +27,6 @@ public final class Push implements RepositoryMessage {
 
     private final ActorRef<RepositorySinkMemento> replyTo;
 
-    private final ActorRef<RefSpecAlreadyExistsError> handleError;
+    private final ActorRef<ErrorMessage> errorTo;
 
 }

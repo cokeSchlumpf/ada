@@ -17,4 +17,8 @@ public class RepositoriesResponse {
         return apply(ImmutableList.copyOf(repositories));
     }
 
+    public static RepositoriesResponse apply() {
+        return apply(ImmutableList.of());
+    }
+
 }

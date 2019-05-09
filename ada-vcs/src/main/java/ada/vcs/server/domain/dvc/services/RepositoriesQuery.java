@@ -1,10 +1,13 @@
 package ada.vcs.server.domain.dvc.services;
 
+import ada.commons.util.ErrorMessage;
+import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
-import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceRequest;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceResponse;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesResponse;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.vcs.server.domain.dvc.values.RepositorySummary;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -12,7 +15,6 @@ import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
@@ -31,6 +33,14 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
 
     private final long durationInSeconds;
 
+    public static Behavior<Object> createBehavior(long durationInSeconds) {
+        return Behaviors.setup(ctx -> RepositoriesQuery.apply(ctx, durationInSeconds));
+    }
+
+    public static Behavior<Object> createBehavior() {
+        return createBehavior(3);
+    }
+
     @Override
     public Receive<Object> createReceive() {
         return newReceiveBuilder()
@@ -44,7 +54,7 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
 
         return Behaviors.withTimers(timers -> {
             if (start.getNamespaces().isEmpty()) {
-                start.getReplyTo().tell(Lists.newArrayList());
+                start.getReplyTo().tell(RepositoriesResponse.apply());
                 return Behaviors.stopped();
             } else {
                 start.getNamespaces().forEach((name, namespace) -> {
@@ -82,7 +92,7 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
                         actor.getLog().warning("Did not receive repositories from all namespaces.");
 
                         if (collected.isEmpty()) {
-                            start.getReplyTo().tell(Lists.newArrayList());
+                            start.getReplyTo().tell(RepositoriesResponse.apply());
                             return Behaviors.stopped();
                         } else {
                             return waitForSummaries(start, collected);
@@ -103,16 +113,23 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
 
         return Behaviors.withTimers(timers -> {
             if (collected.isEmpty()) {
-                start.getReplyTo().tell(Lists.newArrayList());
+                start.getReplyTo().tell(RepositoriesResponse.apply());
                 return Behaviors.stopped();
             } else {
                 collected.forEach((repoName, repository) -> {
-                    ActorRef<RepositorySummary> adapter = actor.messageAdapter(
+                    ActorRef<RepositorySummary> summaryAdapter = actor.messageAdapter(
                         RepositorySummary.class,
                         keep -> keep);
 
+                    ActorRef<ErrorMessage> errorAdapter = actor.messageAdapter(
+                        ErrorMessage.class,
+                        ignore -> repoName);
+
                     RepositorySummaryRequest msg = RepositorySummaryRequest.apply(
-                        start.getExecutor(), repoName.getNamespace(), repoName.getRepository(), adapter);
+                        Operators.hash(),
+                        start.getExecutor(),
+                        repoName.getNamespace(),
+                        repoName.getRepository(), summaryAdapter, errorAdapter);
 
                     stillWaiting.add(repoName);
                     repository.tell(msg);
@@ -136,6 +153,15 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
                         actor.getLog().warning("Did not receive summaries from all repositories.");
                         return respondWithSummaries(start, summaries);
                     })
+                    .onMessage(RepositoryName.class, (actor, repoName) -> {
+                        stillWaiting.remove(repoName);
+
+                        if (stillWaiting.isEmpty()) {
+                            return respondWithSummaries(start, summaries);
+                        } else {
+                            return Behaviors.same();
+                        }
+                    })
                     .onAnyMessage((actor, msg) -> {
                         actor.getLog().warning("Received unexpected message of type {}", msg.getClass());
                         return Behaviors.same();
@@ -152,7 +178,7 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
             .onResultOf(RepositorySummary::getLastUpdate)
             .sortedCopy(summaries);
 
-        start.getReplyTo().tell(result);
+        start.getReplyTo().tell(RepositoriesResponse.apply(result));
         return Behaviors.stopped();
     }
 

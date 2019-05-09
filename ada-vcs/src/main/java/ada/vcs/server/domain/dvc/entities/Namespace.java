@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
+import java.util.Date;
 import java.util.HashMap;
 
 @AllArgsConstructor(staticName = "apply")
@@ -76,7 +77,7 @@ public final class Namespace extends AbstractBehavior<NamespaceMessage> {
                     create.getNamespace().getValue(), create.getRepository().getValue());
 
                 Behavior<RepositoryMessage> repoBehavior = Repository.createBehavior(
-                    context, repositoryStorageAdapter, create.getNamespace(), create.getRepository());
+                    context, repositoryStorageAdapter, create.getNamespace(), create.getRepository(), new Date());
 
                 repo = actor.spawn(repoBehavior, create.getNamespace().getValue());
                 nameToActorRef.put(create.getRepository(), repo);

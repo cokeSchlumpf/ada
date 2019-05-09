@@ -150,7 +150,7 @@ final class HttpRemote implements Remote {
 
             return Http
                 .get(system)
-                .singleRequest(HttpRequest.PUT(endpoint.toString()).withEntity(formData.toEntity()));
+                .singleRequest(HttpRequest.POST(endpoint.toString()).withEntity(formData.toEntity()));
         };
 
         return Flow

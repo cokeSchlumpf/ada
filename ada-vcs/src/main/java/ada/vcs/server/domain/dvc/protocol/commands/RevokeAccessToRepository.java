@@ -1,5 +1,6 @@
 package ada.vcs.server.domain.dvc.protocol.commands;
 
+import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
 import ada.vcs.server.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
@@ -25,6 +26,6 @@ public final class RevokeAccessToRepository implements RepositoryMessage {
 
     private final ActorRef<RevokeAccessToRepository> replyTo;
 
-    private final ActorRef<UserNotAuthorizedError> errorTo;
+    private final ActorRef<ErrorMessage> errorTo;
 
 }

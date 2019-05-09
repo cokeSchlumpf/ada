@@ -1,5 +1,6 @@
 package ada.vcs.server.domain.dvc.protocol.queries;
 
+import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
 import ada.vcs.server.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
@@ -26,6 +27,6 @@ public final class Pull implements RepositoryMessage {
 
     private final ActorRef<RepositorySourceMemento> replyTo;
 
-    private final ActorRef<RefSpecNotFoundError> handleError;
+    private final ActorRef<ErrorMessage> errorTo;
 
 }
