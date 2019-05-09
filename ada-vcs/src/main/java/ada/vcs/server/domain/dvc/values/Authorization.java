@@ -1,4 +1,4 @@
-package ada.vcs.server.domain.repository.valueobjects;
+package ada.vcs.server.domain.dvc.values;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

@@ -2,11 +2,11 @@ package ada.vcs.server.adapters;
 
 import ada.commons.util.ActorPatterns;
 import ada.vcs.client.commands.context.CommandContext;
+import ada.vcs.server.domain.dvc.protocol.api.DataVersionControlMessage;
 import ada.vcs.shared.repository.fs.FileSystemRepositorySettings;
 import ada.vcs.shared.repository.fs.FileSystemRepositoryStorageAdapter;
 import ada.vcs.server.adapters.directives.ServerDirectives;
-import ada.vcs.server.domain.repository.entities.Protocol;
-import ada.vcs.server.domain.repository.entities.DataVersionControl;
+import ada.vcs.server.domain.dvc.DataVersionControl;
 import ada.vcs.server.api.RepositoriesResource;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
@@ -29,7 +29,7 @@ public final class ServerFactory {
         final FileSystemRepositoryStorageAdapter storageAdapter = FileSystemRepositoryStorageAdapter
             .apply(settings, repositoryRootDirectory);
 
-        final ActorRef<Protocol.DataVersionControlMessage> repositoriesActor = Adapter
+        final ActorRef<DataVersionControlMessage> repositoriesActor = Adapter
             .spawn(context.system(), DataVersionControl.createBehavior(context, storageAdapter), "repositories");
 
         final RepositoriesResource repositories = RepositoriesResource.apply(

@@ -1,7 +1,7 @@
 package ada.vcs.shared.repository.watcher;
 
+import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.shared.repository.api.RepositorySourceMemento;
-import ada.vcs.server.domain.repository.entities.Protocol;
 import akka.actor.typed.ActorRef;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -20,11 +20,11 @@ public class WatcherSourceMemento implements RepositorySourceMemento {
     private final RepositorySourceMemento actual;
 
     @JsonProperty(REPOSITORY_ACTOR)
-    private final ActorRef<Protocol.RepositoryMessage> repositoryActor;
+    private final ActorRef<RepositoryMessage> repositoryActor;
 
     public static WatcherSourceMemento apply(
         @JsonProperty(ACTUAL) RepositorySourceMemento actual,
-        @JsonProperty(REPOSITORY_ACTOR) ActorRef<Protocol.RepositoryMessage> repositoryActor) {
+        @JsonProperty(REPOSITORY_ACTOR) ActorRef<RepositoryMessage> repositoryActor) {
 
         return new WatcherSourceMemento(actual, repositoryActor);
     }

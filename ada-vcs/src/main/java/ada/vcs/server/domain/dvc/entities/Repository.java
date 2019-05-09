@@ -1,9 +1,16 @@
-package ada.vcs.server.domain.repository.entities;
+package ada.vcs.server.domain.dvc.entities;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
-import ada.vcs.server.domain.repository.valueobjects.GrantedAuthorization;
-import ada.vcs.server.domain.repository.valueobjects.RepositoryAuthorizations;
+import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
+import ada.vcs.server.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
+import ada.vcs.server.domain.dvc.protocol.errors.RefSpecNotFoundError;
+import ada.vcs.server.domain.dvc.protocol.commands.GrantAccessToRepository;
+import ada.vcs.server.domain.dvc.protocol.queries.Pull;
+import ada.vcs.server.domain.dvc.protocol.commands.Push;
+import ada.vcs.server.domain.dvc.protocol.commands.RevokeAccessToRepository;
+import ada.vcs.server.domain.dvc.values.GrantedAuthorization;
+import ada.vcs.server.domain.dvc.values.RepositoryAuthorizations;
 import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.RepositorySinkMemento;
 import ada.vcs.shared.repository.api.RepositorySourceMemento;
@@ -24,8 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
-import static ada.vcs.server.domain.repository.entities.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
 public final class Repository extends AbstractBehavior<RepositoryMessage> {
@@ -57,7 +62,7 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
     }
 
     @Override
-    public Receive<Protocol.RepositoryMessage> createReceive() {
+    public Receive<RepositoryMessage> createReceive() {
         return newReceiveBuilder()
             .onMessage(GrantAccessToRepository.class, whenChecked(this::onGrant)::apply)
             .onMessage(Pull.class, whenChecked(this::onPull)::apply)

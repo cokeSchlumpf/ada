@@ -1,7 +1,7 @@
 package ada.vcs.shared.repository.watcher;
 
+import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.shared.repository.api.RepositorySinkMemento;
-import ada.vcs.server.domain.repository.entities.Protocol;
 import akka.actor.typed.ActorRef;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,12 +20,12 @@ public class WatcherSinkMemento implements RepositorySinkMemento {
     private final RepositorySinkMemento actual;
 
     @JsonProperty(REPOSITORY_ACTOR)
-    private final ActorRef<Protocol.RepositoryMessage> repositoryActor;
+    private final ActorRef<RepositoryMessage> repositoryActor;
 
     @JsonCreator
     public static WatcherSinkMemento apply(
         @JsonProperty(ACTUAL) RepositorySinkMemento actual,
-        @JsonProperty(REPOSITORY_ACTOR) ActorRef<Protocol.RepositoryMessage> repositoryActor) {
+        @JsonProperty(REPOSITORY_ACTOR) ActorRef<RepositoryMessage> repositoryActor) {
 
         return new WatcherSinkMemento(actual, repositoryActor);
     }

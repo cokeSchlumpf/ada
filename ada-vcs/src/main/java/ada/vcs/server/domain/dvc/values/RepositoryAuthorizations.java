@@ -1,22 +1,23 @@
-package ada.vcs.server.domain.repository.valueobjects;
+package ada.vcs.server.domain.dvc.values;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
+import lombok.Value;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ada.vcs.server.domain.repository.entities.Protocol.*;
-
+@Value
 @AllArgsConstructor(staticName = "apply")
-public class RepositoryAuthorizations {
+public final class RepositoryAuthorizations {
 
     private final ResourceName namespace;
 

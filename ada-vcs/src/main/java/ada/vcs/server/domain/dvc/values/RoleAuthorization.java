@@ -1,4 +1,4 @@
-package ada.vcs.server.domain.repository.valueobjects;
+package ada.vcs.server.domain.dvc.values;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

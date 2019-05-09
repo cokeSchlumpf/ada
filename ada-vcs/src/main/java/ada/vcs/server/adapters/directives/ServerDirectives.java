@@ -2,7 +2,7 @@ package ada.vcs.server.adapters.directives;
 
 import ada.commons.util.ResourceName;
 import ada.commons.io.Writable;
-import ada.vcs.server.domain.repository.valueobjects.User;
+import ada.vcs.server.domain.dvc.values.User;
 import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.version.VersionDetails;
 import akka.http.javadsl.server.Route;

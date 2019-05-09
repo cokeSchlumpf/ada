@@ -1,4 +1,4 @@
-package ada.vcs.server.domain.repository.valueobjects;
+package ada.vcs.server.domain.dvc.values;
 
 import java.util.Set;
 

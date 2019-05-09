@@ -1,7 +1,11 @@
-package ada.vcs.server.domain.repository.entities;
+package ada.vcs.server.domain.dvc;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
+import ada.vcs.server.domain.dvc.entities.Namespace;
+import ada.vcs.server.domain.dvc.protocol.commands.CreateRepository;
+import ada.vcs.server.domain.dvc.protocol.api.DataVersionControlMessage;
+import ada.vcs.server.domain.dvc.protocol.api.NamespaceMessage;
 import ada.vcs.shared.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -14,8 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.util.HashMap;
-
-import static ada.vcs.server.domain.repository.entities.Protocol.*;
 
 @AllArgsConstructor(staticName = "apply")
 public final class DataVersionControl extends AbstractBehavior<DataVersionControlMessage> {
