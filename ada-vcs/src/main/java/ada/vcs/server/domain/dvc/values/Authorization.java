@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = RoleAuthorization.class, name = "role"),
     @JsonSubTypes.Type(value = UserAuthorization.class, name = "user"),
-    @JsonSubTypes.Type(value = UserAuthorization.class, name = "wildcard")
+    @JsonSubTypes.Type(value = WildcardAuthorization.class, name = "wildcard")
 })
 public interface Authorization {
 

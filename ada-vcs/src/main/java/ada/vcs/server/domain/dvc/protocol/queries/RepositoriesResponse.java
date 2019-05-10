@@ -1,6 +1,8 @@
 package ada.vcs.server.domain.dvc.protocol.queries;
 
 import ada.vcs.server.domain.dvc.values.RepositorySummary;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -13,7 +15,10 @@ public class RepositoriesResponse {
 
     private final ImmutableList<RepositorySummary> repositories;
 
-    public static RepositoriesResponse apply(List<RepositorySummary> repositories) {
+    @JsonCreator
+    public static RepositoriesResponse apply(
+        @JsonProperty("repositories") List<RepositorySummary> repositories) {
+
         return apply(ImmutableList.copyOf(repositories));
     }
 

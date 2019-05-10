@@ -1,4 +1,4 @@
-package ada.vcs.server.adapters.directives;
+package ada.vcs.server.adapters.server.directives;
 
 import ada.commons.util.ResourceName;
 import ada.commons.io.Writable;

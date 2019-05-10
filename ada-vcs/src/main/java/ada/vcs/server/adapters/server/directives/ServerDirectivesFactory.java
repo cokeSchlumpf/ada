@@ -1,4 +1,4 @@
-package ada.vcs.server.adapters.directives;
+package ada.vcs.server.adapters.server.directives;
 
 import ada.vcs.shared.repository.api.version.VersionFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;

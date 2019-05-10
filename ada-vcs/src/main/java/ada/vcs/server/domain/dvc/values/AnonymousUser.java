@@ -17,7 +17,8 @@ public final class AnonymousUser implements User {
     private final ImmutableSet<String> roles;
 
     @JsonCreator
-    public static User apply(@JsonProperty("roles") Set<String> roles) {
+    public static User apply(
+        @JsonProperty("roles") Set<String> roles) {
 
         return new AnonymousUser(ImmutableSet.copyOf(roles));
     }

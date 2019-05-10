@@ -12,7 +12,7 @@ import ada.vcs.shared.repository.api.RepositorySinkFactory;
 import ada.vcs.shared.repository.api.RepositorySourceFactory;
 import ada.vcs.shared.repository.api.version.VersionFactory;
 import ada.vcs.shared.repository.fs.FileSystemRepositoryFactory;
-import ada.vcs.server.adapters.directives.ServerDirectivesFactory;
+import ada.vcs.server.adapters.server.directives.ServerDirectivesFactory;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;

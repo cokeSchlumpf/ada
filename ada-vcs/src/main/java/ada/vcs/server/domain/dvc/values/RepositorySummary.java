@@ -1,6 +1,9 @@
 package ada.vcs.server.domain.dvc.values;
 
 import ada.commons.util.ResourceName;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
@@ -8,7 +11,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Value
-@AllArgsConstructor(staticName = "apply")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RepositorySummary {
 
     private final ResourceName namespace;
@@ -18,6 +21,16 @@ public class RepositorySummary {
     private final Date lastUpdate;
 
     private final String latestId;
+
+    @JsonCreator
+    public static RepositorySummary apply(
+        @JsonProperty("namespace") ResourceName namespace,
+        @JsonProperty("repository") ResourceName repository,
+        @JsonProperty("lastUpdate") Date lastUpdate,
+        @JsonProperty("latestId") String latestId) {
+
+        return new RepositorySummary(namespace, repository, lastUpdate, latestId);
+    }
 
     public static RepositorySummary apply(ResourceName namespace, ResourceName repository, Date lastUpdate) {
         return apply(namespace, repository, lastUpdate, null);

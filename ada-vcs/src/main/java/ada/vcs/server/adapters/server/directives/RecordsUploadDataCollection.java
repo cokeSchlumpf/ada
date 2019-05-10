@@ -1,4 +1,4 @@
-package ada.vcs.server.adapters.directives;
+package ada.vcs.server.adapters.server.directives;
 
 import ada.commons.util.Operators;
 import ada.vcs.shared.repository.api.version.VersionDetails;
