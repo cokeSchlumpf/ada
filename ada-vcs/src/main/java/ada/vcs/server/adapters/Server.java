@@ -2,6 +2,7 @@ package ada.vcs.server.adapters;
 
 import ada.vcs.server.api.RepositoriesResource;
 import ada.vcs.server.adapters.directives.ServerDirectives;
+import ada.vcs.server.domain.dvc.values.Authorization;
 import akka.http.javadsl.model.ContentTypes;
 import akka.http.javadsl.model.HttpEntities;
 import akka.http.javadsl.model.StatusCodes;
@@ -28,6 +29,19 @@ public final class Server extends HttpApp {
                     directives.resource(namespace ->
                         directives.resource(repository ->
                             concat(
+                                pathPrefix("access", () ->
+                                    concat(
+                                        put(() ->
+                                            directives.jsonEntity(Authorization.class, authorization ->
+                                                onSuccess(
+                                                    repositories.grant(user, namespace, repository, authorization),
+                                                    directives::complete
+                                                ))),
+                                        delete(() ->
+                                            directives.jsonEntity(Authorization.class, authorization ->
+                                                onSuccess(
+                                                    repositories.revoke(user, namespace, repository, authorization),
+                                                    directives::complete))))),
                                 put(() ->
                                     onSuccess(
                                         repositories.createRepository(user, namespace, repository),

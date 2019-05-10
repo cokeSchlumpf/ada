@@ -72,6 +72,11 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
     }
 
     @Override
+    public <T> Route jsonEntity(Class<T> type, Function<T, Route> next) {
+        return entity(Jackson.unmarshaller(om, type), value -> Operators.suppressExceptions(() -> next.apply(value)));
+    }
+
+    @Override
     public Route complete(Source<ByteString, CompletionStage<VersionDetails>> data) {
         return extractMaterializer(materializer -> {
             Pair<CompletionStage<VersionDetails>, Source<ByteString, NotUsed>> pair = data.preMaterialize(materializer);

@@ -15,6 +15,8 @@ import java.util.concurrent.CompletionStage;
 
 public interface ServerDirectives {
 
+    <T> Route jsonEntity(Class<T> type, Function<T, Route> next);
+
     Route complete(Source<ByteString, CompletionStage<VersionDetails>> data);
 
     <T> Route complete(T result);

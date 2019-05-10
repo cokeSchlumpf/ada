@@ -6,11 +6,17 @@ import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.server.domain.dvc.protocol.api.DataVersionControlMessage;
 import ada.vcs.server.domain.dvc.protocol.commands.CreateRepository;
+import ada.vcs.server.domain.dvc.protocol.commands.GrantAccessToRepository;
 import ada.vcs.server.domain.dvc.protocol.commands.Push;
+import ada.vcs.server.domain.dvc.protocol.commands.RevokeAccessToRepository;
+import ada.vcs.server.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.server.domain.dvc.protocol.events.RepositoryCreated;
+import ada.vcs.server.domain.dvc.protocol.events.RevokedAccessToRepository;
 import ada.vcs.server.domain.dvc.protocol.queries.Pull;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesRequest;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesResponse;
+import ada.vcs.server.domain.dvc.values.Authorization;
+import ada.vcs.server.domain.dvc.values.GrantedAuthorization;
 import ada.vcs.server.domain.dvc.values.User;
 import ada.vcs.shared.repository.api.*;
 import ada.vcs.shared.repository.api.version.VersionDetails;
@@ -49,6 +55,32 @@ public final class RepositoriesResource {
                 (ActorRef<RepositoryCreated> actor) ->
                     CreateRepository.apply(correlationId, user, namespace, repository, actor))
             .thenApply(created -> Done.getInstance());
+    }
+
+    public CompletionStage<GrantedAuthorization> grant(
+        User user, ResourceName namespace, ResourceName repository, Authorization authorization) {
+
+        final String correlationId = Operators.hash();
+
+        return patterns
+            .ask(
+                repositories,
+                (ActorRef<GrantedAccessToRepository> replyTo, ActorRef<ErrorMessage> errorTo) ->
+                    GrantAccessToRepository.apply(correlationId, user, namespace, repository, authorization, replyTo, errorTo))
+            .thenApply(GrantedAccessToRepository::getAuthorization);
+    }
+
+    public CompletionStage<GrantedAuthorization> revoke(
+        User user, ResourceName namespace, ResourceName repository, Authorization authorization) {
+
+        final String correlationId = Operators.hash();
+
+        return patterns
+            .ask(
+                repositories,
+                (ActorRef<RevokedAccessToRepository> replyTo, ActorRef<ErrorMessage> errorTo) ->
+                    RevokeAccessToRepository.apply(correlationId, user, namespace, repository, authorization, replyTo, errorTo))
+            .thenApply(RevokedAccessToRepository::getAuthorization);
     }
 
     public CompletionStage<RepositoriesResponse> listRepositories(User user) {
