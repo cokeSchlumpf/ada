@@ -11,6 +11,7 @@ import ada.vcs.server.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.server.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.vcs.server.domain.dvc.protocol.queries.Pull;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryRequest;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryResponse;
 import ada.vcs.server.domain.dvc.values.GrantedAuthorization;
 import ada.vcs.server.domain.dvc.values.RepositoryAuthorizations;
 import ada.vcs.server.domain.dvc.values.RepositorySummary;
@@ -31,7 +32,6 @@ import com.google.common.collect.Ordering;
 import lombok.AllArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -72,7 +72,7 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
             .onMessage(GrantAccessToRepository.class, whenChecked(this::onGrant)::apply)
             .onMessage(Pull.class, whenChecked(this::onPull)::apply)
             .onMessage(Push.class, whenChecked(this::onPush)::apply)
-            .onMessage(RepositorySummaryRequest.class, whenChecked(this::onSummaryRequest)::apply)
+            .onMessage(RepositorySummaryRequest.class, whenResponsible(this::onSummaryRequest)::apply)
             .onMessage(RevokeAccessToRepository.class, whenChecked(this::onRevoke)::apply)
             .build();
     }
@@ -80,20 +80,27 @@ public final class Repository extends AbstractBehavior<RepositoryMessage> {
     private Behavior<RepositoryMessage> onSummaryRequest(RepositorySummaryRequest request) {
         RepositorySummary summary;
 
-        if (versions.isEmpty()) {
-            summary = RepositorySummary.apply(namespace, name, created);
+        boolean isAuthorized = authorizations.isAuthorized(request).orElse(false);
+        if (isAuthorized) {
+            if (versions.isEmpty()) {
+                summary = RepositorySummary.apply(namespace, name, created);
+            } else {
+                VersionDetails details = Ordering
+                    .natural()
+                    .reverse()
+                    .onResultOf(VersionDetails::date)
+                    .sortedCopy(versions.values())
+                    .get(0);
+
+                summary = RepositorySummary.apply(namespace, name, details.date(), details.id());
+            }
+
+            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name, summary);
+            request.getReplyTo().tell(response);
         } else {
-            VersionDetails details = Ordering
-                .natural()
-                .reverse()
-                .onResultOf(VersionDetails::date)
-                .sortedCopy(versions.values())
-                .get(0);
-
-            summary = RepositorySummary.apply(namespace, name, details.date(), details.id());
+            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name);
+            request.getReplyTo().tell(response);
         }
-
-        request.getReplyTo().tell(summary);
 
         return this;
     }

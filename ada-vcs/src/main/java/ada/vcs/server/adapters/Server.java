@@ -21,9 +21,10 @@ public final class Server extends HttpApp {
         return extractMaterializer(materializer ->
             directives.user(user ->
                 concat(
-                    get(() -> onSuccess(
-                        repositories.listRepositories(user),
-                        directives::complete)),
+                    pathEndOrSingleSlash(() ->
+                        get(() -> onSuccess(
+                            repositories.listRepositories(user),
+                            directives::complete))),
                     directives.resource(namespace ->
                         directives.resource(repository ->
                             concat(

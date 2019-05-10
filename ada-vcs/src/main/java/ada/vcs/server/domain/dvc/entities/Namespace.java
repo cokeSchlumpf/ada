@@ -6,6 +6,8 @@ import ada.vcs.server.domain.dvc.protocol.commands.CreateRepository;
 import ada.vcs.server.domain.dvc.protocol.api.NamespaceMessage;
 import ada.vcs.server.domain.dvc.protocol.events.RepositoryCreated;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceRequest;
+import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceResponse;
 import ada.vcs.shared.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -43,9 +45,16 @@ public final class Namespace extends AbstractBehavior<NamespaceMessage> {
     public Receive<NamespaceMessage> createReceive() {
         return newReceiveBuilder()
             .onMessage(CreateRepository.class, this::onCreateRepository)
+            .onMessage(RepositoriesInNamespaceRequest.class, this::onRepositoriesRequest)
             .onMessage(RepositoryRemoved.class, this::onRepositoryRemoved)
             .onMessage(RepositoryMessage.class, this::forward)
             .build();
+    }
+
+    private Behavior<NamespaceMessage> onRepositoriesRequest(RepositoriesInNamespaceRequest request) {
+        RepositoriesInNamespaceResponse response = RepositoriesInNamespaceResponse.apply(name, Maps.newHashMap(nameToActorRef));
+        request.getReplyTo().tell(response);
+        return this;
     }
 
     private Behavior<NamespaceMessage> forward(RepositoryMessage msg) {
@@ -79,7 +88,7 @@ public final class Namespace extends AbstractBehavior<NamespaceMessage> {
                 Behavior<RepositoryMessage> repoBehavior = Repository.createBehavior(
                     context, repositoryStorageAdapter, create.getNamespace(), create.getRepository(), new Date());
 
-                repo = actor.spawn(repoBehavior, create.getNamespace().getValue());
+                repo = actor.spawn(repoBehavior, create.getRepository().getValue());
                 nameToActorRef.put(create.getRepository(), repo);
 
                 actor.watchWith(repo, RepositoryRemoved.apply(create.getNamespace(), create.getRepository()));

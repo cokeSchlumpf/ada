@@ -4,10 +4,7 @@ import ada.commons.util.ErrorMessage;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
-import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceRequest;
-import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceResponse;
-import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesResponse;
-import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryRequest;
+import ada.vcs.server.domain.dvc.protocol.queries.*;
 import ada.vcs.server.domain.dvc.values.RepositorySummary;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
@@ -25,6 +22,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @AllArgsConstructor(staticName = "apply")
 public final class RepositoriesQuery extends AbstractBehavior<Object> {
@@ -45,6 +43,10 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
     public Receive<Object> createReceive() {
         return newReceiveBuilder()
             .onMessage(StartRepositoriesQuery.class, this::waitForRepositories)
+            .onAnyMessage(msg -> {
+                actor.getLog().warning("Received unexpected message of type '{}'", msg.getClass());
+                return Behaviors.same();
+            })
             .build();
     }
 
@@ -75,12 +77,10 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
                     .onMessage(RepositoriesInNamespaceResponse.class, (actor, repos) -> {
                         repos
                             .getRepositories()
-                            .forEach((repoName, repoActor) -> {
-                                collected.put(RepositoryName.apply(repos.getNamespace(), repoName), repoActor);
-                                stillWaiting.remove(repoName);
-                            });
+                            .forEach((repoName, repoActor) -> collected
+                                .put(RepositoryName.apply(repos.getNamespace(), repoName), repoActor));
 
-                        stillWaiting.removeAll(repos.getRepositories().keySet());
+                        stillWaiting.remove(repos.getNamespace());
 
                         if (stillWaiting.isEmpty()) {
                             return waitForSummaries(start, collected);
@@ -110,22 +110,24 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
     private Behavior<Object> waitForSummaries(StartRepositoriesQuery start, Map<RepositoryName, ActorRef<RepositoryMessage>> collected) {
         final Set<RepositoryName> stillWaiting = Sets.newHashSet();
         final Set<RepositorySummary> summaries = Sets.newHashSet();
+        final AtomicInteger errors = new AtomicInteger(0);
 
         return Behaviors.withTimers(timers -> {
             if (collected.isEmpty()) {
                 start.getReplyTo().tell(RepositoriesResponse.apply());
                 return Behaviors.stopped();
             } else {
-                collected.forEach((repoName, repository) -> {
-                    ActorRef<RepositorySummary> summaryAdapter = actor.messageAdapter(
-                        RepositorySummary.class,
+                for (RepositoryName repoName : collected.keySet()) {
+                    final ActorRef<RepositoryMessage> repository = collected.get(repoName);
+                    final ActorRef<RepositorySummaryResponse> summaryAdapter = actor.messageAdapter(
+                        RepositorySummaryResponse.class,
                         keep -> keep);
 
-                    ActorRef<ErrorMessage> errorAdapter = actor.messageAdapter(
+                    final ActorRef<ErrorMessage> errorAdapter = actor.messageAdapter(
                         ErrorMessage.class,
-                        ignore -> repoName);
+                        keep -> keep);
 
-                    RepositorySummaryRequest msg = RepositorySummaryRequest.apply(
+                    final RepositorySummaryRequest msg = RepositorySummaryRequest.apply(
                         Operators.hash(),
                         start.getExecutor(),
                         repoName.getNamespace(),
@@ -133,17 +135,17 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
 
                     stillWaiting.add(repoName);
                     repository.tell(msg);
-                });
+                }
 
                 timers.startSingleTimer(QueryTimeout.class, QueryTimeout.apply(), Duration.ofSeconds(durationInSeconds));
 
                 return Behaviors
                     .receive(Object.class)
-                    .onMessage(RepositorySummary.class, (actor, summary) -> {
-                        summaries.add(summary);
+                    .onMessage(RepositorySummaryResponse.class, (actor, summary) -> {
+                        summary.getSummary().ifPresent(summaries::add);
                         stillWaiting.remove(RepositoryName.apply(summary.getNamespace(), summary.getRepository()));
 
-                        if (stillWaiting.isEmpty()) {
+                        if (stillWaiting.size() - errors.get() <= 0) {
                             return respondWithSummaries(start, summaries);
                         } else {
                             return Behaviors.same();
@@ -154,9 +156,9 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
                         return respondWithSummaries(start, summaries);
                     })
                     .onMessage(RepositoryName.class, (actor, repoName) -> {
-                        stillWaiting.remove(repoName);
+                        errors.incrementAndGet();
 
-                        if (stillWaiting.isEmpty()) {
+                        if (stillWaiting.size() - errors.get() <= 0) {
                             return respondWithSummaries(start, summaries);
                         } else {
                             return Behaviors.same();

@@ -39,7 +39,7 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
 
     @Override
     public <T> Route complete(T result) {
-        return complete(StatusCodes.OK, result, Jackson.marshaller());
+        return complete(StatusCodes.OK, result, Jackson.marshaller(om));
     }
 
     @Override
