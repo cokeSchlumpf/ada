@@ -2,7 +2,9 @@ package ada.vcs.client.commands.context;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.vcs.client.core.AdaHome;
+import ada.vcs.client.core.endpoints.Endpoint;
 import ada.vcs.client.core.project.AdaProject;
+import ada.vcs.client.exceptions.NoEndpointException;
 import ada.vcs.client.exceptions.NoProjectException;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
@@ -72,6 +74,13 @@ public final class CommandContext {
 
     public void withAdaHome(Consumer<AdaHome> block) {
         block.accept(home.get());
+    }
+
+    public void withEndpoint(Consumer<Endpoint> block) {
+        withAdaHome(home -> {
+            Endpoint endpoint = home.getConfiguration().getEndpoint().orElseThrow(NoEndpointException::apply);
+            block.accept(endpoint);
+        });
     }
 
     public <T> T fromAdaHome(Function<AdaHome, T> block) {

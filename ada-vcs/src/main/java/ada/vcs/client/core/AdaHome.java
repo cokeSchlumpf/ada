@@ -3,6 +3,7 @@ package ada.vcs.client.core;
 import ada.commons.util.Operators;
 import ada.vcs.client.core.configuration.AdaConfiguration;
 import ada.vcs.client.core.configuration.AdaConfigurationFactory;
+import ada.vcs.client.core.endpoints.Endpoint;
 import lombok.AllArgsConstructor;
 
 import java.nio.file.Path;

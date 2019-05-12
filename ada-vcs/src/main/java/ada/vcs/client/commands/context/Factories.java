@@ -45,7 +45,7 @@ public final class Factories {
     }
 
     public EndpointFactory endpointFactory() {
-        return EndpointFactory.apply(authenticationMethodFactory());
+        return EndpointFactory.apply(authenticationMethodFactory(), repositoriesClientFactory());
     }
 
     public AdaProjectFactory projectFactory() {
