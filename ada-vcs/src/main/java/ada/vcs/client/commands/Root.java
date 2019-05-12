@@ -9,6 +9,7 @@ import picocli.CommandLine;
         Config.class,
         Dataset.class,
         Datasets.class,
+        Endpoint.class,
         Init.class,
         Remote.class,
         Remotes.class,

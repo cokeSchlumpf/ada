@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @CommandLine.Command(
     name = "remotes",
-    description = "list or add remotes",
+    description = "list or add remote endpoints for current project",
     subcommands = {
         Remotes$Add.class
     })

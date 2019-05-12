@@ -5,7 +5,6 @@ import ada.vcs.client.core.configuration.AdaConfiguration;
 import ada.vcs.client.core.configuration.AdaConfigurationFactory;
 import lombok.AllArgsConstructor;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -34,12 +33,7 @@ public final class AdaHome {
 
     public AdaConfiguration getConfiguration() {
         Path file = dir.resolve(CONFIGURATION_FILE);
-
-        if (Files.exists(file)) {
-           return Operators.suppressExceptions(() -> configurationFactory.create(file));
-        } else {
-            return configurationFactory.create();
-        }
+        return Operators.suppressExceptions(() -> configurationFactory.create(file));
     }
 
     public void updateConfiguration(AdaConfiguration configuration) {

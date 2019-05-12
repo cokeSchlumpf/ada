@@ -3,6 +3,7 @@ package ada.vcs.server.adapters.client;
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.util.AbstractAdaTest;
+import ada.vcs.server.adapters.client.modifiers.RequestModifiers;
 import ada.vcs.server.adapters.client.repositories.RepositoriesClient;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesResponse;
 import org.junit.Test;
@@ -46,7 +47,10 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
     private RepositoriesClient getClient() throws MalformedURLException {
         return RepositoriesClient.apply(
             new URL("http://" + getServer()), getContext().system(),
-            getContext().materializer(), ObjectMapperFactory.apply().create(true));
+            getContext().materializer(),
+            ObjectMapperFactory.apply().create(true),
+            getContext().factories().versionFactory(),
+            RequestModifiers.apply());
     }
 
 }

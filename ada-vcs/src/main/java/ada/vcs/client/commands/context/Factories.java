@@ -1,5 +1,8 @@
 package ada.vcs.client.commands.context;
 
+import ada.vcs.client.core.endpoints.EndpointFactory;
+import ada.vcs.server.adapters.client.modifiers.AuthenticationMethodFactory;
+import ada.vcs.server.adapters.client.repositories.RepositoriesClientFactory;
 import ada.vcs.shared.converters.api.DataSinkFactory;
 import ada.vcs.shared.converters.api.DataSourceFactory;
 import ada.vcs.client.core.AdaHome;
@@ -23,52 +26,66 @@ import java.util.function.Supplier;
 @AllArgsConstructor(staticName = "apply")
 public final class Factories {
 
-  private final ObjectMapper om;
+    private final ObjectMapper om;
 
-  private final Supplier<ActorSystem> systemSupplier;
+    private final Supplier<ActorSystem> systemSupplier;
 
-  private final Supplier<Materializer> materializerSupplier;
+    private final Supplier<Materializer> materializerSupplier;
 
-  public AdaConfigurationFactory configurationFactory() {
-    return AdaConfigurationFactory.apply(om);
-  }
+    public AuthenticationMethodFactory authenticationMethodFactory() {
+        return AuthenticationMethodFactory.apply();
+    }
 
-  public DatasetFactory datasetFactory() {
-    return DatasetFactory.apply(om, DataSourceFactory.apply(), DataSinkFactory.apply(), remoteSourceFactory());
-  }
+    public AdaConfigurationFactory configurationFactory() {
+        return AdaConfigurationFactory.apply(om, endpointFactory());
+    }
 
-  public AdaProjectFactory projectFactory() {
-    return AdaProjectFactory.apply(
-      configurationFactory(), remotesFactory(), datasetFactory(),
-      AdaHome.apply(configurationFactory()));
-  }
+    public DatasetFactory datasetFactory() {
+        return DatasetFactory.apply(om, DataSourceFactory.apply(), DataSinkFactory.apply(), remoteSourceFactory());
+    }
 
-  public RemotesFactory remotesFactory() {
-    return RemotesFactory.apply(om, systemSupplier.get(), materializerSupplier.get(), versionFactory(), repositoryFactory());
-  }
+    public EndpointFactory endpointFactory() {
+        return EndpointFactory.apply(authenticationMethodFactory());
+    }
 
-  public RemoteSourceFactory remoteSourceFactory() {
-    return RemoteSourceFactory.apply(om, versionFactory(), remotesFactory());
-  }
+    public AdaProjectFactory projectFactory() {
+        return AdaProjectFactory.apply(
+            configurationFactory(), remotesFactory(), datasetFactory(),
+            AdaHome.apply(configurationFactory()));
+    }
 
-  public RepositorySinkFactory repositorySinkFactory() {
-      return RepositorySinkFactory.apply(om, versionFactory());
-  }
+    public RemotesFactory remotesFactory() {
+        return RemotesFactory.apply(
+            om, systemSupplier.get(), materializerSupplier.get(),
+            versionFactory(), repositoryFactory(), repositoriesClientFactory());
+    }
 
-  public RepositorySourceFactory repositorySourceFactory() {
-      return RepositorySourceFactory.apply(om, versionFactory(), materializerSupplier.get());
-  }
+    public RemoteSourceFactory remoteSourceFactory() {
+        return RemoteSourceFactory.apply(om, versionFactory(), remotesFactory());
+    }
 
-  public FileSystemRepositoryFactory repositoryFactory() {
-      return FileSystemRepositoryFactory.apply(om, materializerSupplier.get(), versionFactory());
-  }
+    public RepositoriesClientFactory repositoriesClientFactory() {
+        return RepositoriesClientFactory.apply(systemSupplier.get(), materializerSupplier.get(), om, versionFactory());
+    }
 
-  public ServerDirectivesFactory serverDirectivesFactory() {
-      return ServerDirectivesFactory.apply(versionFactory(), om);
-  }
+    public RepositorySinkFactory repositorySinkFactory() {
+        return RepositorySinkFactory.apply(om, versionFactory());
+    }
 
-  public VersionFactory versionFactory() {
-    return VersionFactory.apply(om);
-  }
+    public RepositorySourceFactory repositorySourceFactory() {
+        return RepositorySourceFactory.apply(om, versionFactory(), materializerSupplier.get());
+    }
+
+    public FileSystemRepositoryFactory repositoryFactory() {
+        return FileSystemRepositoryFactory.apply(om, materializerSupplier.get(), versionFactory());
+    }
+
+    public ServerDirectivesFactory serverDirectivesFactory() {
+        return ServerDirectivesFactory.apply(versionFactory(), om);
+    }
+
+    public VersionFactory versionFactory() {
+        return VersionFactory.apply(om);
+    }
 
 }

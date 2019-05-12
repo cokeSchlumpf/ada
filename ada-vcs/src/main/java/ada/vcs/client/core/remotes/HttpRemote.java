@@ -3,6 +3,8 @@ package ada.vcs.client.core.remotes;
 import ada.commons.util.Either;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
+import ada.vcs.server.adapters.client.repositories.RepositoriesClientFactory;
+import ada.vcs.server.adapters.client.repositories.RepositoryClient;
 import ada.vcs.shared.repository.api.RefSpec;
 import ada.vcs.shared.repository.api.User;
 import ada.vcs.shared.repository.api.version.Tag;
@@ -58,8 +60,11 @@ final class HttpRemote implements Remote {
 
     private final URL endpoint;
 
+    private final RepositoriesClientFactory clientFactory;
+
     public static HttpRemote apply(ObjectMapper om, ActorSystem system, Materializer materializer, VersionFactory versionFactory, HttpRemoteMemento memento) {
-        return HttpRemote.apply(om, system, materializer, versionFactory, memento.getAlias(), memento.getEndpoint());
+        // TODO mw:
+        return HttpRemote.apply(om, system, materializer, versionFactory, memento.getAlias(), memento.getEndpoint(), null);
     }
 
     @Override
@@ -93,7 +98,7 @@ final class HttpRemote implements Remote {
 
     @Override
     public Remote withAlias(ResourceName alias) {
-        return apply(om, system, materializer, versionFactory, alias, endpoint);
+        return apply(om, system, materializer, versionFactory, alias, endpoint, clientFactory);
     }
 
     @Override
@@ -118,123 +123,16 @@ final class HttpRemote implements Remote {
 
     @Override
     public Sink<GenericRecord, CompletionStage<VersionDetails>> push(VersionDetails details) {
-        Schema schema = details.schema();
-
-        Creator<Function<List<GenericRecord>, Iterable<ByteString>>> writeBytes = () -> {
-            final DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            final DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<>(datumWriter);
-
-            DataFileWriter<GenericRecord> writer = dataFileWriter.create(schema, baos);
-
-            return records -> {
-                records.forEach(record -> Operators.suppressExceptions(() -> writer.append(record)));
-                writer.flush();
-                ByteString result = ByteString.fromArray(baos.toByteArray());
-                baos.reset();
-
-                return Lists.newArrayList(result);
-            };
-        };
-
-        Function<Publisher<ByteString>, CompletionStage<HttpResponse>> consumer = publisher -> {
-            HttpEntity.Strict detailsField = HttpEntities.create(details.writeToString());
-
-            HttpEntity.IndefiniteLength records = HttpEntities.createIndefiniteLength(
-                ContentTypes.APPLICATION_OCTET_STREAM,
-                Source.fromPublisher(publisher));
-
-            Multipart.FormData formData = Multiparts.createFormDataFromParts(
-                Multiparts.createFormDataBodyPart("details", detailsField),
-                Multiparts.createFormDataBodyPart("records", records));
-
-            return Http
-                .get(system)
-                .singleRequest(HttpRequest.POST(endpoint.toString()).withEntity(formData.toEntity()));
-        };
-
-        return Flow
-            .of(GenericRecord.class)
-            .grouped(128)
-            .statefulMapConcat(writeBytes)
-            .via(Compression.gzip())
-            .toMat(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), Keep.right())
-            .mapMaterializedValue(consumer::apply)
-            .mapMaterializedValue(response -> response
-                .thenApply(r -> {
-                    InputStream is = r
-                        .entity()
-                        .getDataBytes()
-                        .runWith(StreamConverters.asInputStream(), materializer);
-
-                    return Operators.suppressExceptions(() -> versionFactory.createDetails(is));
-                }));
+        return clientFactory
+            .createRepository(endpoint)
+            .push(details);
     }
 
     @Override
     public Source<GenericRecord, CompletionStage<VersionDetails>> pull(RefSpec refSpec) {
-        CompletableFuture<VersionDetails> mat = new CompletableFuture<>();
-
-        InputStream is = Source
-            .fromCompletionStage(Http
-                .get(system)
-                .singleRequest(HttpRequest.GET(endpoint + "/" + refSpec.toString())))
-            .mapAsync(1, response -> Unmarshaller
-                .entityToMultipartFormData()
-                .unmarshal(response.entity().withoutSizeLimit(), materializer))
-            .flatMapConcat(Multipart.FormData::getParts)
-            .map(i -> ((Multipart.FormData.BodyPart) i))
-            .<Source<Either<VersionDetails, ByteString>, NotUsed>>map(bodyPart -> {
-                switch (bodyPart.getName()) {
-                    case "details":
-                        CompletableFuture<VersionDetails> versionDetailsCS = bodyPart
-                            .getEntity()
-                            .getDataBytes()
-                            .runFold(ByteString.empty(), ByteString::concat, materializer)
-                            .toCompletableFuture()
-                            .thenApply(ByteString::toByteBuffer)
-                            .thenApply(ByteBuffer::array)
-                            .thenApply(bytes -> Operators.suppressExceptions(() -> versionFactory.createDetails(bytes)));
-
-                        return Source
-                            .fromCompletionStage(versionDetailsCS)
-                            .map(Either::left);
-
-                    case "records":
-                        return bodyPart
-                            .getEntity()
-                            .getDataBytes()
-                            .mapMaterializedValue(o -> NotUsed.getInstance())
-                            .map(Either::right);
-
-                    default:
-                        return Source.empty();
-                }
-            })
-            .flatMapConcat(s -> s)
-            .filter(element -> element.map(
-                versionDetails -> {
-                    mat.complete(versionDetails);
-                    return false;
-                },
-                bs -> true))
-            .map(element -> element.map(
-                versionDetails -> ByteString.empty(),
-                bs -> bs))
-            .via(Compression.gunzip(8192))
-            .runWith(StreamConverters.asInputStream(), materializer);
-
-
-        return Source
-            .fromCompletionStage(mat)
-            .flatMapConcat(details -> {
-                final DatumReader<GenericRecord> datumReader = new GenericDatumReader<>(details.schema());
-                final DataFileStream<GenericRecord> dataFileStream = new DataFileStream<>(is, datumReader);
-
-                return Source.from(dataFileStream);
-            })
-            .watchTermination(Keep.right())
-            .mapMaterializedValue(done -> done.thenCompose(i -> mat));
+        return clientFactory
+            .createRepository(endpoint)
+            .pull(refSpec);
     }
 
 }

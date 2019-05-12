@@ -1,6 +1,7 @@
 package ada.vcs.client.commands.context;
 
 import ada.commons.databind.ObjectMapperFactory;
+import ada.vcs.client.core.AdaHome;
 import ada.vcs.client.core.project.AdaProject;
 import ada.vcs.client.exceptions.NoProjectException;
 import akka.actor.ActorSystem;
@@ -26,6 +27,10 @@ public final class CommandContext {
 
     private final Supplier<ActorSystem> system;
 
+    private final Supplier<AdaProject> project;
+
+    private final Supplier<AdaHome> home;
+
     private final List<Runnable> shutdownActions;
 
     private final Factories factories;
@@ -43,7 +48,14 @@ public final class CommandContext {
 
         Factories factories = Factories.apply(ObjectMapperFactory.apply().create(true), system, materializer);
 
-        return new CommandContext(materializer, system, shutdownActions, factories);
+        Supplier<AdaProject> project = Suppliers.memoize(() -> factories
+                .projectFactory()
+                .fromHere()
+                .orElseThrow(NoProjectException::apply));
+
+        Supplier<AdaHome> home = Suppliers.memoize(() -> AdaHome.apply(factories.configurationFactory()));
+
+        return new CommandContext(materializer, system, project, home, shutdownActions, factories);
     }
 
     public Factories factories() {
@@ -58,13 +70,20 @@ public final class CommandContext {
         return system.get();
     }
 
-    public void withProject(Consumer<AdaProject> block) {
-        AdaProject project = factories
-            .projectFactory()
-            .fromHere()
-            .orElseThrow(NoProjectException::apply);
+    public void withAdaHome(Consumer<AdaHome> block) {
+        block.accept(home.get());
+    }
 
-        block.accept(project);
+    public <T> T fromAdaHome(Function<AdaHome, T> block) {
+        return block.apply(home.get());
+    }
+
+    public void withProject(Consumer<AdaProject> block) {
+        block.accept(project.get());
+    }
+
+    public <T> T fromProject(Function<AdaProject, T> block) {
+        return block.apply(project.get());
     }
 
     public void withMaterializer(Function<Materializer, CompletionStage<?>> block) {

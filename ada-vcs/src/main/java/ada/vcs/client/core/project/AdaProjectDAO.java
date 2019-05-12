@@ -165,11 +165,7 @@ final class AdaProjectDAO {
     }
 
     public AdaConfiguration readConfiguration() {
-        if (Files.exists(config)) {
-            return Operators.suppressExceptions(() -> configurationFactory.create(config));
-        } else {
-            return configurationFactory.create();
-        }
+        return Operators.suppressExceptions(() -> configurationFactory.create(config));
     }
 
     private Optional<Dataset> readDataset(Path file) {

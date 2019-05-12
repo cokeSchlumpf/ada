@@ -2,6 +2,7 @@ package ada.vcs.client.core.remotes;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
+import ada.vcs.server.adapters.client.repositories.RepositoriesClientFactory;
 import ada.vcs.shared.repository.api.Repository;
 import ada.vcs.shared.repository.api.version.VersionFactory;
 import ada.vcs.shared.repository.fs.FileSystemRepositoryFactory;
@@ -30,11 +31,16 @@ public final class RemotesFactory {
 
     private FileSystemRepositoryFactory repositoryFactory;
 
+    private RepositoriesClientFactory repositoriesClientFactory;
+
     public static RemotesFactory apply(
         ObjectMapperFactory omf, ActorSystem system, Materializer materializer,
-        VersionFactory versionFactory, FileSystemRepositoryFactory repositoryFactory) {
+        VersionFactory versionFactory, FileSystemRepositoryFactory repositoryFactory,
+        RepositoriesClientFactory repositoriesClientFactory) {
 
-        return apply(omf.create(true), system, materializer, versionFactory, repositoryFactory);
+        return apply(
+            omf.create(true), system, materializer,
+            versionFactory, repositoryFactory, repositoriesClientFactory);
     }
 
     public Remote createFileSystemRemote(ResourceName alias, Path dir) {
@@ -43,7 +49,7 @@ public final class RemotesFactory {
     }
 
     public  HttpRemote createHttpRemote(ResourceName alias, URL endpoint) {
-        return HttpRemote.apply(om, system, materializer, versionFactory, alias, endpoint);
+        return HttpRemote.apply(om, system, materializer, versionFactory, alias, endpoint, repositoriesClientFactory);
     }
 
     public Remote createRemote(InputStream is) throws IOException {

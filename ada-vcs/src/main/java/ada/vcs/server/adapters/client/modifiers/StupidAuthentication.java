@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
-public final class StupidAuthentication implements RequestModifier {
+final class StupidAuthentication implements RequestModifier, AuthenticationMethod {
 
     private final String username;
 
@@ -26,6 +26,19 @@ public final class StupidAuthentication implements RequestModifier {
 
     public static StupidAuthentication apply(String username, String... roles) {
         return apply(username, ImmutableList.copyOf(roles));
+    }
+
+    public static StupidAuthentication apply(StupidAuthenticationMemento memento) {
+        return apply(memento.getUsername(), memento.getRoles());
+    }
+
+    @Override
+    public String info() {
+        return String.format("Stupid authentication (username=%s, roles=%s)", username, String.join(",", roles));
+    }
+
+    public StupidAuthenticationMemento memento() {
+        return StupidAuthenticationMemento.apply(username, roles);
     }
 
     @Override
