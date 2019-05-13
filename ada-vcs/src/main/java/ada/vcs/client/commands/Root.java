@@ -13,6 +13,8 @@ import picocli.CommandLine;
         Init.class,
         Remote.class,
         Remotes.class,
+        Repositories.class,
+        Repositories$Create.class,
         Server.class
     })
 public final class Root extends StandardOptions {

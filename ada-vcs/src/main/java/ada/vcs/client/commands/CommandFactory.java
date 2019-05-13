@@ -56,6 +56,8 @@ public final class CommandFactory implements CommandLine.IFactory {
             Remote$Remove.apply(console, context),
             Remotes.apply(console, context),
             Remotes$Add.apply(console, context),
+            Repositories.apply(console, context),
+            Repositories$Create.apply(console, context),
             Server.apply(context));
 
         return (K) commands

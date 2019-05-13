@@ -27,6 +27,10 @@ public final class Repositories$Create extends StandardOptions implements Runnab
         description = "the name of the repository")
     private String repository = null;
 
+    public static Repositories$Create apply(CommandLineConsole console, CommandContext context) {
+        return new Repositories$Create(console, context, null);
+    }
+
     @Override
     public void run() {
         context.withEndpoint(endpoint -> {
