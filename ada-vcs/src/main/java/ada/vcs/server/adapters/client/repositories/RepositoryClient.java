@@ -207,4 +207,8 @@ public final class RepositoryClient {
                 .unmarshal(response.entity().withoutSizeLimit(), materializer));
     }
 
+    public URL getEndpoint() {
+        return endpoint;
+    }
+
 }

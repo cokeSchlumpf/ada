@@ -41,11 +41,12 @@ public final class Repositories extends StandardOptions implements Runnable {
                         .map(summary -> Lists.newArrayList(
                             String.format("%s/%s", summary.getNamespace().getValue(), summary.getRepository().getValue()),
                             pt.format(summary.getLastUpdate()),
-                            summary.getLatestId().orElse("")))
+                            summary.getLatestId().orElse("-"),
+                            String.format("%s/%s/%s", endpoint.getUrl(), summary.getNamespace(), summary.getRepository())))
                         .collect(Collectors.toList());
 
                     console.table(
-                        Lists.newArrayList("Name", "Last Update", "Latest"),
+                        Lists.newArrayList("Name", "Last Update", "Latest", "Remote URL"),
                         data,
                         true);
                 });

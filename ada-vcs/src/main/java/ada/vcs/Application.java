@@ -1,4 +1,4 @@
-package ada.vcs.client;
+package ada.vcs;
 
 import ada.commons.util.Operators;
 import ada.vcs.client.commands.CommandFactory;

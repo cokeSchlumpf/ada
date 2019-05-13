@@ -21,7 +21,8 @@ public final class FQResourceName {
     public static FQResourceName apply(
         @JsonProperty("namespace") ResourceName namespace,
         @JsonProperty("name") ResourceName name) {
-        return new FQResourceName(name, name);
+
+        return new FQResourceName(namespace, name);
     }
 
     public static FQResourceName apply(String s) {
