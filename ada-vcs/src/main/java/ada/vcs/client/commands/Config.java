@@ -1,5 +1,6 @@
 package ada.vcs.client.commands;
 
+import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.client.consoles.CommandLineConsole;
 import ada.vcs.client.core.AdaHome;
@@ -76,26 +77,46 @@ public final class Config extends StandardOptions implements Runnable {
     }
 
     private void showValue(String key) {
-        if (key.equals("user")) {
-            console.message(getUser());
-        } else {
-            throw ExitWithErrorException.apply("Unknown configuration key");
+        switch (key) {
+            case "user":
+                console.message(getUser());
+                break;
+            case "namespace":
+                console.message(getNamespace());
+                break;
+            default:
+                throw ExitWithErrorException.apply("Unknown configuration key");
         }
     }
 
     private void setValue(String key, String value) {
-        if (key.equals("user")) {
-            setUser(value);
-            console.message("Updated '%s' to '%s'", key, value);
-        } else {
-            throw ExitWithErrorException.apply("Unknown configuration key");
+        switch (key) {
+            case "user":
+                setUser(value);
+                break;
+            case "namespace":
+                setNamespace(value);
+                break;
+            default:
+                throw ExitWithErrorException.apply("Unknown configuration key");
         }
+
+        console.message("Updated '%s' to '%s'", key, value);
     }
 
     private void unsetValue(String key) {
-        if (key.equals("user")) {
-            getConfig().unsetUser();
+        switch (key) {
+            case "user":
+                getConfig().unsetUser();
+                break;
+            case "namespace":
+                getConfig().unsetNamespace();
+                break;
+            default:
+                throw ExitWithErrorException.apply("Unknown configuration key");
         }
+
+        console.message("Unset configuration value for '%s'", key);
     }
 
     private AdaConfiguration getConfig() {
@@ -106,11 +127,22 @@ public final class Config extends StandardOptions implements Runnable {
         }
     }
 
+    private String getNamespace() {
+        return getConfig()
+            .getNamespace()
+            .map(ResourceName::getValue)
+            .orElse("<not set>");
+    }
+
     private String getUser() {
         return getConfig()
             .getUser()
             .map(User::toString)
             .orElse("<not set>");
+    }
+
+    private void setNamespace(String value) {
+        getConfig().setNamespace(ResourceName.apply(value));
     }
 
     private void setUser(String value) {

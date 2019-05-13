@@ -39,6 +39,11 @@ public class ResourceName {
         return new ResourceName(name);
     }
 
+    @Override
+    public String toString() {
+        return value;
+    }
+
     public static class Serializer extends StdSerializer<ResourceName> {
 
         private Serializer() {

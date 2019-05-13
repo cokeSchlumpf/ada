@@ -26,6 +26,8 @@ public final class AdaConfigurationImpl implements AdaConfiguration {
 
     private ResourceName currentEndpoint;
 
+    private ResourceName namespace;
+
     private User user;
 
     private Map<ResourceName, Endpoint> endpoints;
@@ -60,6 +62,11 @@ public final class AdaConfigurationImpl implements AdaConfiguration {
     }
 
     @Override
+    public Optional<ResourceName> getNamespace() {
+        return Optional.ofNullable(namespace);
+    }
+
+    @Override
     public List<Endpoint> getEndpoints() {
         return Lists.newArrayList(endpoints.values());
     }
@@ -72,6 +79,12 @@ public final class AdaConfigurationImpl implements AdaConfiguration {
             currentEndpoint = alias;
             save();
         }
+    }
+
+    @Override
+    public void setNamespace(ResourceName namespace) {
+        this.namespace = namespace;
+        save();
     }
 
     @Override
@@ -96,6 +109,12 @@ public final class AdaConfigurationImpl implements AdaConfiguration {
     }
 
     @Override
+    public void unsetNamespace() {
+        this.namespace = null;
+        save();
+    }
+
+    @Override
     public void unsetUser() {
         this.user = null;
         save();
@@ -106,7 +125,7 @@ public final class AdaConfigurationImpl implements AdaConfiguration {
         List<EndpointMemento> endpoints = Lists.newArrayList();
         this.endpoints.values().stream().map(Endpoint::memento).forEach(endpoints::add);
 
-        om.writeValue(os, AdaConfigurationMemento.apply(user, currentEndpoint, endpoints));
+        om.writeValue(os, AdaConfigurationMemento.apply(user, currentEndpoint, namespace, endpoints));
     }
     
     private void save() {

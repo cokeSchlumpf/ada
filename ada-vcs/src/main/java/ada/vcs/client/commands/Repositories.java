@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
     name = "repositories",
     description = "list or add repositories from Ada server",
     subcommands = {
-        Endpoints$Add.class
+        Repositories$Create.class
     })
 @AllArgsConstructor(staticName = "apply")
 public final class Repositories extends StandardOptions implements Runnable {

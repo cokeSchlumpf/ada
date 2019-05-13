@@ -1,6 +1,7 @@
 package ada.vcs.server.adapters.client.modifiers;
 
 import ada.commons.util.NameFactory;
+import ada.commons.util.ResourceName;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.model.HttpHeader;
 import akka.http.javadsl.model.HttpRequest;
@@ -9,6 +10,7 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(staticName = "apply")
@@ -35,6 +37,11 @@ final class StupidAuthentication implements RequestModifier, AuthenticationMetho
     @Override
     public String info() {
         return String.format("Stupid authentication (username=%s, roles=%s)", username, String.join(",", roles));
+    }
+
+    @Override
+    public Optional<ResourceName> getDefaultNamespace() {
+        return Optional.of(ResourceName.apply(username));
     }
 
     public StupidAuthenticationMemento memento() {

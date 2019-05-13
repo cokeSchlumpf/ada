@@ -21,15 +21,18 @@ public class AdaConfigurationMemento {
 
     private final ResourceName endpoint;
 
+    private final ResourceName namespace;
+
     private final List<EndpointMemento> endpoints;
 
     @JsonCreator
     public static AdaConfigurationMemento apply(
         @JsonProperty("user") User user,
         @JsonProperty("endpoint") ResourceName endpoint,
+        @JsonProperty("namespace") ResourceName namespace,
         @JsonProperty("endpoints") List<EndpointMemento> endpoints) {
 
-        return new AdaConfigurationMemento(user, endpoint, endpoints);
+        return new AdaConfigurationMemento(user, endpoint, namespace, endpoints);
     }
 
 }

@@ -1,15 +1,18 @@
 package ada.vcs.server.adapters.client.modifiers;
 
+import ada.commons.util.ResourceName;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.model.HttpHeader;
 import akka.http.javadsl.model.HttpRequest;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 final class APIKeyAuthentication implements RequestModifier, AuthenticationMethod, AuthenticationMethodMemento {
@@ -48,6 +51,12 @@ final class APIKeyAuthentication implements RequestModifier, AuthenticationMetho
     @Override
     public String info() {
         return String.format("API authentication (client-id: %s)", clientId);
+    }
+
+    @Override
+    @JsonIgnore
+    public Optional<ResourceName> getDefaultNamespace() {
+        return Optional.empty();
     }
 
     @Override

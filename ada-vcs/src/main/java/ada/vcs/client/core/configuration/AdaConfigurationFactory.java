@@ -32,7 +32,8 @@ public final class AdaConfigurationFactory {
         Map<ResourceName, Endpoint> endpointMap = Maps.newHashMap();
         endpoints.forEach(e -> endpointMap.put(e.getAlias(), e));
 
-        return AdaConfigurationImpl.apply(om, path, memento.getEndpoint(), memento.getUser(), endpointMap);
+        return AdaConfigurationImpl.apply(
+            om, path, memento.getEndpoint(), memento.getNamespace(), memento.getUser(), endpointMap);
     }
 
     public AdaConfiguration create(Path path, InputStream is) throws IOException {
@@ -46,7 +47,7 @@ public final class AdaConfigurationFactory {
                 return create(path, is);
             }
         } else {
-            return AdaConfigurationImpl.apply(om, path, null, null, Maps.newHashMap());
+            return AdaConfigurationImpl.apply(om, path, null, null, null, Maps.newHashMap());
         }
     }
 

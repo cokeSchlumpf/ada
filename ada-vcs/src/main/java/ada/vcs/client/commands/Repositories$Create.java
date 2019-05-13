@@ -1,5 +1,6 @@
 package ada.vcs.client.commands;
 
+import ada.commons.util.FQResourceName;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
@@ -34,16 +35,17 @@ public final class Repositories$Create extends StandardOptions implements Runnab
     @Override
     public void run() {
         context.withEndpoint(endpoint -> {
-            ResourceName namespace = endpoint.getDefaultNamespace();
-            ResourceName repository = ResourceName.apply(this.repository);
+            FQResourceName name = FQResourceName
+                .tryApply(repository)
+                .orElse(FQResourceName.apply(endpoint.getDefaultNamespace(), ResourceName.apply(repository)));
 
             CompletionStage<RepositoryClient> result = endpoint
                 .getRepositoriesClient()
-                .createRepository(namespace, repository);
+                .createRepository(name.getNamespace(), name.getName());
 
             Operators.suppressExceptions(() -> result.toCompletableFuture().get());
 
-            console.message("Created repository '%s/%s'", namespace.getValue(), repository.getValue());
+            console.message("Created repository '%s'", name);
         });
     }
 

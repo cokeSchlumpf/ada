@@ -9,6 +9,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 
 import java.net.URL;
+import java.util.Optional;
 
 @Value
 @Wither
@@ -28,7 +29,7 @@ public class Endpoint {
     }
 
     public ResourceName getDefaultNamespace() {
-        return ResourceName.apply("public");
+        return authenticationMethod.getDefaultNamespace().orElse(ResourceName.apply("public"));
     }
 
     public RepositoriesClient getRepositoriesClient() {

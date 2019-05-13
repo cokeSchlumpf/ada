@@ -49,6 +49,8 @@ public final class ObjectMapperFactory {
             om.enable(SerializationFeature.INDENT_OUTPUT);
         }
 
+        om.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
         return om;
     }
 

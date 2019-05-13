@@ -31,6 +31,13 @@ public final class AdaProjectConfiguration implements AdaConfiguration {
     }
 
     @Override
+    public Optional<ResourceName> getNamespace() {
+        return Optional.ofNullable(dao.readConfiguration()
+            .getNamespace()
+            .orElseGet(() -> home.getConfiguration().getNamespace().orElse(null)));
+    }
+
+    @Override
     public Optional<User> getUser() {
         return Optional.ofNullable(getUser$project().orElseGet(() -> getUser$global().orElse(null)));
     }
@@ -48,6 +55,11 @@ public final class AdaProjectConfiguration implements AdaConfiguration {
     @Override
     public void setEndpoint(ResourceName alias) {
         home.getConfiguration().setEndpoint(alias);
+    }
+
+    @Override
+    public void setNamespace(ResourceName namespace) {
+        home.getConfiguration().setNamespace(namespace);
     }
 
     private Optional<User> getUser$project() {
@@ -79,6 +91,11 @@ public final class AdaProjectConfiguration implements AdaConfiguration {
     @Override
     public void removeEndpoint(ResourceName alias) {
         home.getConfiguration().removeEndpoint(alias);
+    }
+
+    @Override
+    public void unsetNamespace() {
+        home.getConfiguration().unsetNamespace();
     }
 
     @Override

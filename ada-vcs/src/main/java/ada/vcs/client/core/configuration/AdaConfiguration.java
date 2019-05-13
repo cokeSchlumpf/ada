@@ -14,6 +14,8 @@ public interface AdaConfiguration extends Writable {
 
     Optional<Endpoint> getEndpoint(ResourceName alias);
 
+    Optional<ResourceName> getNamespace();
+
     Optional<User> getUser();
 
     void addEndpoint(Endpoint endpoint);
@@ -22,9 +24,13 @@ public interface AdaConfiguration extends Writable {
 
     void setEndpoint(ResourceName alias);
 
+    void setNamespace(ResourceName namespace);
+
     void setUser(User user);
 
     void removeEndpoint(ResourceName alias);
+
+    void unsetNamespace();
 
     void unsetUser();
 
