@@ -1,12 +1,12 @@
 package ada.vcs.adapters.cli.core.dataset;
 
-import ada.vcs.domain.shared.converters.api.Monitor;
-import ada.vcs.domain.shared.converters.api.ReadSummary;
-import ada.vcs.domain.shared.converters.api.ReadableDataSource;
+import ada.vcs.domain.legacy.converters.api.Monitor;
+import ada.vcs.domain.legacy.converters.api.ReadSummary;
+import ada.vcs.domain.legacy.converters.api.ReadableDataSource;
 import ada.commons.io.Writable;
 import ada.vcs.adapters.cli.core.remotes.Remote;
-import ada.vcs.domain.shared.repository.api.RefSpec;
-import ada.vcs.domain.shared.repository.api.version.VersionDetails;
+import ada.vcs.domain.legacy.repository.api.RefSpec;
+import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
 import akka.stream.javadsl.Source;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

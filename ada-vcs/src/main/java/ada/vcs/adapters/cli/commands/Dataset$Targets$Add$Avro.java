@@ -3,7 +3,7 @@ package ada.vcs.adapters.cli.commands;
 import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.commands.context.CommandContext;
 import ada.vcs.adapters.cli.consoles.CommandLineConsole;
-import ada.vcs.domain.shared.converters.avro.AvroSink;
+import ada.vcs.domain.legacy.converters.avro.AvroSink;
 import ada.vcs.adapters.cli.exceptions.CommandNotInitializedException;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;

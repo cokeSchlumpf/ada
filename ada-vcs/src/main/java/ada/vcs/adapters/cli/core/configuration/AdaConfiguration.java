@@ -3,7 +3,7 @@ package ada.vcs.adapters.cli.core.configuration;
 import ada.commons.io.Writable;
 import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.core.endpoints.Endpoint;
-import ada.vcs.domain.shared.repository.api.User;
+import ada.vcs.domain.legacy.repository.api.User;
 
 import java.util.List;
 import java.util.Optional;

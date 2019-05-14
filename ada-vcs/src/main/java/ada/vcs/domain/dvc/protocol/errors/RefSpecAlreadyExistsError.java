@@ -2,7 +2,7 @@ package ada.vcs.domain.dvc.protocol.errors;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.shared.repository.api.RefSpec;
+import ada.vcs.domain.legacy.repository.api.RefSpec;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Value;

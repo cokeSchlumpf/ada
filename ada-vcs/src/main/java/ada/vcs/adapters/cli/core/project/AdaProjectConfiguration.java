@@ -5,7 +5,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.core.AdaHome;
 import ada.vcs.adapters.cli.core.configuration.AdaConfiguration;
 import ada.vcs.adapters.cli.core.endpoints.Endpoint;
-import ada.vcs.domain.shared.repository.api.User;
+import ada.vcs.domain.legacy.repository.api.User;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;

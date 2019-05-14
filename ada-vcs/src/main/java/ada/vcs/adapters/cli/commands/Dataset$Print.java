@@ -2,10 +2,10 @@ package ada.vcs.adapters.cli.commands;
 
 import ada.vcs.adapters.cli.commands.context.CommandContext;
 import ada.vcs.adapters.cli.consoles.CommandLineConsole;
-import ada.vcs.domain.shared.converters.api.ReadSummary;
-import ada.vcs.domain.shared.converters.api.ReadableDataSource;
-import ada.vcs.domain.shared.converters.csv.CSVSink;
-import ada.vcs.domain.shared.converters.internal.monitors.NoOpMonitor;
+import ada.vcs.domain.legacy.converters.api.ReadSummary;
+import ada.vcs.domain.legacy.converters.api.ReadableDataSource;
+import ada.vcs.domain.legacy.converters.csv.CSVSink;
+import ada.vcs.domain.legacy.converters.internal.monitors.NoOpMonitor;
 import ada.vcs.adapters.cli.exceptions.CommandNotInitializedException;
 import akka.stream.javadsl.Source;
 import lombok.AllArgsConstructor;

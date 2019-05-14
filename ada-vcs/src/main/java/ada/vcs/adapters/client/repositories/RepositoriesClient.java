@@ -4,7 +4,7 @@ import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesResponse;
-import ada.vcs.domain.shared.repository.api.version.VersionFactory;
+import ada.vcs.domain.legacy.repository.api.version.VersionFactory;
 import akka.actor.ActorSystem;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.marshallers.jackson.Jackson;

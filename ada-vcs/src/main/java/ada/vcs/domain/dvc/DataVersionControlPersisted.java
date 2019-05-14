@@ -15,7 +15,7 @@ import ada.vcs.domain.dvc.protocol.api.NamespaceMessage;
 import ada.vcs.domain.dvc.protocol.commands.CreateRepository;
 import ada.vcs.domain.dvc.protocol.errors.NamespaceNotFound;
 import ada.vcs.domain.dvc.protocol.events.NamespaceCreated;
-import ada.vcs.domain.shared.repository.api.RepositoryStorageAdapter;
+import ada.vcs.domain.legacy.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;

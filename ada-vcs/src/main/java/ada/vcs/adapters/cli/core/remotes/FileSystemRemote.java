@@ -1,11 +1,11 @@
 package ada.vcs.adapters.cli.core.remotes;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.shared.repository.api.RefSpec;
-import ada.vcs.domain.shared.repository.api.Repository;
-import ada.vcs.domain.shared.repository.api.User;
-import ada.vcs.domain.shared.repository.api.version.Tag;
-import ada.vcs.domain.shared.repository.api.version.VersionDetails;
+import ada.vcs.domain.legacy.repository.api.RefSpec;
+import ada.vcs.domain.legacy.repository.api.Repository;
+import ada.vcs.domain.legacy.repository.api.User;
+import ada.vcs.domain.legacy.repository.api.version.Tag;
+import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
 import akka.NotUsed;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;

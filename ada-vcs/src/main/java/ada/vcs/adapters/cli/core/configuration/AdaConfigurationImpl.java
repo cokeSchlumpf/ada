@@ -5,7 +5,7 @@ import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.core.endpoints.Endpoint;
 import ada.vcs.adapters.cli.core.endpoints.EndpointMemento;
 import ada.vcs.adapters.cli.exceptions.EndpointNotExistingException;
-import ada.vcs.domain.shared.repository.api.User;
+import ada.vcs.domain.legacy.repository.api.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;

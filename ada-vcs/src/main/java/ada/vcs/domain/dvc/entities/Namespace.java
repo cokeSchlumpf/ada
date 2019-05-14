@@ -13,7 +13,7 @@ import ada.vcs.domain.dvc.protocol.events.RepositoryCreated;
 import ada.vcs.domain.dvc.protocol.events.RepositoryRemoved;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesInNamespaceRequest;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesInNamespaceResponse;
-import ada.vcs.domain.shared.repository.api.RepositoryStorageAdapter;
+import ada.vcs.domain.legacy.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;

@@ -7,7 +7,7 @@ import ada.vcs.adapters.cli.core.AdaHome;
 import ada.vcs.adapters.cli.core.configuration.AdaConfiguration;
 import ada.vcs.adapters.cli.core.project.AdaProject;
 import ada.vcs.adapters.cli.exceptions.ExitWithErrorException;
-import ada.vcs.domain.shared.repository.api.User;
+import ada.vcs.domain.legacy.repository.api.User;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -3,7 +3,7 @@ package ada.vcs.adapters.client.repositories;
 import ada.commons.util.Operators;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
 import ada.vcs.adapters.client.modifiers.RequestModifiers;
-import ada.vcs.domain.shared.repository.api.version.VersionFactory;
+import ada.vcs.domain.legacy.repository.api.version.VersionFactory;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;

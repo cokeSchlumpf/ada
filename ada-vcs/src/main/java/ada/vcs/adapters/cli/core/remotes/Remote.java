@@ -2,7 +2,7 @@ package ada.vcs.adapters.cli.core.remotes;
 
 import ada.commons.util.ResourceName;
 import ada.commons.io.Writable;
-import ada.vcs.domain.shared.repository.api.Repository;
+import ada.vcs.domain.legacy.repository.api.Repository;
 
 public interface Remote
     extends Comparable<Remote>, Writable, Repository {

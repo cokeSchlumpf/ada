@@ -1,6 +1,6 @@
 package ada.vcs.adapters.server.directives;
 
-import ada.vcs.domain.shared.repository.api.version.VersionFactory;
+import ada.vcs.domain.legacy.repository.api.version.VersionFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 
