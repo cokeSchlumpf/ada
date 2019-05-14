@@ -14,6 +14,4 @@ public interface RepositoryMessage extends NamespaceMessage {
 
     User getExecutor();
 
-    ActorRef<ErrorMessage> getErrorTo();
-
 }

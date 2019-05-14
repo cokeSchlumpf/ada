@@ -52,8 +52,8 @@ public final class RepositoriesResource {
         return patterns
             .ask(
                 repositories,
-                (ActorRef<RepositoryCreated> actor) ->
-                    CreateRepository.apply(correlationId, user, namespace, repository, actor))
+                (ActorRef<RepositoryCreated> actor, ActorRef<ErrorMessage> error) ->
+                    CreateRepository.apply(correlationId, user, namespace, repository, actor, error))
             .thenApply(created -> Done.getInstance());
     }
 
@@ -99,8 +99,8 @@ public final class RepositoriesResource {
         return patterns
             .ask(
                 repositories,
-                (ActorRef<RepositoryCreated> actor) ->
-                    CreateRepository.apply(correlationId, user, namespace, repository, actor))
+                (ActorRef<RepositoryCreated> actor, ActorRef<ErrorMessage> error) ->
+                    CreateRepository.apply(correlationId, user, namespace, repository, actor, error))
             .thenCompose(created -> patterns.ask(
                 repositories,
                 (ActorRef<RepositorySinkMemento> actor, ActorRef<ErrorMessage> error) ->
@@ -128,8 +128,8 @@ public final class RepositoriesResource {
             .fromSourceCompletionStage(patterns
                 .ask(
                     repositories,
-                    (ActorRef<RepositoryCreated> actor) ->
-                        CreateRepository.apply(correlationId, user, namespace, repository, actor))
+                    (ActorRef<RepositoryCreated> actor, ActorRef<ErrorMessage> error) ->
+                        CreateRepository.apply(correlationId, user, namespace, repository, actor, error))
                 .thenCompose(created -> patterns.ask(
                     repositories,
                     (ActorRef<RepositorySourceMemento> actor, ActorRef<ErrorMessage> error) ->

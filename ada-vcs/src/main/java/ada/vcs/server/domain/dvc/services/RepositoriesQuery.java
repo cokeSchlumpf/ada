@@ -53,6 +53,7 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
     private Behavior<Object> waitForRepositories(StartRepositoriesQuery start) {
         final Set<ResourceName> stillWaiting = Sets.newHashSet();
         final Map<RepositoryName, ActorRef<RepositoryMessage>> collected = Maps.newHashMap();
+        final AtomicInteger errors = new AtomicInteger(0);
 
         return Behaviors.withTimers(timers -> {
             if (start.getNamespaces().isEmpty()) {
@@ -64,7 +65,12 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
                         RepositoriesInNamespaceResponse.class,
                         keep -> keep);
 
-                    RepositoriesInNamespaceRequest msg = RepositoriesInNamespaceRequest.apply(start.getExecutor(), name, adapter);
+                    final ActorRef<ErrorMessage> errorAdapter = actor.messageAdapter(
+                        ErrorMessage.class,
+                        keep -> keep);
+
+                    RepositoriesInNamespaceRequest msg = RepositoriesInNamespaceRequest.apply(
+                        Operators.hash(), start.getExecutor(), name, adapter, errorAdapter);
 
                     stillWaiting.add(name);
                     namespace.tell(msg);
@@ -82,13 +88,24 @@ public final class RepositoriesQuery extends AbstractBehavior<Object> {
 
                         stillWaiting.remove(repos.getNamespace());
 
-                        if (stillWaiting.isEmpty()) {
+                        if (stillWaiting.size() - errors.get() <= 0) {
                             return waitForSummaries(start, collected);
                         } else {
                             return Behaviors.same();
                         }
                     })
-                    .onMessage(QueryTimeout.class, (actor, repos) -> {
+                    .onMessage(ErrorMessage.class, (actor, errorMessage) -> {
+                        errors.incrementAndGet();
+
+                        actor.getLog().warning("Received error from namespace: {}", errorMessage.getMessage());
+
+                        if (stillWaiting.size() - errors.get() <= 0) {
+                            return waitForSummaries(start, collected);
+                        } else {
+                            return Behaviors.same();
+                        }
+                    })
+                    .onMessage(QueryTimeout.class, (actor, timeout) -> {
                         actor.getLog().warning("Did not receive repositories from all namespaces.");
 
                         if (collected.isEmpty()) {
