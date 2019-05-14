@@ -1,10 +1,7 @@
 package ada.vcs.client;
 
-import ada.vcs.client.core.dataset.DatasetFactory;
-import ada.vcs.client.core.project.AdaProject;
-import ada.vcs.client.core.project.AdaProjectFactory;
-import ada.vcs.client.core.remotes.RemotesFactory;
-import ada.vcs.client.features.ApplicationContext;
+import ada.vcs.adapters.cli.core.project.AdaProject;
+import ada.vcs.adapters.cli.core.project.AdaProjectFactory;
 import ada.vcs.client.util.AbstractAdaTest;
 import com.google.common.collect.Lists;
 import org.assertj.core.util.Files;

@@ -1,12 +1,12 @@
 package ada.vcs;
 
 import ada.commons.util.Operators;
-import ada.vcs.client.commands.CommandFactory;
-import ada.vcs.client.commands.Root;
-import ada.vcs.client.commands.context.CommandContext;
-import ada.vcs.client.consoles.CommandLineConsole;
+import ada.vcs.adapters.cli.commands.CommandFactory;
+import ada.vcs.adapters.cli.commands.Root;
+import ada.vcs.adapters.cli.commands.context.CommandContext;
+import ada.vcs.adapters.cli.consoles.CommandLineConsole;
 import ada.commons.exceptions.AdaException;
-import ada.vcs.client.exceptions.ExitWithErrorException;
+import ada.vcs.adapters.cli.exceptions.ExitWithErrorException;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;

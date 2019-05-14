@@ -1,8 +1,8 @@
 package ada.vcs.client.features;
 
 import ada.vcs.Application;
-import ada.vcs.client.commands.CommandFactory;
-import ada.vcs.client.consoles.CommandLineConsole;
+import ada.vcs.adapters.cli.commands.CommandFactory;
+import ada.vcs.adapters.cli.consoles.CommandLineConsole;
 
 public class ApplicationContext {
 
