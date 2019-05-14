@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class PathDeserializer extends StdDeserializer<Path> {
+public final class PathDeserializer extends StdDeserializer<Path> {
 
     public PathDeserializer() {
         super(Path.class);

@@ -9,7 +9,7 @@ import org.apache.avro.Schema;
 
 import java.io.IOException;
 
-public class SchemaSerializer extends StdSerializer<Schema> {
+public final class SchemaSerializer extends StdSerializer<Schema> {
 
     private final ObjectMapper om;
 

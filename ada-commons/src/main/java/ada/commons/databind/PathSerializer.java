@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class PathSerializer extends StdSerializer<Path> {
+public final class PathSerializer extends StdSerializer<Path> {
 
     public PathSerializer() {
         super(Path.class);

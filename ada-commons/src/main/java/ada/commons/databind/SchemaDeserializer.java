@@ -8,7 +8,7 @@ import org.apache.avro.Schema;
 
 import java.io.IOException;
 
-public class SchemaDeserializer extends StdDeserializer<Schema> {
+public final class SchemaDeserializer extends StdDeserializer<Schema> {
 
     public SchemaDeserializer() {
         super(Schema.class);
