@@ -27,4 +27,14 @@ public final class AnonymousUser implements User {
         return apply(Sets.newHashSet(roles));
     }
 
+    @Override
+    public UserId getUserId() {
+        return UserId.apply(getDisplayName(), getDisplayName());
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "anonymous";
+    }
+
 }

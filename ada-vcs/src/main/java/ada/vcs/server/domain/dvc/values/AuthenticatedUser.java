@@ -33,6 +33,16 @@ public final class AuthenticatedUser implements User {
         return apply(id, name, Sets.newHashSet(roles));
     }
 
+    @Override
+    public UserId getUserId() {
+        return UserId.apply(getId(), getDisplayName());
+    }
+
+    @Override
+    public String getDisplayName() {
+        return getName();
+    }
+
     public Set<String> getRoles() {
         return roles;
     }

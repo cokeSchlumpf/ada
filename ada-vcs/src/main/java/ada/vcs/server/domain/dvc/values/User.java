@@ -16,6 +16,10 @@ import java.util.Set;
 })
 public interface User {
 
+    UserId getUserId();
+
+    String getDisplayName();
+
     Set<String> getRoles();
 
 }

@@ -2,10 +2,10 @@ package ada.vcs.server.domain.dvc.entities;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.client.commands.context.CommandContext;
-import ada.vcs.server.domain.dvc.protocol.commands.CreateRepository;
 import ada.vcs.server.domain.dvc.protocol.api.NamespaceMessage;
-import ada.vcs.server.domain.dvc.protocol.events.RepositoryCreated;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
+import ada.vcs.server.domain.dvc.protocol.commands.CreateRepository;
+import ada.vcs.server.domain.dvc.protocol.events.RepositoryCreated;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceRequest;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositoriesInNamespaceResponse;
 import ada.vcs.shared.repository.api.RepositoryStorageAdapter;
@@ -95,7 +95,8 @@ public final class Namespace extends AbstractBehavior<NamespaceMessage> {
             }
 
             RepositoryCreated created = RepositoryCreated.apply(
-                create.getId(), create.getNamespace(), create.getRepository(), repo);
+                create.getId(), create.getNamespace(), create.getRepository(),
+                create.getExecutor().getUserId(), new Date());
 
             create.getReplyTo().tell(created);
         } else {

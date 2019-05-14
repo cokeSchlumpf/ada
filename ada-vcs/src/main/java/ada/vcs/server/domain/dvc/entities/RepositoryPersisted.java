@@ -5,12 +5,14 @@ import ada.vcs.client.commands.context.CommandContext;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryEvent;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.server.domain.dvc.protocol.commands.GrantAccessToRepository;
+import ada.vcs.server.domain.dvc.protocol.commands.InitializeRepository;
 import ada.vcs.server.domain.dvc.protocol.commands.Push;
 import ada.vcs.server.domain.dvc.protocol.commands.RevokeAccessToRepository;
 import ada.vcs.server.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
 import ada.vcs.server.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.server.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.vcs.server.domain.dvc.protocol.events.GrantedAccessToRepository;
+import ada.vcs.server.domain.dvc.protocol.events.RepositoryInitialized;
 import ada.vcs.server.domain.dvc.protocol.events.RevokedAccessToRepository;
 import ada.vcs.server.domain.dvc.protocol.queries.Pull;
 import ada.vcs.server.domain.dvc.protocol.queries.RepositorySummaryRequest;
@@ -74,6 +76,7 @@ public final class RepositoryPersisted extends EventSourcedBehavior<RepositoryMe
         return newCommandHandlerBuilder()
             .forAnyState()
             .onCommand(GrantAccessToRepository.class, whenChecked(this::onGrant))
+            .onCommand(InitializeRepository.class, whenChecked(this::onInitialize))
             .onCommand(Pull.class, whenChecked(this::onPull))
             .onCommand(Push.class, whenChecked(this::onPush))
             .onCommand(RepositorySummaryRequest.class, whenResponsible(this::onSummaryRequest))
@@ -87,6 +90,7 @@ public final class RepositoryPersisted extends EventSourcedBehavior<RepositoryMe
             .forAnyState()
             .onEvent(GrantedAccessToRepository.class, this::onGranted)
             .onEvent(RevokedAccessToRepository.class, this::onRevoked)
+            .onEvent(RepositoryInitialized.class, this::onInitialized)
             .build();
     }
 
@@ -124,6 +128,16 @@ public final class RepositoryPersisted extends EventSourcedBehavior<RepositoryMe
 
     private State onGranted(State state, GrantedAccessToRepository granted) {
         state.authorizations = state.authorizations.add(granted.getAuthorization());
+        return state;
+    }
+
+    private Effect<RepositoryEvent, State> onInitialize(State state, InitializeRepository init) {
+        RepositoryInitialized initialized = RepositoryInitialized.apply(init.getDate(), init.getExecutor().getUserId());
+        return Effect().persist(initialized);
+    }
+
+    private State onInitialized(State state, RepositoryInitialized init) {
+        state.created = init.getDate();
         return state;
     }
 
