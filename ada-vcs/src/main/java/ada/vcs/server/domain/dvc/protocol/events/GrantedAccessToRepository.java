@@ -1,13 +1,17 @@
 package ada.vcs.server.domain.dvc.protocol.events;
 
 import ada.commons.util.ResourceName;
+import ada.vcs.server.domain.dvc.protocol.api.RepositoryEvent;
 import ada.vcs.server.domain.dvc.values.GrantedAuthorization;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
-@AllArgsConstructor(staticName = "apply")
-public final class GrantedAccessToRepository {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public final class GrantedAccessToRepository implements RepositoryEvent {
 
     private final String id;
 
@@ -16,5 +20,15 @@ public final class GrantedAccessToRepository {
     private final ResourceName repository;
 
     private final GrantedAuthorization authorization;
+
+    @JsonCreator
+    public static GrantedAccessToRepository apply(
+        @JsonProperty("id") String id,
+        @JsonProperty("namespace") ResourceName namespace,
+        @JsonProperty("repository") ResourceName repository,
+        @JsonProperty("authorization") GrantedAuthorization authorization) {
+
+        return new GrantedAccessToRepository(id, namespace, repository, authorization);
+    }
 
 }

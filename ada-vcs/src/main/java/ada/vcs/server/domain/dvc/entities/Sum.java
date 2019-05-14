@@ -45,9 +45,7 @@ public final class Sum extends EventSourcedBehavior<Sum.Command, Sum.Event, Sum.
                 actor.getLog().info("Received Add command {}", add);
                 return Effect()
                     .persist(Added.apply(add.getA()))
-                    .thenRun(state -> {
-                        actor.getLog().info("Do some side effect with state {}", state);
-                    });
+                    .thenRun(state -> actor.getLog().info("Do some side effect with state {}", state));
             })
             .build();
     }

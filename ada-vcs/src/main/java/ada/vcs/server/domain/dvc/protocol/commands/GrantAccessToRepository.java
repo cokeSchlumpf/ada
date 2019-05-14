@@ -2,7 +2,6 @@ package ada.vcs.server.domain.dvc.protocol.commands;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
-import ada.vcs.server.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.vcs.server.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.server.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.server.domain.dvc.values.Authorization;
