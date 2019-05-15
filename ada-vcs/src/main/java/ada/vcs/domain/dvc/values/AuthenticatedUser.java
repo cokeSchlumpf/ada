@@ -1,6 +1,7 @@
 package ada.vcs.domain.dvc.values;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -34,11 +35,13 @@ public final class AuthenticatedUser implements User {
     }
 
     @Override
+    @JsonIgnore
     public UserId getUserId() {
         return UserId.apply(getId(), getDisplayName());
     }
 
     @Override
+    @JsonIgnore
     public String getDisplayName() {
         return getName();
     }

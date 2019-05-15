@@ -2,24 +2,20 @@ package ada.vcs.domain.dvc.entities;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.commands.context.CommandContext;
+import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
-import ada.vcs.domain.dvc.protocol.commands.GrantAccessToRepository;
-import ada.vcs.domain.dvc.protocol.commands.InitializeRepository;
-import ada.vcs.domain.dvc.protocol.commands.Push;
-import ada.vcs.domain.dvc.protocol.commands.RevokeAccessToRepository;
+import ada.vcs.domain.dvc.protocol.commands.*;
 import ada.vcs.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
 import ada.vcs.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.domain.dvc.protocol.errors.UserNotAuthorizedError;
+import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.domain.dvc.protocol.events.RepositoryInitialized;
 import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
+import ada.vcs.domain.dvc.protocol.events.VersionUpsertedInRepository;
 import ada.vcs.domain.dvc.protocol.queries.Pull;
 import ada.vcs.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.vcs.domain.dvc.protocol.queries.RepositorySummaryResponse;
-import ada.vcs.domain.dvc.values.GrantedAuthorization;
-import ada.vcs.domain.dvc.values.RepositoryAuthorizations;
-import ada.vcs.domain.dvc.values.RepositorySummary;
-import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
-import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
+import ada.vcs.domain.dvc.values.*;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.RepositorySinkMemento;
 import ada.vcs.domain.legacy.repository.api.RepositorySourceMemento;
@@ -41,9 +37,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
+/*
+ * TODO mw:
+ *  - Implement submit message in repository adapters
+ *  - Implement request for repository details
+ */
 public final class Repository extends EventSourcedBehavior<RepositoryMessage, RepositoryEvent, Repository.State> {
 
     private final ActorContext<RepositoryMessage> actor;
@@ -93,6 +96,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
             .onCommand(Push.class, whenChecked(this::onPush))
             .onCommand(RepositorySummaryRequest.class, whenResponsible(this::onSummaryRequest))
             .onCommand(RevokeAccessToRepository.class, whenChecked(this::onRevoke))
+            .onCommand(SubmitPushInRepository.class, whenChecked(this::onSubmit))
             .build();
     }
 
@@ -103,6 +107,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
             .onEvent(GrantedAccessToRepository.class, this::onGranted)
             .onEvent(RevokedAccessToRepository.class, this::onRevoked)
             .onEvent(RepositoryInitialized.class, this::onInitialized)
+            .onEvent(VersionUpsertedInRepository.class, this::onUpsert)
             .build();
     }
 
@@ -183,8 +188,12 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
             RepositorySinkMemento actualSinkMemento = repositoryStorageAdapter.push(namespace, name, details);
             WatcherSinkMemento watcherSinkMemento = WatcherSinkMemento.apply(actualSinkMemento, actor.getSelf());
 
-            state.versions.put(versionRef, details);
-            push.getReplyTo().tell(watcherSinkMemento);
+            VersionStatus status = VersionStatus.apply(details, VersionState.INITIALIZED, new Date());
+            VersionUpsertedInRepository event = VersionUpsertedInRepository.apply(push.getNamespace(), push.getRepository(), status);
+
+            return Effect()
+                .persist(event)
+                .thenRun(() -> push.getReplyTo().tell(watcherSinkMemento));
         } else {
             RefSpecAlreadyExistsError error = RefSpecAlreadyExistsError.apply(
                 push.getId(),
@@ -193,9 +202,33 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
                 versionRef);
 
             push.getErrorTo().tell(error);
-        }
 
-        return Effect().none();
+            return Effect().none();
+        }
+    }
+
+    private Effect<RepositoryEvent, State> onSubmit(State state, SubmitPushInRepository submit) {
+        final VersionStatus currentStatus = state.versions.get(submit.getRefSpec());
+
+        if (currentStatus == null) {
+            RefSpecNotFoundError error = RefSpecNotFoundError.apply(
+                submit.getId(), submit.getNamespace(), submit.getRepository(),
+                submit.getRefSpec());
+
+            submit.getErrorTo().tell(error);
+
+            return Effect().none();
+        } else {
+            final VersionStatus newStatus = currentStatus
+                .withState(VersionState.PUSHED)
+                .withUpdated(new Date());
+
+            VersionUpsertedInRepository event = VersionUpsertedInRepository.apply(namespace, name, newStatus);
+
+            return Effect()
+                .persist(event)
+                .thenRun(() -> submit.getReplyTo().tell(newStatus));
+        }
     }
 
     private Effect<RepositoryEvent, State> onSummaryRequest(State state, RepositorySummaryRequest request) {
@@ -206,11 +239,18 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
             if (state.versions.isEmpty()) {
                 summary = RepositorySummary.apply(namespace, name, state.created);
             } else {
+                List<VersionDetails> detailsList = state
+                    .versions
+                    .values()
+                    .stream()
+                    .map(status -> context.factories().versionFactory().createDetails(status.getDetails()))
+                    .collect(Collectors.toList());
+
                 VersionDetails details = Ordering
                     .natural()
                     .reverse()
                     .onResultOf(VersionDetails::date)
-                    .sortedCopy(state.versions.values())
+                    .sortedCopy(detailsList)
                     .get(0);
 
                 summary = RepositorySummary.apply(namespace, name, details.date(), details.id());
@@ -259,6 +299,11 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
         return state;
     }
 
+    private State onUpsert(State state, VersionUpsertedInRepository upserted) {
+        RefSpec.VersionRef versionRef = RefSpec.fromId(upserted.getStatus().getDetails().getId());
+        state.versions.put(versionRef, upserted.getStatus());
+        return state;
+    }
 
     /*
      * Helper functions
@@ -338,7 +383,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
     @AllArgsConstructor(staticName = "apply")
     protected static class State {
 
-        private Map<RefSpec.VersionRef, VersionDetails> versions;
+        private Map<RefSpec.VersionRef, VersionStatus> versions;
 
         private Map<RefSpec.TagRef, RefSpec.VersionRef> tags;
 
