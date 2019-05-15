@@ -21,6 +21,8 @@ public interface ServerDirectives {
 
     <T> Route complete(T result);
 
+    <T> Route complete(CompletionStage<T> result);
+
     <T extends Writable> Route complete(T result);
 
     <T extends Writable> Route onSuccess(CompletionStage<T> result);

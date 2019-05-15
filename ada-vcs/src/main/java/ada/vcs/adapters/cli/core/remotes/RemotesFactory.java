@@ -49,7 +49,7 @@ public final class RemotesFactory {
     }
 
     public  HttpRemote createHttpRemote(ResourceName alias, URL endpoint) {
-        return HttpRemote.apply(om, system, materializer, versionFactory, alias, endpoint, repositoriesClientFactory);
+        return HttpRemote.apply(om, system, materializer, versionFactory, repositoriesClientFactory, alias, endpoint);
     }
 
     public Remote createRemote(InputStream is) throws IOException {
@@ -62,7 +62,7 @@ public final class RemotesFactory {
             FileSystemRemoteMemento m = (FileSystemRemoteMemento) memento;
             return createFileSystemRemote(m.getAlias(), m.getDir());
         } else if (memento instanceof HttpRemoteMemento) {
-            return HttpRemote.apply(om, system, materializer, versionFactory, (HttpRemoteMemento) memento);
+            return HttpRemote.apply(om, system, materializer, versionFactory, repositoriesClientFactory, (HttpRemoteMemento) memento);
         } else {
             String message = String.format("Unimplemented remote type `%s`.", memento.getClass());
             throw new RuntimeException(message);

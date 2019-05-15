@@ -12,9 +12,7 @@ import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.domain.dvc.protocol.events.RepositoryInitialized;
 import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
 import ada.vcs.domain.dvc.protocol.events.VersionUpsertedInRepository;
-import ada.vcs.domain.dvc.protocol.queries.Pull;
-import ada.vcs.domain.dvc.protocol.queries.RepositorySummaryRequest;
-import ada.vcs.domain.dvc.protocol.queries.RepositorySummaryResponse;
+import ada.vcs.domain.dvc.protocol.queries.*;
 import ada.vcs.domain.dvc.values.*;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.RepositorySinkMemento;
@@ -44,7 +42,6 @@ import java.util.stream.Collectors;
 
 /*
  * TODO mw:
- *  - Implement submit message in repository adapters
  *  - Implement request for repository details
  */
 public final class Repository extends EventSourcedBehavior<RepositoryMessage, RepositoryEvent, Repository.State> {
@@ -94,6 +91,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
             .onCommand(InitializeRepository.class, whenChecked(this::onInitialize))
             .onCommand(Pull.class, whenChecked(this::onPull))
             .onCommand(Push.class, whenChecked(this::onPush))
+            .onCommand(RepositoryDetailsRequest.class, whenChecked(this::onRepositoryDetailsRequest))
             .onCommand(RepositorySummaryRequest.class, whenResponsible(this::onSummaryRequest))
             .onCommand(RevokeAccessToRepository.class, whenChecked(this::onRevoke))
             .onCommand(SubmitPushInRepository.class, whenChecked(this::onSubmit))
@@ -186,6 +184,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
         if (!state.versions.containsKey(versionRef)) {
             VersionDetails details = context.factories().versionFactory().createDetails(push.getDetails());
             RepositorySinkMemento actualSinkMemento = repositoryStorageAdapter.push(namespace, name, details);
+
             WatcherSinkMemento watcherSinkMemento = WatcherSinkMemento.apply(actualSinkMemento, actor.getSelf());
 
             VersionStatus status = VersionStatus.apply(details, VersionState.INITIALIZED, new Date());
@@ -205,6 +204,26 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
 
             return Effect().none();
         }
+    }
+
+    private Effect<RepositoryEvent, State> onRepositoryDetailsRequest(State state, RepositoryDetailsRequest request) {
+        List<VersionStatus> versionStatuses = Ordering
+            .natural()
+            .reverse()
+            .onResultOf(VersionStatus::getUpdated)
+            .sortedCopy(state.versions.values());
+
+        RepositoryDetailsResponse response = RepositoryDetailsResponse.apply(
+            request.getId(),
+            request.getNamespace(),
+            request.getRepository(),
+            getSummary(state),
+            state.authorizations,
+            versionStatuses);
+
+        request.getReplyTo().tell(response);
+
+        return Effect().none();
     }
 
     private Effect<RepositoryEvent, State> onSubmit(State state, SubmitPushInRepository submit) {
@@ -229,41 +248,6 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
                 .persist(event)
                 .thenRun(() -> submit.getReplyTo().tell(newStatus));
         }
-    }
-
-    private Effect<RepositoryEvent, State> onSummaryRequest(State state, RepositorySummaryRequest request) {
-        RepositorySummary summary;
-
-        boolean isAuthorized = state.authorizations.isAuthorized(request).orElse(false);
-        if (isAuthorized) {
-            if (state.versions.isEmpty()) {
-                summary = RepositorySummary.apply(namespace, name, state.created);
-            } else {
-                List<VersionDetails> detailsList = state
-                    .versions
-                    .values()
-                    .stream()
-                    .map(status -> context.factories().versionFactory().createDetails(status.getDetails()))
-                    .collect(Collectors.toList());
-
-                VersionDetails details = Ordering
-                    .natural()
-                    .reverse()
-                    .onResultOf(VersionDetails::date)
-                    .sortedCopy(detailsList)
-                    .get(0);
-
-                summary = RepositorySummary.apply(namespace, name, details.date(), details.id());
-            }
-
-            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name, summary);
-            request.getReplyTo().tell(response);
-        } else {
-            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name);
-            request.getReplyTo().tell(response);
-        }
-
-        return Effect().none();
     }
 
     private Effect<RepositoryEvent, State> onRevoke(State state, RevokeAccessToRepository revoke) {
@@ -299,6 +283,21 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
         return state;
     }
 
+    private Effect<RepositoryEvent, State> onSummaryRequest(State state, RepositorySummaryRequest request) {
+        boolean isAuthorized = state.authorizations.isAuthorized(request).orElse(false);
+        if (isAuthorized) {
+            RepositorySummary summary = getSummary(state);
+
+            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name, summary);
+            request.getReplyTo().tell(response);
+        } else {
+            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name);
+            request.getReplyTo().tell(response);
+        }
+
+        return Effect().none();
+    }
+
     private State onUpsert(State state, VersionUpsertedInRepository upserted) {
         RefSpec.VersionRef versionRef = RefSpec.fromId(upserted.getStatus().getDetails().getId());
         state.versions.put(versionRef, upserted.getStatus());
@@ -308,6 +307,28 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
     /*
      * Helper functions
      */
+
+    private RepositorySummary getSummary(State state) {
+        if (state.versions.isEmpty()) {
+            return RepositorySummary.apply(namespace, name, state.created, null);
+        } else {
+            List<VersionDetails> detailsList = state
+                .versions
+                .values()
+                .stream()
+                .map(status -> context.factories().versionFactory().createDetails(status.getDetails()))
+                .collect(Collectors.toList());
+
+            VersionDetails details = Ordering
+                .natural()
+                .reverse()
+                .onResultOf(VersionDetails::date)
+                .sortedCopy(detailsList)
+                .get(0);
+
+            return RepositorySummary.apply(namespace, name, details.date(), details.id());
+        }
+    }
 
     private RefSpec.VersionRef refSpecToVersionRef(State state, RefSpec refSpec) {
         if (refSpec instanceof RefSpec.VersionRef && state.versions.containsKey(refSpec)) {

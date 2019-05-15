@@ -5,19 +5,15 @@ import ada.commons.util.ErrorMessage;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.domain.dvc.protocol.api.DataVersionControlMessage;
-import ada.vcs.domain.dvc.protocol.commands.CreateRepository;
-import ada.vcs.domain.dvc.protocol.commands.GrantAccessToRepository;
-import ada.vcs.domain.dvc.protocol.commands.Push;
-import ada.vcs.domain.dvc.protocol.commands.RevokeAccessToRepository;
+import ada.vcs.domain.dvc.protocol.commands.*;
 import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.domain.dvc.protocol.events.RepositoryCreated;
 import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
-import ada.vcs.domain.dvc.protocol.queries.Pull;
-import ada.vcs.domain.dvc.protocol.queries.RepositoriesRequest;
-import ada.vcs.domain.dvc.protocol.queries.RepositoriesResponse;
+import ada.vcs.domain.dvc.protocol.queries.*;
 import ada.vcs.domain.dvc.values.Authorization;
 import ada.vcs.domain.dvc.values.GrantedAuthorization;
 import ada.vcs.domain.dvc.values.User;
+import ada.vcs.domain.dvc.values.VersionStatus;
 import ada.vcs.domain.legacy.repository.api.*;
 import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
 import akka.Done;
@@ -55,6 +51,18 @@ public final class RepositoriesResource {
                 (ActorRef<RepositoryCreated> actor, ActorRef<ErrorMessage> error) ->
                     CreateRepository.apply(correlationId, user, namespace, repository, actor, error))
             .thenApply(created -> Done.getInstance());
+    }
+
+    public CompletionStage<RepositoryDetailsResponse> details(
+        User user, ResourceName namespace, ResourceName repository) {
+
+        final String correlationId = Operators.hash();
+
+        return patterns
+            .ask(
+                repositories,
+                (ActorRef<RepositoryDetailsResponse> replyTo, ActorRef<ErrorMessage> errorTo) ->
+                    RepositoryDetailsRequest.apply(correlationId, user, namespace, repository, replyTo, errorTo));
     }
 
     public CompletionStage<GrantedAuthorization> grant(
@@ -116,7 +124,16 @@ public final class RepositoriesResource {
                         mat.shutdown();
                         return versionDetails;
                     });
-            });
+            })
+            .thenCompose(versionDetails -> patterns.ask(
+                repositories,
+                (ActorRef<VersionStatus> actor, ActorRef<ErrorMessage> error) -> {
+                    RefSpec.VersionRef versionRef = RefSpec.fromId(versionDetails.id());
+                    return SubmitPushInRepository.apply(
+                        correlationId, user, namespace, repository, versionRef,
+                        actor, error);
+                })
+                .thenApply(ignore -> versionDetails));
     }
 
     public Source<ByteString, CompletionStage<VersionDetails>> pull(

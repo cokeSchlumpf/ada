@@ -3,6 +3,7 @@ package ada.vcs.adapters.client.repositories;
 import ada.commons.util.Either;
 import ada.commons.util.Operators;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
+import ada.vcs.domain.dvc.protocol.queries.RepositoryDetailsResponse;
 import ada.vcs.domain.dvc.values.Authorization;
 import ada.vcs.domain.dvc.values.GrantedAuthorization;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
@@ -54,6 +55,15 @@ public final class RepositoryClient {
     private final VersionFactory versionFactory;
 
     private final RequestModifier modifier;
+
+    public CompletionStage<RepositoryDetailsResponse> details() {
+        return modifier
+            .modifyClient(Http.get(system))
+            .singleRequest(modifier.modifyRequest(HttpRequest.GET(endpoint.toString())))
+            .thenCompose(response -> Jackson
+                .unmarshaller(om, RepositoryDetailsResponse.class)
+                .unmarshal(response.entity().withoutSizeLimit(), materializer));
+    }
 
     public CompletionStage<GrantedAuthorization> grant(Authorization authorization) {
         URL repoUrl = Operators

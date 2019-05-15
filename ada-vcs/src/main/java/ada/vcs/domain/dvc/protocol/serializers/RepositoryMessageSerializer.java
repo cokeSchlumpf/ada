@@ -4,6 +4,7 @@ import ada.commons.databind.MessageSerializer;
 import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.domain.dvc.protocol.events.RepositoryInitialized;
 import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
+import ada.vcs.domain.dvc.protocol.events.VersionUpsertedInRepository;
 import akka.actor.ExtendedActorSystem;
 import com.google.common.collect.Maps;
 
@@ -22,6 +23,7 @@ public final class RepositoryMessageSerializer extends MessageSerializer {
         m.put("granted/v1", GrantedAccessToRepository.class);
         m.put("initialized/v1", RepositoryInitialized.class);
         m.put("revoked/v1", RevokedAccessToRepository.class);
+        m.put("upserted/v1", VersionUpsertedInRepository.class);
 
         return m;
     }

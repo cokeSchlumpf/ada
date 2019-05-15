@@ -41,6 +41,13 @@ public final class RepositoriesClient {
             .thenApply(httpResponse -> RepositoryClient.apply(repoUrl, system, materializer, om, versionFactory, modifier));
     }
 
+    public RepositoryClient getRepository(ResourceName namespace, ResourceName repository) {
+        URL repoUrl = Operators
+            .suppressExceptions(() -> new URL(endpoint, namespace.getValue() + "/" + repository.getValue()));
+
+        return RepositoryClient.apply(repoUrl, system, materializer, om, versionFactory, modifier);
+    }
+
     public CompletionStage<RepositoriesResponse> listRepositories() {
         return modifier
             .modifyClient(Http.get(system))

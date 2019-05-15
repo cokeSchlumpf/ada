@@ -33,15 +33,18 @@ final class HttpRemote implements Remote {
 
     private final VersionFactory versionFactory;
 
+    private final RepositoriesClientFactory clientFactory;
+
     private final ResourceName alias;
 
     private final URL endpoint;
 
-    private final RepositoriesClientFactory clientFactory;
 
-    public static HttpRemote apply(ObjectMapper om, ActorSystem system, Materializer materializer, VersionFactory versionFactory, HttpRemoteMemento memento) {
-        // TODO mw:
-        return HttpRemote.apply(om, system, materializer, versionFactory, memento.getAlias(), memento.getEndpoint(), null);
+    public static HttpRemote apply(
+        ObjectMapper om, ActorSystem system, Materializer materializer,
+        VersionFactory versionFactory, RepositoriesClientFactory clientFactory, HttpRemoteMemento memento) {
+
+        return HttpRemote.apply(om, system, materializer, versionFactory, clientFactory, memento.getAlias(), memento.getEndpoint());
     }
 
     @Override
@@ -75,7 +78,7 @@ final class HttpRemote implements Remote {
 
     @Override
     public Remote withAlias(ResourceName alias) {
-        return apply(om, system, materializer, versionFactory, alias, endpoint, clientFactory);
+        return apply(om, system, materializer, versionFactory, clientFactory, alias, endpoint);
     }
 
     @Override

@@ -43,6 +43,11 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
     }
 
     @Override
+    public <T> Route complete(CompletionStage<T> result) {
+        return onSuccess(result, this::complete);
+    }
+
+    @Override
     public <T extends Writable> Route complete(T result) {
         return complete(
             StatusCodes.OK,

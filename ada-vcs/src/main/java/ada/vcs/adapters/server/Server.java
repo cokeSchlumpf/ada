@@ -52,6 +52,8 @@ public final class Server extends HttpApp {
                                             repositories
                                                 .push(user, namespace, repository, details, records)
                                                 .thenApply(directives::complete)))),
+                                get(() ->
+                                    directives.complete(repositories.details(user, namespace, repository))),
                                 directives.refSpec(refSpec ->
                                     get(() ->
                                         directives.complete(

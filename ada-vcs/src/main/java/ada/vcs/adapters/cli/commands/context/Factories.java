@@ -48,6 +48,10 @@ public final class Factories {
         return EndpointFactory.apply(authenticationMethodFactory(), repositoriesClientFactory());
     }
 
+    public ObjectMapper objectMapper() {
+        return om;
+    }
+
     public AdaProjectFactory projectFactory() {
         return AdaProjectFactory.apply(
             configurationFactory(), remotesFactory(), datasetFactory(),
