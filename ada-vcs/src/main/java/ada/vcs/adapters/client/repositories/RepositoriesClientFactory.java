@@ -1,6 +1,7 @@
 package ada.vcs.adapters.client.repositories;
 
 import ada.commons.util.Operators;
+import ada.vcs.adapters.client.ExceptionHandler;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
 import ada.vcs.adapters.client.modifiers.RequestModifiers;
 import ada.vcs.domain.legacy.repository.api.version.VersionFactory;
@@ -23,7 +24,9 @@ public final class RepositoriesClientFactory {
     private final VersionFactory versionFactory;
 
     public RepositoriesClient createRepositories(URL endpoint, RequestModifier ...modifiers) {
-        return RepositoriesClient.apply(endpoint, system, materializer, om, versionFactory, RequestModifiers.apply(modifiers));
+        return RepositoriesClient.apply(
+            endpoint, system, materializer, om, versionFactory,
+            RequestModifiers.apply(modifiers), ExceptionHandler.apply(om, materializer));
     }
 
     public RepositoriesClient createRepositories(String endpoint, RequestModifier ...modifiers) {
@@ -31,7 +34,9 @@ public final class RepositoriesClientFactory {
     }
 
     public RepositoryClient createRepository(URL endpoint, RequestModifier ...modifiers) {
-        return RepositoryClient.apply(endpoint, system, materializer, om, versionFactory, RequestModifiers.apply(modifiers));
+        return RepositoryClient.apply(
+            endpoint, system, materializer, om, versionFactory,
+            RequestModifiers.apply(modifiers), ExceptionHandler.apply(om, materializer));
     }
 
     public RepositoryClient createRepository(String endpoint, RequestModifier ...modifiers) {

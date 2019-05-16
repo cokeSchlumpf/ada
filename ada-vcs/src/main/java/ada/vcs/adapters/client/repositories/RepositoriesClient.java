@@ -2,6 +2,7 @@ package ada.vcs.adapters.client.repositories;
 
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
+import ada.vcs.adapters.client.ExceptionHandler;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesResponse;
 import ada.vcs.domain.legacy.repository.api.version.VersionFactory;
@@ -31,6 +32,8 @@ public final class RepositoriesClient {
 
     private final RequestModifier modifier;
 
+    private final ExceptionHandler exceptionHandler;
+
     public CompletionStage<RepositoryClient> createRepository(ResourceName namespace, ResourceName repository) {
         URL repoUrl = Operators
             .suppressExceptions(() -> new URL(endpoint, namespace.getValue() + "/" + repository.getValue()));
@@ -38,20 +41,23 @@ public final class RepositoriesClient {
         return modifier
             .modifyClient(Http.get(system))
             .singleRequest(modifier.modifyRequest(HttpRequest.PUT(repoUrl.toString())))
-            .thenApply(httpResponse -> RepositoryClient.apply(repoUrl, system, materializer, om, versionFactory, modifier));
+            .thenCompose(exceptionHandler::handle)
+            .thenApply(httpResponse -> RepositoryClient.apply(
+                repoUrl, system, materializer, om, versionFactory, modifier, exceptionHandler));
     }
 
     public RepositoryClient getRepository(ResourceName namespace, ResourceName repository) {
         URL repoUrl = Operators
             .suppressExceptions(() -> new URL(endpoint, namespace.getValue() + "/" + repository.getValue()));
 
-        return RepositoryClient.apply(repoUrl, system, materializer, om, versionFactory, modifier);
+        return RepositoryClient.apply(repoUrl, system, materializer, om, versionFactory, modifier, exceptionHandler);
     }
 
     public CompletionStage<RepositoriesResponse> listRepositories() {
         return modifier
             .modifyClient(Http.get(system))
             .singleRequest(modifier.modifyRequest(HttpRequest.GET(endpoint.toString())))
+            .thenCompose(exceptionHandler::handle)
             .thenCompose(response -> Jackson
                 .unmarshaller(om, RepositoriesResponse.class)
                 .unmarshal(response.entity().withoutSizeLimit(), materializer));

@@ -20,7 +20,7 @@ public final class RepositoryNotFoundError implements ErrorMessage {
     @JsonIgnore
     public String getMessage() {
         return String.format(
-            "The repository was not found %s/%s",
+            "The repository '%s/%s' was not found",
             namespace.getValue(), repository.getValue());
     }
 

@@ -1,6 +1,8 @@
 package ada.vcs.adapters.server.directives;
 
+import ada.commons.exceptions.AskCompletionException;
 import ada.commons.io.Writable;
+import ada.commons.util.ErrorMessage;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
 import ada.vcs.domain.dvc.values.AnonymousUser;
@@ -12,9 +14,7 @@ import ada.vcs.domain.legacy.repository.api.version.VersionFactory;
 import akka.NotUsed;
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.*;
-import akka.http.javadsl.server.AllDirectives;
-import akka.http.javadsl.server.PathMatchers;
-import akka.http.javadsl.server.Route;
+import akka.http.javadsl.server.*;
 import akka.http.javadsl.unmarshalling.Unmarshaller;
 import akka.japi.Pair;
 import akka.japi.function.Function;
@@ -54,6 +54,20 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
             HttpEntities.create(
                 ContentTypes.APPLICATION_JSON,
                 Operators.suppressExceptions(result::writeToString)));
+    }
+
+    @Override
+    public ExceptionHandler exceptionHandler() {
+        return new ExceptionHandlerBuilder()
+            .match(Exception.class, e -> e instanceof ErrorMessage || e instanceof AskCompletionException, e -> {
+                ErrorMessageServerError error = ErrorMessageServerError.apply(e.getMessage());
+                return complete(StatusCodes.BAD_REQUEST, error, Jackson.marshaller(om));
+            })
+            .matchAny(e -> {
+                e.printStackTrace();
+                return complete(StatusCodes.INTERNAL_SERVER_ERROR, InternalServerError.apply(), Jackson.marshaller(om));
+            })
+            .build();
     }
 
     @Override

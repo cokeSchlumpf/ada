@@ -15,7 +15,7 @@ public final class UserNotAuthorizedError implements ErrorMessage {
 
     @Override
     public String getMessage() {
-        return "The user is not authorized to execute the operation.";
+        return "You are not authorized to execute the operation.";
     }
 
 }

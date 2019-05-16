@@ -2,7 +2,10 @@ package ada.vcs.adapters.client.repositories;
 
 import ada.commons.util.Either;
 import ada.commons.util.Operators;
+import ada.vcs.adapters.cli.exceptions.ExitWithErrorException;
+import ada.vcs.adapters.client.ExceptionHandler;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
+import ada.vcs.adapters.server.directives.ServerError;
 import ada.vcs.domain.dvc.protocol.queries.RepositoryDetailsResponse;
 import ada.vcs.domain.dvc.values.Authorization;
 import ada.vcs.domain.dvc.values.GrantedAuthorization;
@@ -56,10 +59,13 @@ public final class RepositoryClient {
 
     private final RequestModifier modifier;
 
+    private final ExceptionHandler exceptionHandler;
+
     public CompletionStage<RepositoryDetailsResponse> details() {
         return modifier
             .modifyClient(Http.get(system))
             .singleRequest(modifier.modifyRequest(HttpRequest.GET(endpoint.toString())))
+            .thenCompose(exceptionHandler::handle)
             .thenCompose(response -> Jackson
                 .unmarshaller(om, RepositoryDetailsResponse.class)
                 .unmarshal(response.entity().withoutSizeLimit(), materializer));
@@ -75,6 +81,7 @@ public final class RepositoryClient {
         return modifier
             .modifyClient(Http.get(system))
             .singleRequest(modifier.modifyRequest(HttpRequest.PUT(repoUrl.toString()).withEntity(entity)))
+            .thenCompose(exceptionHandler::handle)
             .thenCompose(response -> Jackson
                 .unmarshaller(om, GrantedAuthorization.class)
                 .unmarshal(response.entity().withoutSizeLimit(), materializer));
@@ -87,7 +94,8 @@ public final class RepositoryClient {
             .fromCompletionStage(
                 modifier
                     .modifyClient(Http.get(system))
-                    .singleRequest(modifier.modifyRequest(HttpRequest.GET(endpoint + "/" + refSpec.toString()))))
+                    .singleRequest(modifier.modifyRequest(HttpRequest.GET(endpoint + "/" + refSpec.toString())))
+                    .thenCompose(exceptionHandler::handle))
             .mapAsync(1, response -> Unmarshaller
                 .entityToMultipartFormData()
                 .unmarshal(response.entity().withoutSizeLimit(), materializer))
@@ -179,7 +187,8 @@ public final class RepositoryClient {
 
             return modifier
                 .modifyClient(Http.get(system))
-                .singleRequest(modifier.modifyRequest(HttpRequest.POST(endpoint.toString()).withEntity(formData.toEntity())));
+                .singleRequest(modifier.modifyRequest(HttpRequest.POST(endpoint.toString()).withEntity(formData.toEntity())))
+                .thenCompose(exceptionHandler::handle);
         };
 
         return Flow
@@ -210,6 +219,7 @@ public final class RepositoryClient {
         return modifier
             .modifyClient(Http.get(system))
             .singleRequest(modifier.modifyRequest(HttpRequest.DELETE(repoUrl.toString()).withEntity(entity)))
+            .thenCompose(exceptionHandler::handle)
             .thenCompose(response -> Jackson
                 .unmarshaller(om, GrantedAuthorization.class)
                 .unmarshal(response.entity().withoutSizeLimit(), materializer));

@@ -6,7 +6,9 @@ import ada.vcs.domain.dvc.values.Authorization;
 import akka.http.javadsl.model.ContentTypes;
 import akka.http.javadsl.model.HttpEntities;
 import akka.http.javadsl.model.StatusCodes;
+import akka.http.javadsl.server.ExceptionHandler;
 import akka.http.javadsl.server.HttpApp;
+import akka.http.javadsl.server.RejectionHandler;
 import akka.http.javadsl.server.Route;
 import lombok.AllArgsConstructor;
 
@@ -61,7 +63,8 @@ public final class Server extends HttpApp {
                                                 .pull(user, namespace, repository, refSpec))))
                             ))),
                     get(() ->
-                        complete(HttpEntities.create(ContentTypes.TEXT_HTML_UTF8, "<h1>Say hello to akka-http</h1>"))))));
+                        complete(HttpEntities.create(ContentTypes.TEXT_HTML_UTF8, "<h1>Say hello to akka-http</h1>"))))))
+            .seal(RejectionHandler.defaultHandler(), directives.exceptionHandler());
     }
 
 }

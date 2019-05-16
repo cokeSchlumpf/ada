@@ -5,6 +5,7 @@ import ada.commons.io.Writable;
 import ada.vcs.domain.dvc.values.User;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
+import akka.http.javadsl.server.ExceptionHandler;
 import akka.http.javadsl.server.Route;
 import akka.japi.function.Function;
 import akka.japi.function.Function2;
@@ -24,6 +25,8 @@ public interface ServerDirectives {
     <T> Route complete(CompletionStage<T> result);
 
     <T extends Writable> Route complete(T result);
+
+    ExceptionHandler exceptionHandler();
 
     <T extends Writable> Route onSuccess(CompletionStage<T> result);
 
