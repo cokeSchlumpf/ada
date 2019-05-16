@@ -59,6 +59,7 @@ public final class CommandFactory implements CommandLine.IFactory {
             Repositories.apply(console, context),
             Repositories$Create.apply(console, context),
             Repository.apply(console, context),
+            Repository$Schema.apply(console, context),
             Server.apply(context));
 
         return (K) commands

@@ -6,6 +6,7 @@ import ada.vcs.adapters.cli.core.endpoints.Endpoint;
 import ada.vcs.adapters.cli.core.project.AdaProject;
 import ada.vcs.adapters.cli.exceptions.NoEndpointException;
 import ada.vcs.adapters.cli.exceptions.NoProjectException;
+import akka.Done;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.Materializer;
@@ -77,14 +78,21 @@ public final class CommandContext {
     }
 
     public void withEndpoint(Consumer<Endpoint> block) {
-        withAdaHome(home -> {
-            Endpoint endpoint = home.getConfiguration().getEndpoint().orElseThrow(NoEndpointException::apply);
+        fromEndpoint(endpoint -> {
             block.accept(endpoint);
+            return Done.getInstance();
         });
     }
 
     public <T> T fromAdaHome(Function<AdaHome, T> block) {
         return block.apply(home.get());
+    }
+
+    public <T> T fromEndpoint(Function<Endpoint, T> block) {
+        return fromAdaHome(home -> {
+            Endpoint endpoint = home.getConfiguration().getEndpoint().orElseThrow(NoEndpointException::apply);
+            return block.apply(endpoint);
+        });
     }
 
     public void withProject(Consumer<AdaProject> block) {
