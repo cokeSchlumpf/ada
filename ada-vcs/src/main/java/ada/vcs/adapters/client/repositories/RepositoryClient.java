@@ -66,8 +66,7 @@ public final class RepositoryClient {
     }
 
     public CompletionStage<GrantedAuthorization> grant(Authorization authorization) {
-        URL repoUrl = Operators
-            .suppressExceptions(() -> new URL(endpoint, "access"));
+        URL repoUrl = Operators.suppressExceptions(() -> new URL(endpoint + "/access"));
 
         HttpEntity.Strict entity = HttpEntities.create(
             ContentTypes.APPLICATION_JSON,
@@ -202,8 +201,7 @@ public final class RepositoryClient {
     }
 
     public CompletionStage<GrantedAuthorization> revoke(Authorization authorization) {
-        URL repoUrl = Operators
-            .suppressExceptions(() -> new URL(endpoint, "access"));
+        URL repoUrl = Operators.suppressExceptions(() -> new URL(endpoint + "/access"));
 
         HttpEntity.Strict entity = HttpEntities.create(
             ContentTypes.APPLICATION_JSON,

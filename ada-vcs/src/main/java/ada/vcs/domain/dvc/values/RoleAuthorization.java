@@ -22,4 +22,8 @@ public final class RoleAuthorization implements Authorization {
         return user.getRoles().contains(name);
     }
 
+    public String toString() {
+        return "role/" + name;
+    }
+
 }

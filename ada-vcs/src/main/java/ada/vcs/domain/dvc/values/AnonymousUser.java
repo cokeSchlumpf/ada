@@ -18,13 +18,13 @@ public final class AnonymousUser implements User {
     private final ImmutableSet<String> roles;
 
     @JsonCreator
-    public static User apply(
+    public static AnonymousUser apply(
         @JsonProperty("roles") Set<String> roles) {
 
         return new AnonymousUser(ImmutableSet.copyOf(roles));
     }
 
-    public static User apply(String... roles) {
+    public static AnonymousUser apply(String... roles) {
         return apply(Sets.newHashSet(roles));
     }
 

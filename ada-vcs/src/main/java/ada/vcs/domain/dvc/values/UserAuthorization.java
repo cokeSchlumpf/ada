@@ -25,5 +25,9 @@ public final class UserAuthorization implements Authorization {
             return false;
         }
     }
+
+    public String toString() {
+        return "user/" + name;
+    }
     
 }

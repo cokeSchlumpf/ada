@@ -157,8 +157,8 @@ final class ServerDirectivesImpl extends AllDirectives implements ServerDirectiv
                 optionalHeaderValueByName("x-user-roles", roles -> {
                     Set<String> rolesS = roles.map(s -> Sets.newHashSet(s.split(","))).orElse(Sets.newHashSet());
                     User user = userId
-                        .map(id -> AuthenticatedUser.apply(id, userName.orElse(id), rolesS))
-                        .orElse(AnonymousUser.apply(rolesS));
+                        .map(id -> (User) AuthenticatedUser.apply(id, userName.orElse(id), rolesS))
+                        .orElseGet(() -> AnonymousUser.apply(rolesS));
 
                     return Operators.suppressExceptions(() -> next.apply(user));
                 })));

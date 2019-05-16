@@ -19,4 +19,9 @@ public final class WildcardAuthorization implements Authorization {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "*";
+    }
+
 }

@@ -44,7 +44,7 @@ public final class RepositoryAuthorizations {
 
     @JsonIgnore
     public RepositoryAuthorizations add(GrantedAuthorization authorization) {
-        Set<GrantedAuthorization> authorizations$new = Sets.newHashSet(authorization);
+        Set<GrantedAuthorization> authorizations$new = Sets.newHashSet(authorizations);
         authorizations$new.add(authorization);
         return apply(namespace, repository, authorizations$new);
     }

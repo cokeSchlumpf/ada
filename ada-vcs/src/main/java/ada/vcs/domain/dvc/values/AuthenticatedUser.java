@@ -22,7 +22,7 @@ public final class AuthenticatedUser implements User {
     private final ImmutableSet<String> roles;
 
     @JsonCreator
-    public static User apply(
+    public static AuthenticatedUser apply(
         @JsonProperty("id") String id,
         @JsonProperty("name") String name,
         @JsonProperty("roles") Set<String> roles) {
@@ -30,7 +30,7 @@ public final class AuthenticatedUser implements User {
         return new AuthenticatedUser(id, name, ImmutableSet.copyOf(roles));
     }
 
-    public static User apply(String id, String name, String... roles) {
+    public static AuthenticatedUser apply(String id, String name, String... roles) {
         return apply(id, name, Sets.newHashSet(roles));
     }
 

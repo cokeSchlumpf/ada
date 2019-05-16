@@ -69,6 +69,7 @@ public class Application {
 
         final PrintStream ps = commandFactory.getConsole().printStream();
         final CommandLine cli = new CommandLine(new Root(), commandFactory);
+        cli.setCaseInsensitiveEnumValuesAllowed(true);
 
         try {
             cli.parseWithHandlers(
