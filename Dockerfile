@@ -3,6 +3,7 @@ FROM gradle:4.6-jdk8 as builder
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 
+USER root
 RUN chown -R gradle:gradle .
 RUN whoami
 RUN ls -al
