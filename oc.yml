@@ -15,3 +15,46 @@ items:
         uri: "https://github.com/cokeSchlumpf/ada"
     strategy:
       type: "Docker"
+- kind: "DeploymentConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "ada-vcs"
+  spec:
+    template:
+      metadata:
+        labels:
+          name: "ada-vcs"
+      spec:
+        containers:
+          - name: "ada-vcs"
+            image: "172.30.1.1:5000/ada/ada-vcs"
+            ports:
+              - containerPort: 8080
+                protocol: "TCP"
+    replicas: 1
+    triggers:
+      - type: "ConfigChange"
+      - type: "ImageChange"
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - "ada-vcs"
+          from:
+            kind: "ImageStreamTag"
+            name: "ada-vcs:latest"
+    strategy:
+      type: "Rolling"
+    paused: false
+    revisionHistoryLimit: 2
+    minReadySeconds: 0
+- kind: "Service"
+  apiVersion: "v1"
+  metadata:
+    name: "ada-vcs"
+  spec:
+    selector:
+      name: "ada-vcs"
+    ports:
+      - nodePort: 0
+        port: 8080
+        targetPort: 8080
