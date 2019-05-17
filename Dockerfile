@@ -3,6 +3,8 @@ FROM gradle:4.6-jdk8 as builder
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 
+RUN echo "HELLO" > test.txt
+RUN cat test.txt
 RUN gradle build --stacktrace
 
 FROM openjdk:8-jre-slim
