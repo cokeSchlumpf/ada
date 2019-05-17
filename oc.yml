@@ -1,0 +1,17 @@
+kind: "List"
+apiVersion: "v1"
+items:
+- kind: "ImageStream"
+  apiVersion: "v1"
+  metadata:
+    name: "ada-vcs"
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    name: "ada-vcs"
+  spec:
+    source:
+      git:
+        uri: "https://github.com/cokeSchlumpf/ada"
+    strategy:
+      type: "Docker"

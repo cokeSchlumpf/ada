@@ -3,7 +3,7 @@ FROM gradle:4.6-jdk8 as builder
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 
-RUN gradle build
+RUN gradle build --debug
 
 FROM openjdk:8-jre-slim
 EXPOSE 8080
