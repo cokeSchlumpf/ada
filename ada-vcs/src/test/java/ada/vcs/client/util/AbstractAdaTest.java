@@ -74,7 +74,7 @@ public class AbstractAdaTest {
 
         Operators.suppressExceptions(() -> Thread.sleep(3000));
 
-        return "localhost:8080";
+        return "0.0.0.0:8080";
     }
 
 }

@@ -3,17 +3,18 @@ package ada.vcs.adapters.client;
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.vcs.client.util.AbstractAdaTest;
 import ada.vcs.adapters.client.modifiers.RequestModifiers;
 import ada.vcs.adapters.client.repositories.RepositoriesClient;
+import ada.vcs.client.util.AbstractAdaTest;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesResponse;
 import ada.vcs.domain.dvc.values.GrantedAuthorization;
 import ada.vcs.domain.dvc.values.UserAuthorization;
+import akka.stream.Materializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,8 +41,14 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
     public void listRepositories() throws MalformedURLException, ExecutionException, InterruptedException {
         RepositoriesClient client = getClient();
 
+        System.out.println("Client ...");
+
         RepositoriesResponse repositoriesResponse = client
             .listRepositories()
+            .thenApply(repos -> {
+                System.out.println(repos);
+                return repos;
+            })
             .toCompletableFuture()
             .get();
 
@@ -67,12 +74,16 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
     }
 
     private RepositoriesClient getClient() throws MalformedURLException {
+        ObjectMapper om = ObjectMapperFactory.apply().create(true);
+        Materializer materializer = getContext().materializer();
+
         return RepositoriesClient.apply(
             new URL("http://" + getServer()), getContext().system(),
-            getContext().materializer(),
-            ObjectMapperFactory.apply().create(true),
+            materializer,
+            om,
             getContext().factories().versionFactory(),
-            RequestModifiers.apply());
+            RequestModifiers.apply(),
+            ExceptionHandler.apply(om, materializer));
     }
 
 }

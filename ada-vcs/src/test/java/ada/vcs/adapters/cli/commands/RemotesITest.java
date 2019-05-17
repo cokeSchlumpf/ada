@@ -7,6 +7,7 @@ import ada.vcs.client.util.TestDataFactory;
 import org.assertj.core.util.Files;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Path;
@@ -44,6 +45,7 @@ public class RemotesITest extends AbstractAdaTest {
     }
 
     @Test
+    @Ignore
     public void test() {
         final ApplicationContext context = getApplication();
         final Path dir = getDirectory();
@@ -87,6 +89,7 @@ public class RemotesITest extends AbstractAdaTest {
         context.run("datasets", "push", "hippo-remote", "--time", "--verbose");
 
         context.run("dataset", "foo", "targets", "add", "csv", outputCSV.toString(), "--verbose");
+
         assertThat(context.getOutput())
             .contains("Uploading data to from dataset 'foo' (1 of 1)")
             .contains("Pushed ref");

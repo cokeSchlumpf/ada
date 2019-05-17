@@ -36,6 +36,7 @@ dependencies {
     testCompile 'io.cucumber:cucumber-java:4.2.5'
     testCompile 'io.cucumber:cucumber-picocontainer:4.2.6'
     testCompile 'org.jtwig:jtwig-core:5.87.0.RELEASE'
+    testCompile 'com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1'
 }
 
 configurations {

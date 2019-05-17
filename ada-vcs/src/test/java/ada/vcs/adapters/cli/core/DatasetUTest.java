@@ -7,6 +7,7 @@ import ada.vcs.adapters.cli.core.dataset.Dataset;
 import ada.vcs.adapters.cli.core.dataset.DatasetFactory;
 import ada.vcs.client.util.AbstractAdaTest;
 import org.apache.avro.Schema;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -20,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 public class DatasetUTest extends AbstractAdaTest {
 
     @Test
+    @Ignore
     public void test() throws ExecutionException, InterruptedException, IOException {
         Path p = Paths.get("/Users/michael/Workspaces/notebook/Beispieldaten/sample-10000000.csv");
 
