@@ -1,4 +1,4 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,41 +13,31 @@ import java.util.Set;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class AuthenticatedUser implements User {
-
-    private final String id;
-
-    private final String name;
+public final class AnonymousUser implements User {
 
     private final ImmutableSet<String> roles;
 
     @JsonCreator
-    public static AuthenticatedUser apply(
-        @JsonProperty("id") String id,
-        @JsonProperty("name") String name,
+    public static AnonymousUser apply(
         @JsonProperty("roles") Set<String> roles) {
 
-        return new AuthenticatedUser(id, name, ImmutableSet.copyOf(roles));
+        return new AnonymousUser(ImmutableSet.copyOf(roles));
     }
 
-    public static AuthenticatedUser apply(String id, String name, String... roles) {
-        return apply(id, name, Sets.newHashSet(roles));
+    public static AnonymousUser apply(String... roles) {
+        return apply(Sets.newHashSet(roles));
     }
 
     @Override
     @JsonIgnore
     public UserId getUserId() {
-        return UserId.apply(getId(), getDisplayName());
+        return UserId.apply(getDisplayName(), getDisplayName());
     }
 
     @Override
     @JsonIgnore
     public String getDisplayName() {
-        return getName();
-    }
-
-    public Set<String> getRoles() {
-        return roles;
+        return "anonymous";
     }
 
 }

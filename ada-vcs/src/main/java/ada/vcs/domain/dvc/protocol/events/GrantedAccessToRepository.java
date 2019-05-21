@@ -2,7 +2,7 @@ package ada.vcs.domain.dvc.protocol.events;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
-import ada.vcs.domain.dvc.values.GrantedAuthorization;
+import ada.vcs.domain.dvc.protocol.values.GrantedAuthorization;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

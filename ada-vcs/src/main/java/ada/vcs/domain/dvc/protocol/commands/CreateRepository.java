@@ -2,16 +2,18 @@ package ada.vcs.domain.dvc.protocol.commands;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.protocol.api.NamespaceMessage;
+import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.domain.dvc.protocol.events.RepositoryCreated;
-import ada.vcs.domain.dvc.values.User;
+import ada.vcs.domain.dvc.protocol.values.User;
 import akka.actor.typed.ActorRef;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.experimental.Wither;
 
 @Value
+@Wither
 @AllArgsConstructor(staticName = "apply")
-public final class CreateRepository implements NamespaceMessage {
+public final class CreateRepository implements RepositoryMessage {
 
     private final String id;
 

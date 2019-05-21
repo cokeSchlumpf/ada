@@ -3,7 +3,7 @@ package ada.vcs.adapters.cli.commands;
 import ada.commons.util.Operators;
 import ada.vcs.adapters.cli.consoles.CommandLineConsole;
 import ada.vcs.adapters.cli.exceptions.CommandNotInitializedException;
-import ada.vcs.domain.dvc.values.GrantedAuthorization;
+import ada.vcs.domain.dvc.protocol.values.GrantedAuthorization;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import lombok.AllArgsConstructor;

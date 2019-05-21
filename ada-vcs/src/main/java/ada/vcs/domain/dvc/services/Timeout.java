@@ -5,5 +5,5 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class QueryTimeout {
+public class Timeout {
 }

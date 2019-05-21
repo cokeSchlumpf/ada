@@ -1,8 +1,8 @@
 package ada.vcs.domain.dvc.protocol.events;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.protocol.api.NamespaceEvent;
-import ada.vcs.domain.dvc.values.UserId;
+import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
+import ada.vcs.domain.dvc.protocol.values.UserId;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class RepositoryCreated implements NamespaceEvent {
+public final class RepositoryCreated implements RepositoryEvent {
 
     private static final String CREATED = "created";
     private static final String ID = "id";

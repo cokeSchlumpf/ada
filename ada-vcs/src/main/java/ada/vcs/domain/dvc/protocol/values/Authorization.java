@@ -1,5 +1,6 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
+import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = UserAuthorization.class, name = "user"),
     @JsonSubTypes.Type(value = WildcardAuthorization.class, name = "wildcard")
 })
-public interface Authorization {
+public interface Authorization extends ValueObject {
 
     @JsonIgnore
     boolean hasAuthorization(User user);

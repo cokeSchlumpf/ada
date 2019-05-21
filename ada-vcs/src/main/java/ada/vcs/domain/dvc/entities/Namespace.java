@@ -7,60 +7,71 @@ import ada.vcs.domain.dvc.protocol.api.NamespaceEvent;
 import ada.vcs.domain.dvc.protocol.api.NamespaceMessage;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.domain.dvc.protocol.commands.CreateRepository;
-import ada.vcs.domain.dvc.protocol.commands.InitializeRepository;
 import ada.vcs.domain.dvc.protocol.errors.RepositoryNotFoundError;
 import ada.vcs.domain.dvc.protocol.events.RepositoryCreated;
 import ada.vcs.domain.dvc.protocol.events.RepositoryRemoved;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesInNamespaceRequest;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesInNamespaceResponse;
-import ada.vcs.domain.legacy.repository.api.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
-import akka.persistence.typed.PersistenceId;
+import akka.cluster.sharding.typed.ShardingEnvelope;
+import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
+import akka.cluster.sharding.typed.javadsl.EventSourcedEntity;
 import akka.persistence.typed.javadsl.CommandHandler;
 import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EventHandler;
-import akka.persistence.typed.javadsl.EventSourcedBehavior;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.BiFunction;
 
-public final class Namespace extends EventSourcedBehavior<NamespaceMessage, NamespaceEvent, Namespace.State> {
+public final class Namespace extends EventSourcedEntity<NamespaceMessage, NamespaceEvent, Namespace.State> {
+
+    public static EntityTypeKey<NamespaceMessage> ENTITY_KEY = EntityTypeKey.create(NamespaceMessage.class, "namespaces");
 
     private final ActorContext<NamespaceMessage> actor;
 
-    private final CommandContext context;
-
-    private final RepositoryStorageAdapter repositoryStorageAdapter;
+    private final ActorRef<ShardingEnvelope<RepositoryMessage>> repositoryShards;
 
     private final ResourceName name;
 
     public Namespace(
-        PersistenceId persistenceId, ActorContext<NamespaceMessage> actor, CommandContext context,
-        RepositoryStorageAdapter repositoryStorageAdapter, ResourceName name) {
+        String entityId, ActorContext<NamespaceMessage> actor, ResourceName name,
+        ActorRef<ShardingEnvelope<RepositoryMessage>> repositoryShards) {
 
-        super(persistenceId);
+        super(ENTITY_KEY, entityId);
         this.actor = actor;
-        this.context = context;
-        this.repositoryStorageAdapter = repositoryStorageAdapter;
         this.name = name;
+        this.repositoryShards = repositoryShards;
+    }
+
+    public static EventSourcedEntity<NamespaceMessage, NamespaceEvent, Namespace.State> createEntity(
+        ActorContext<NamespaceMessage> actor, CommandContext context, ResourceName name,
+        ActorRef<ShardingEnvelope<RepositoryMessage>> shards) {
+
+        final String entityId = createEntityId(name);
+        return new Namespace(entityId, actor, name, shards);
     }
 
     public static Behavior<NamespaceMessage> createBehavior(
-        CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter, ResourceName name) {
-        final PersistenceId id = PersistenceId.apply(String.format("dvc/%s", name.getValue()));
-        return Behaviors.setup(actor -> new Namespace(id, actor, context, repositoryStorageAdapter, name));
+        CommandContext context, ResourceName name, ActorRef<ShardingEnvelope<RepositoryMessage>> shards) {
+
+        final String entityId = createEntityId(name);
+        return Behaviors.setup(actor -> new Namespace(entityId, actor, name, shards));
+    }
+
+    public static String createEntityId(ResourceName namespace) {
+        return namespace.toString();
     }
 
     @Override
     public State emptyState() {
-        return State.apply(Maps.newHashMap());
+        return State.apply(Sets.newHashSet());
     }
 
     @Override
@@ -84,28 +95,19 @@ public final class Namespace extends EventSourcedBehavior<NamespaceMessage, Name
     }
 
     private Effect<NamespaceEvent, State> onCreateRepository(State state, CreateRepository create) {
-        ActorRef<RepositoryMessage> repo = state.nameToActorRef.get(create.getRepository());
+        ShardingEnvelope<RepositoryMessage> msg = new ShardingEnvelope<>(
+            Repository.createEntityId(name, create.getRepository()), create);
 
-        if (repo == null) {
+        if (!state.repositories.contains(create.getRepository())) {
             RepositoryCreated created = RepositoryCreated.apply(
                 create.getId(), create.getNamespace(), create.getRepository(),
                 create.getExecutor().getUserId(), new Date());
 
             return Effect()
                 .persist(created)
-                .thenRun(newState -> newState
-                    .nameToActorRef
-                    .get(create.getRepository())
-                    .tell(InitializeRepository.apply(create.getId(), create.getExecutor(), name,
-                        create.getRepository(), actor.getSystem().deadLetters(), created.getCreated())))
-                .thenRun(() -> create.getReplyTo().tell(created));
+                .thenRun(() -> repositoryShards.tell(msg));
         } else {
-            RepositoryCreated created = RepositoryCreated.apply(
-                create.getId(), create.getNamespace(), create.getRepository(),
-                create.getExecutor().getUserId(), new Date());
-
-            create.getReplyTo().tell(created);
-
+            repositoryShards.tell(msg);
             return Effect().none();
         }
     }
@@ -115,25 +117,14 @@ public final class Namespace extends EventSourcedBehavior<NamespaceMessage, Name
             "Creating repository '{}/{}'",
             created.getNamespace().getValue(), created.getRepository().getValue());
 
-        Behavior<RepositoryMessage> repoBehavior = Repository.createBehavior(
-            context, repositoryStorageAdapter, created.getNamespace(), created.getRepository());
-
-        ActorRef<RepositoryMessage> repo = actor.spawn(repoBehavior, created.getRepository().getValue());
-        state.nameToActorRef.put(created.getRepository(), repo);
-
-        RepositoryTerminated terminated = RepositoryTerminated.apply(
-            created.getId(), name, created.getRepository(), actor.getSystem().deadLetters());
-
-        actor.watchWith(repo, terminated);
+        state.repositories.add(created.getRepository());
 
         return state;
     }
 
     private Effect<NamespaceEvent, State> forward(State state, RepositoryMessage msg) {
-        ActorRef<RepositoryMessage> repo = state.nameToActorRef.get(msg.getRepository());
-
-        if (repo != null) {
-            repo.tell(msg);
+        if (state.repositories.contains(msg.getRepository())) {
+            repositoryShards.tell(new ShardingEnvelope<>(Repository.createEntityId(name, msg.getRepository()), msg));
         } else {
             actor.getLog().warning(
                 "Ignoring message for not existing repository '{}/{}'",
@@ -149,7 +140,9 @@ public final class Namespace extends EventSourcedBehavior<NamespaceMessage, Name
     }
 
     private Effect<NamespaceEvent, State> onRepositoriesRequest(State state, RepositoriesInNamespaceRequest request) {
-        RepositoriesInNamespaceResponse response = RepositoriesInNamespaceResponse.apply(name, Maps.newHashMap(state.nameToActorRef));
+        RepositoriesInNamespaceResponse response = RepositoriesInNamespaceResponse
+            .apply(name, Sets.newHashSet(state.repositories));
+
         request.getReplyTo().tell(response);
         return Effect().none();
     }
@@ -158,13 +151,13 @@ public final class Namespace extends EventSourcedBehavior<NamespaceMessage, Name
         actor.getLog().info(
             "Repository '{}/{}' has been removed", removed.getNamespace(), removed.getRepository());
 
-        state.nameToActorRef.remove(removed.getRepository());
+        state.repositories.remove(removed.getRepository());
 
         return state;
     }
 
     private Effect<NamespaceEvent, State> onRepositoryTerminated(State state, RepositoryTerminated terminated) {
-        if (state.nameToActorRef.containsKey(terminated.getRepository())) {
+        if (state.repositories.contains(terminated.getRepository())) {
             return Effect()
                 .persist(RepositoryRemoved.apply(terminated.namespace, terminated.repository));
         } else {
@@ -205,7 +198,7 @@ public final class Namespace extends EventSourcedBehavior<NamespaceMessage, Name
     @AllArgsConstructor(staticName = "apply")
     public static class State {
 
-        private HashMap<ResourceName, ActorRef<RepositoryMessage>> nameToActorRef;
+        private HashSet<ResourceName> repositories;
 
     }
 

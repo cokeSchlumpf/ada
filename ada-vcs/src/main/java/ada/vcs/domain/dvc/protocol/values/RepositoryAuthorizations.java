@@ -1,7 +1,8 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
+import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public final class RepositoryAuthorizations {
+public final class RepositoryAuthorizations implements ValueObject {
 
     private final ResourceName namespace;
 

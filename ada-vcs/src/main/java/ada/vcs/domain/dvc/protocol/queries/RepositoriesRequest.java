@@ -1,7 +1,7 @@
 package ada.vcs.domain.dvc.protocol.queries;
 
 import ada.vcs.domain.dvc.protocol.api.DataVersionControlMessage;
-import ada.vcs.domain.dvc.values.User;
+import ada.vcs.domain.dvc.protocol.values.User;
 import akka.actor.typed.ActorRef;
 import lombok.AllArgsConstructor;
 import lombok.Value;

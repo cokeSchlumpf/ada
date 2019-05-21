@@ -1,5 +1,6 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
+import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -8,7 +9,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserId {
+public class UserId implements ValueObject {
 
     private final String id;
 

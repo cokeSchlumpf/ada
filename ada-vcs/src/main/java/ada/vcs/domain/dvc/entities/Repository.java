@@ -1,5 +1,6 @@
 package ada.vcs.domain.dvc.entities;
 
+import ada.commons.util.FQResourceName;
 import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.commands.context.CommandContext;
 import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
@@ -8,12 +9,9 @@ import ada.vcs.domain.dvc.protocol.commands.*;
 import ada.vcs.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
 import ada.vcs.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.domain.dvc.protocol.errors.UserNotAuthorizedError;
-import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
-import ada.vcs.domain.dvc.protocol.events.RepositoryInitialized;
-import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
-import ada.vcs.domain.dvc.protocol.events.VersionUpsertedInRepository;
+import ada.vcs.domain.dvc.protocol.events.*;
 import ada.vcs.domain.dvc.protocol.queries.*;
-import ada.vcs.domain.dvc.values.*;
+import ada.vcs.domain.dvc.protocol.values.*;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.RepositorySinkMemento;
 import ada.vcs.domain.legacy.repository.api.RepositorySourceMemento;
@@ -24,11 +22,11 @@ import ada.vcs.domain.legacy.repository.watcher.WatcherSourceMemento;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
-import akka.persistence.typed.PersistenceId;
+import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
+import akka.cluster.sharding.typed.javadsl.EventSourcedEntity;
 import akka.persistence.typed.javadsl.CommandHandler;
 import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EventHandler;
-import akka.persistence.typed.javadsl.EventSourcedBehavior;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import lombok.AllArgsConstructor;
@@ -41,10 +39,11 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /*
- * TODO mw:
- *  - Implement request for repository details
+ * TODO mw: Add scheduler after initialization to stop Actor when it is not initialized within a few seconds.
  */
-public final class Repository extends EventSourcedBehavior<RepositoryMessage, RepositoryEvent, Repository.State> {
+public final class Repository extends EventSourcedEntity<RepositoryMessage, RepositoryEvent, Repository.State> {
+
+    public static EntityTypeKey<RepositoryMessage> ENTITY_KEY = EntityTypeKey.create(RepositoryMessage.class, "repositories");
 
     private final ActorContext<RepositoryMessage> actor;
 
@@ -57,10 +56,10 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
     private final ResourceName name;
 
     public Repository(
-        PersistenceId persistenceId, ActorContext<RepositoryMessage> actor, CommandContext context,
+        String entityId, ActorContext<RepositoryMessage> actor, CommandContext context,
         RepositoryStorageAdapter repositoryStorageAdapter, ResourceName namespace, ResourceName name) {
 
-        super(persistenceId);
+        super(ENTITY_KEY, entityId);
         this.actor = actor;
         this.context = context;
         this.repositoryStorageAdapter = repositoryStorageAdapter;
@@ -68,27 +67,37 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
         this.name = name;
     }
 
+    public static EventSourcedEntity<RepositoryMessage, RepositoryEvent, Repository.State> create(ActorContext<RepositoryMessage> actor, CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter,
+                                                                                                  ResourceName namespace, ResourceName name) {
+
+        String entityId = createEntityId(namespace, name);
+        return new Repository(entityId, actor, context, repositoryStorageAdapter, namespace, name);
+    }
+
     public static Behavior<RepositoryMessage> createBehavior(
         CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter,
         ResourceName namespace, ResourceName name) {
 
-        String persistenceId = String.format("dvc/%s/%s", namespace.getValue(), name.getValue());
+        return Behaviors.setup(actor -> Repository.create(actor, context, repositoryStorageAdapter, namespace, name));
+    }
 
-        return Behaviors.setup(actor -> new Repository(
-            PersistenceId.apply(persistenceId), actor, context, repositoryStorageAdapter, namespace, name));
+    public static String createEntityId(ResourceName namespace, ResourceName repository) {
+        return FQResourceName.apply(namespace, repository).toString();
     }
 
     @Override
     public State emptyState() {
-        return State.apply(Maps.newHashMap(), Maps.newHashMap(), RepositoryAuthorizations.apply(namespace, name), null);
+        return State.apply(
+            Maps.newHashMap(), Maps.newHashMap(),
+            RepositoryAuthorizations.apply(namespace, name), new Date(), null, false);
     }
 
     @Override
     public CommandHandler<RepositoryMessage, RepositoryEvent, State> commandHandler() {
         return newCommandHandlerBuilder()
             .forAnyState()
+            .onCommand(CreateRepository.class, whenChecked(this::onCreate))
             .onCommand(GrantAccessToRepository.class, whenChecked(this::onGrant))
-            .onCommand(InitializeRepository.class, whenChecked(this::onInitialize))
             .onCommand(Pull.class, whenChecked(this::onPull))
             .onCommand(Push.class, whenChecked(this::onPush))
             .onCommand(RepositoryDetailsRequest.class, whenChecked(this::onRepositoryDetailsRequest))
@@ -104,7 +113,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
             .forAnyState()
             .onEvent(GrantedAccessToRepository.class, this::onGranted)
             .onEvent(RevokedAccessToRepository.class, this::onRevoked)
-            .onEvent(RepositoryInitialized.class, this::onInitialized)
+            .onEvent(RepositoryCreated.class, this::onCreated)
             .onEvent(VersionUpsertedInRepository.class, this::onUpsert)
             .build();
     }
@@ -112,6 +121,29 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
     /*
      * Message handlers
      */
+    private Effect<RepositoryEvent, State> onCreate(State state, CreateRepository create) {
+        if (state.initialized) {
+            RepositoryCreated created = RepositoryCreated
+                .apply(create.getId(), namespace, name, state.createdBy, state.created);
+
+            create.getReplyTo().tell(created);
+            return Effect().none();
+        } else {
+            RepositoryCreated created = RepositoryCreated
+                .apply(create.getId(), namespace, name, create.getExecutor().getUserId(), new Date());
+
+            return Effect()
+                .persist(created)
+                .thenRun(() -> create.getReplyTo().tell(created));
+        }
+    }
+
+    private State onCreated(State state, RepositoryCreated created) {
+        state.created = created.getCreated();
+        state.createdBy = created.getUserId();
+        state.initialized = true;
+        return state;
+    }
 
     private Effect<RepositoryEvent, State> onGrant(State state, GrantAccessToRepository grant) {
         return state
@@ -143,17 +175,6 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
 
     private State onGranted(State state, GrantedAccessToRepository granted) {
         state.authorizations = state.authorizations.add(granted.getAuthorization());
-        return state;
-    }
-
-    @SuppressWarnings("unused")
-    private Effect<RepositoryEvent, State> onInitialize(State state, InitializeRepository init) {
-        RepositoryInitialized initialized = RepositoryInitialized.apply(init.getDate(), init.getExecutor().getUserId());
-        return Effect().persist(initialized);
-    }
-
-    private State onInitialized(State state, RepositoryInitialized init) {
-        state.created = init.getDate();
         return state;
     }
 
@@ -391,9 +412,10 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
                 return then.apply(state, message);
             } else {
                 actor.getLog().warning(
-                    "Ignoring message for repository '{}/{}'",
+                    "Ignoring message for repository '{}/{}' for '{}/{}': " + message,
                     message.getNamespace().getValue(),
-                    message.getRepository().getValue());
+                    message.getRepository().getValue(),
+                    namespace, name);
 
                 return Effect().none();
             }
@@ -402,7 +424,7 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
 
     @Data
     @AllArgsConstructor(staticName = "apply")
-    protected static class State {
+    public static class State {
 
         private Map<RefSpec.VersionRef, VersionStatus> versions;
 
@@ -411,6 +433,10 @@ public final class Repository extends EventSourcedBehavior<RepositoryMessage, Re
         private RepositoryAuthorizations authorizations;
 
         private Date created;
+
+        private UserId createdBy;
+
+        private boolean initialized;
 
     }
 

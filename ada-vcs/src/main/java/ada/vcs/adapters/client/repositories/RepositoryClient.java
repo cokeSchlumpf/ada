@@ -2,13 +2,11 @@ package ada.vcs.adapters.client.repositories;
 
 import ada.commons.util.Either;
 import ada.commons.util.Operators;
-import ada.vcs.adapters.cli.exceptions.ExitWithErrorException;
 import ada.vcs.adapters.client.ExceptionHandler;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
-import ada.vcs.adapters.server.directives.ServerError;
 import ada.vcs.domain.dvc.protocol.queries.RepositoryDetailsResponse;
-import ada.vcs.domain.dvc.values.Authorization;
-import ada.vcs.domain.dvc.values.GrantedAuthorization;
+import ada.vcs.domain.dvc.protocol.values.Authorization;
+import ada.vcs.domain.dvc.protocol.values.GrantedAuthorization;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
 import ada.vcs.domain.legacy.repository.api.version.VersionFactory;

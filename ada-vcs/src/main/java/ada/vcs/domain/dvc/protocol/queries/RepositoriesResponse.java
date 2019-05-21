@@ -1,6 +1,6 @@
 package ada.vcs.domain.dvc.protocol.queries;
 
-import ada.vcs.domain.dvc.values.RepositorySummary;
+import ada.vcs.domain.dvc.protocol.values.RepositorySummary;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;

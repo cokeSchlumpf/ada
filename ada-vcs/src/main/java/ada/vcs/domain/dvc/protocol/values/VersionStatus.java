@@ -1,5 +1,6 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
+import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
 import ada.vcs.domain.legacy.repository.api.version.VersionDetailsMemento;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Value
 @Wither
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class VersionStatus {
+public final class VersionStatus implements ValueObject {
 
     private VersionDetailsMemento details;
 

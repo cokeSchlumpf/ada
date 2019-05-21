@@ -1,5 +1,6 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
+import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -14,7 +15,7 @@ import java.util.Set;
     @JsonSubTypes.Type(value = AnonymousUser.class, name = "anonymous"),
     @JsonSubTypes.Type(value = AuthenticatedUser.class, name = "user")
 })
-public interface User {
+public interface User extends ValueObject {
 
     UserId getUserId();
 

@@ -1,5 +1,6 @@
-package ada.vcs.domain.dvc.values;
+package ada.vcs.domain.dvc.protocol.values;
 
+import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import java.util.Date;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class GrantedAuthorization {
+public class GrantedAuthorization implements ValueObject {
 
     User by;
 

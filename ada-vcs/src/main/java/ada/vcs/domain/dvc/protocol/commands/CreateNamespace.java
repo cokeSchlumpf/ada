@@ -2,17 +2,16 @@ package ada.vcs.domain.dvc.protocol.commands;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.values.User;
-import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
+import ada.vcs.domain.dvc.protocol.api.NamespaceMessage;
+import ada.vcs.domain.dvc.protocol.events.NamespaceCreated;
+import ada.vcs.domain.dvc.protocol.values.User;
 import akka.actor.typed.ActorRef;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
-import java.util.Date;
-
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class InitializeRepository implements RepositoryMessage {
+public final class CreateNamespace implements NamespaceMessage {
 
     private final String id;
 
@@ -20,10 +19,8 @@ public class InitializeRepository implements RepositoryMessage {
 
     private final ResourceName namespace;
 
-    private final ResourceName repository;
+    private final ActorRef<NamespaceCreated> replyTo;
 
     private final ActorRef<ErrorMessage> errorTo;
-
-    private final Date date;
 
 }

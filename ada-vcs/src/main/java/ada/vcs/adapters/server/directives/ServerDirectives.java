@@ -2,7 +2,7 @@ package ada.vcs.adapters.server.directives;
 
 import ada.commons.util.ResourceName;
 import ada.commons.io.Writable;
-import ada.vcs.domain.dvc.values.User;
+import ada.vcs.domain.dvc.protocol.values.User;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
 import akka.http.javadsl.server.ExceptionHandler;

@@ -1,8 +1,6 @@
 package ada.vcs.domain.dvc.protocol.serializers;
 
 import ada.commons.databind.MessageSerializer;
-import ada.vcs.domain.dvc.protocol.events.NamespaceCreated;
-import ada.vcs.domain.dvc.protocol.events.NamespaceRemoved;
 import akka.actor.ExtendedActorSystem;
 import com.google.common.collect.Maps;
 
@@ -16,12 +14,7 @@ public final class DataVersionControlSerializer extends MessageSerializer {
 
     @Override
     protected Map<String, Class<?>> getManifestToClass() {
-        Map<String, Class<?>> m = Maps.newHashMap();
-
-        m.put("created/v1", NamespaceCreated.class);
-        m.put("removed/v1", NamespaceRemoved.class);
-
-        return m;
+        return Maps.newHashMap();
     }
 
 }

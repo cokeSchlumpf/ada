@@ -1,7 +1,7 @@
-package ada.vcs.domain.dvc.services;
+package ada.vcs.domain.dvc.services.repositories;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.values.User;
+import ada.vcs.domain.dvc.protocol.values.User;
 import ada.vcs.domain.dvc.protocol.api.NamespaceMessage;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesResponse;
 import akka.actor.typed.ActorRef;
