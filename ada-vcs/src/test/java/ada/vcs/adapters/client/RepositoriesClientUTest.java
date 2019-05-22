@@ -32,6 +32,8 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
             .toCompletableFuture()
             .get();
 
+        Thread.sleep(1000);
+
         assertThat(result.getRepositories()).hasSize(1);
         assertThat(result.getRepositories().get(0).getNamespace()).isEqualTo(ResourceName.apply("public"));
         assertThat(result.getRepositories().get(0).getRepository()).isEqualTo(ResourceName.apply("happy-hippo"));
