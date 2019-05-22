@@ -1,7 +1,8 @@
-package ada.vcs.domain.dvc.protocol.values;
+package ada.vcs.domain.dvc.values;
 
 import ada.commons.databind.MessageSerializer;
 import ada.commons.util.FQResourceName;
+import ada.commons.util.ResourcePath;
 import akka.actor.ExtendedActorSystem;
 import com.google.common.collect.Maps;
 
@@ -32,6 +33,7 @@ public final class ValuesSerializer extends MessageSerializer {
         m.put("values/repository/versions/status/v1", VersionStatus.class);
 
         m.put("values/resource/fq/v1", FQResourceName.class);
+        m.put("values/resource/path/v1", ResourcePath.class);
 
         return m;
     }

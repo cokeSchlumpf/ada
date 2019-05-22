@@ -1,4 +1,4 @@
-package ada.vcs.domain.dvc.protocol.values;
+package ada.vcs.domain.dvc.values;
 
 public enum VersionState {
 

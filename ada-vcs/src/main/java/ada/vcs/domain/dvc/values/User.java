@@ -1,4 +1,4 @@
-package ada.vcs.domain.dvc.protocol.values;
+package ada.vcs.domain.dvc.values;
 
 import ada.vcs.domain.dvc.protocol.api.ValueObject;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

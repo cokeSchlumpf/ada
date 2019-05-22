@@ -1,4 +1,4 @@
-package ada.vcs.domain.dvc.protocol.values;
+package ada.vcs.domain.dvc.values;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;

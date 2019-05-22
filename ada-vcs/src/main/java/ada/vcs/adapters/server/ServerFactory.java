@@ -4,7 +4,7 @@ import ada.commons.util.ActorPatterns;
 import ada.vcs.adapters.cli.commands.context.CommandContext;
 import ada.vcs.adapters.server.directives.ServerDirectives;
 import ada.vcs.api.RepositoriesResource;
-import ada.vcs.domain.dvc.entities.StatelessDataVersionControl;
+import ada.vcs.domain.dvc.DataVersionControl;
 import ada.vcs.domain.dvc.entities.Sum;
 import ada.vcs.domain.dvc.protocol.api.DataVersionControlMessage;
 import ada.vcs.domain.legacy.repository.fs.FileSystemRepositorySettings;
@@ -31,7 +31,7 @@ public final class ServerFactory {
             .apply(settings, repositoryRootDirectory);
 
         final ActorRef<DataVersionControlMessage> repositoriesActor = Adapter
-            .spawn(context.system(), StatelessDataVersionControl.createBehavior(context, storageAdapter), "repositories");
+            .spawn(context.system(), DataVersionControl.createBehavior(context, storageAdapter), "repositories");
 
         final ActorRef<Sum.Command> sumActor = Adapter
             .spawn(context.system(), Sum.createBehavior(), "sum");

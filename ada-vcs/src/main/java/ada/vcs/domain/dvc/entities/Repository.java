@@ -11,7 +11,7 @@ import ada.vcs.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.vcs.domain.dvc.protocol.events.*;
 import ada.vcs.domain.dvc.protocol.queries.*;
-import ada.vcs.domain.dvc.protocol.values.*;
+import ada.vcs.domain.dvc.values.*;
 import ada.vcs.domain.legacy.repository.api.RefSpec;
 import ada.vcs.domain.legacy.repository.api.RepositorySinkMemento;
 import ada.vcs.domain.legacy.repository.api.RepositorySourceMemento;

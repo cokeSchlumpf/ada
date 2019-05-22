@@ -2,7 +2,7 @@ package ada.vcs.adapters.server;
 
 import ada.vcs.api.RepositoriesResource;
 import ada.vcs.adapters.server.directives.ServerDirectives;
-import ada.vcs.domain.dvc.protocol.values.Authorization;
+import ada.vcs.domain.dvc.values.Authorization;
 import akka.http.javadsl.model.ContentTypes;
 import akka.http.javadsl.model.HttpEntities;
 import akka.http.javadsl.model.StatusCodes;

@@ -2,7 +2,7 @@ package ada.vcs.domain.dvc.protocol.queries;
 
 import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.protocol.values.User;
+import ada.vcs.domain.dvc.values.User;
 import ada.vcs.domain.dvc.protocol.api.NamespaceMessage;
 import akka.actor.typed.ActorRef;
 import lombok.AllArgsConstructor;

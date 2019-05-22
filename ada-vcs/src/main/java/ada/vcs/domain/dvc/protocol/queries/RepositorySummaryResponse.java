@@ -1,7 +1,7 @@
 package ada.vcs.domain.dvc.protocol.queries;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.protocol.values.RepositorySummary;
+import ada.vcs.domain.dvc.values.RepositorySummary;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 

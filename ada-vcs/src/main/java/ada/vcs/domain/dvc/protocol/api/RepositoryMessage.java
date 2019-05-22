@@ -1,7 +1,7 @@
 package ada.vcs.domain.dvc.protocol.api;
 
 import ada.commons.util.ResourceName;
-import ada.vcs.domain.dvc.protocol.values.User;
+import ada.vcs.domain.dvc.values.User;
 
 public interface RepositoryMessage extends NamespaceMessage {
 

@@ -1,7 +1,7 @@
 package ada.vcs.domain.dvc.protocol.errors;
 
 import ada.commons.util.ErrorMessage;
-import ada.vcs.domain.dvc.protocol.values.User;
+import ada.vcs.domain.dvc.values.User;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 

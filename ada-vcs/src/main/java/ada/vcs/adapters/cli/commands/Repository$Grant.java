@@ -7,10 +7,10 @@ import ada.vcs.adapters.cli.commands.enums.EAuthType;
 import ada.vcs.adapters.cli.consoles.CommandLineConsole;
 import ada.vcs.adapters.cli.exceptions.CommandNotInitializedException;
 import ada.vcs.adapters.cli.exceptions.ExitWithErrorException;
-import ada.vcs.domain.dvc.protocol.values.Authorization;
-import ada.vcs.domain.dvc.protocol.values.RoleAuthorization;
-import ada.vcs.domain.dvc.protocol.values.UserAuthorization;
-import ada.vcs.domain.dvc.protocol.values.WildcardAuthorization;
+import ada.vcs.domain.dvc.values.Authorization;
+import ada.vcs.domain.dvc.values.RoleAuthorization;
+import ada.vcs.domain.dvc.values.UserAuthorization;
+import ada.vcs.domain.dvc.values.WildcardAuthorization;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;
 
