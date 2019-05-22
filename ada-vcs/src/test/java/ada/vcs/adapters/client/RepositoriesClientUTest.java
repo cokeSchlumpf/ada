@@ -32,6 +32,7 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
             .toCompletableFuture()
             .get();
 
+        // Wait a second to allow the cluster syncing
         Thread.sleep(1000);
 
         assertThat(result.getRepositories()).hasSize(1);
@@ -43,8 +44,6 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
     public void listRepositories() throws MalformedURLException, ExecutionException, InterruptedException {
         RepositoriesClient client = getClient();
 
-        System.out.println("Client ...");
-
         RepositoriesResponse repositoriesResponse = client
             .listRepositories()
             .thenApply(repos -> {
@@ -53,6 +52,9 @@ public class RepositoriesClientUTest extends AbstractAdaTest {
             })
             .toCompletableFuture()
             .get();
+
+        // Wait a second to allow the cluster syncing
+        Thread.sleep(1000);
 
         System.out.println(repositoriesResponse);
     }
