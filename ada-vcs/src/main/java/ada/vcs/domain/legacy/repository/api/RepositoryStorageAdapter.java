@@ -8,9 +8,11 @@ import java.util.concurrent.CompletionStage;
 
 public interface RepositoryStorageAdapter {
 
-    CompletionStage<Done> clean();
+    CompletionStage<Done> clean(
+        ResourceName namespace, ResourceName repository);
 
-    CompletionStage<Done> clean(RefSpec.VersionRef version);
+    CompletionStage<Done> clean(
+        ResourceName namespace, ResourceName repository, RefSpec.VersionRef version);
 
     RepositorySinkMemento push(
         ResourceName namespace, ResourceName repository, VersionDetails version);
