@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
     subcommands = {
         Repository$Grant.class,
         Repository$Grants.class,
+        Repository$Remove.class,
         Repository$Revoke.class,
         Repository$Schema.class
     })

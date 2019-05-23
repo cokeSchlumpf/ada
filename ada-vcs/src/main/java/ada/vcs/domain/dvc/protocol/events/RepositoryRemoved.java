@@ -2,6 +2,7 @@ package ada.vcs.domain.dvc.protocol.events;
 
 import ada.commons.util.ResourceName;
 import ada.vcs.domain.dvc.protocol.api.NamespaceEvent;
+import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class RepositoryRemoved implements NamespaceEvent {
+public class RepositoryRemoved implements RepositoryEvent {
 
     private final ResourceName namespace;
 

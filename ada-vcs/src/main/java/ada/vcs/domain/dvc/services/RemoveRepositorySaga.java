@@ -5,8 +5,8 @@ import ada.commons.util.ErrorMessage;
 import ada.commons.util.ResourcePath;
 import ada.vcs.domain.dvc.entities.Repository;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
-import ada.vcs.domain.dvc.protocol.commands.CreateRepository;
-import ada.vcs.domain.dvc.protocol.events.RepositoryCreated;
+import ada.vcs.domain.dvc.protocol.commands.RemoveRepository;
+import ada.vcs.domain.dvc.protocol.events.RepositoryRemoved;
 import ada.vcs.domain.dvc.services.registry.RegisterResource;
 import ada.vcs.domain.dvc.services.registry.RemoveResource;
 import ada.vcs.domain.dvc.services.registry.ResourceRegistryCommand;
@@ -21,85 +21,80 @@ import lombok.Value;
 
 import java.time.Duration;
 
-public final class CreateRepositorySaga {
+public final class RemoveRepositorySaga {
 
-    private static long TIMEOUT_IN_SECONDS = 5;
+    private static long TIMEOUT_IN_SECONDS = 30;
 
-    private CreateRepositorySaga() {
+    private RemoveRepositorySaga() {
         // Do not make any instances
     }
 
-    public static Behavior<CreateRepositoryMessage> createBehavior(
+    public static Behavior<RemoveRepositoryMessage> createBehavior(
         ActorRef<ShardingEnvelope<RepositoryMessage>> repositories,
         ActorRef<ResourceRegistryCommand> registry,
-        CreateRepository create) {
+        RemoveRepository remove) {
 
-        return Behaviors.setup(actor -> registering(actor, repositories, registry, create));
+        return Behaviors.setup(actor -> unregistering(actor, repositories, registry, remove));
     }
 
-    private static Behavior<CreateRepositoryMessage> registering(
-        ActorContext<CreateRepositoryMessage> actor,
+    private static Behavior<RemoveRepositoryMessage> unregistering(
+        ActorContext<RemoveRepositoryMessage> actor,
         ActorRef<ShardingEnvelope<RepositoryMessage>> repositories,
         ActorRef<ResourceRegistryCommand> registry,
-        CreateRepository create) {
+        RemoveRepository remove) {
 
-        final ActorRef<Boolean> booleanAdapter = actor.messageAdapter(Boolean.class, RegisterResult::apply);
-        final ResourcePath toRegister = ResourcePath.apply(create.getNamespace(), create.getRepository());
+        final ActorRef<Done> doneAdapter = actor.messageAdapter(Done.class, done -> RegisterRemoved.apply());
+        final ResourcePath toRegister = ResourcePath.apply(remove.getNamespace(), remove.getRepository());
 
-        registry.tell(RegisterResource.apply(toRegister, booleanAdapter));
+        registry.tell(RemoveResource.apply(toRegister, doneAdapter));
 
         return Behaviors
             .withTimers(timers -> {
                 timers.startSingleTimer(Timeout.class, Timeout.apply(), Duration.ofMinutes(TIMEOUT_IN_SECONDS));
 
                 return Behaviors
-                    .receive(CreateRepositoryMessage.class)
+                    .receive(RemoveRepositoryMessage.class)
                     .onMessage(
-                        RegisterResult.class,
-                        result -> result.success,
-                        (ctx, result) -> creating(ctx, repositories, registry, create))
-                    .onMessage(
-                        RegisterResult.class,
-                        result -> !result.success,
+                        RegisterRemoved.class,
                         (ctx, result) -> {
                             /*
                              * When the repository already exists, we forward the message to the repository
                              * to provide a correct response - this is required to ensure idempotence.
                              */
-                            String entityId = Repository.createEntityId(create.getNamespace(), create.getRepository());
-                            repositories.tell(ShardingEnvelope.apply(entityId, create));
+                            String entityId = Repository.createEntityId(remove.getNamespace(), remove.getRepository());
+                            repositories.tell(ShardingEnvelope.apply(entityId, remove));
 
-                            return Behaviors.stopped();
+                            return removing(ctx, repositories, registry, remove);
                         }
                     )
                     .onMessage(
                         Timeout.class,
                         (ctx, timeout) -> {
                             ctx.getLog().warning("Registering resource timed out, try to roll-back registry ...");
-                            return rollingBack(ctx, registry, create);
+                            return rollingBack(ctx, registry, remove);
                         }
                     )
                     .build();
             });
     }
 
-    private static Behavior<CreateRepositoryMessage> creating(
-        ActorContext<CreateRepositoryMessage> actor,
+    private static Behavior<RemoveRepositoryMessage> removing(
+        ActorContext<RemoveRepositoryMessage> actor,
         ActorRef<ShardingEnvelope<RepositoryMessage>> repositories,
         ActorRef<ResourceRegistryCommand> registry,
-        CreateRepository create) {
+        RemoveRepository remove) {
 
-        final ActorRef<RepositoryCreated> repositoryCreatedAdapter = actor.messageAdapter(
-            RepositoryCreated.class, created -> CreateResult.apply(Either.left(created)));
+        final ActorRef<RepositoryRemoved> repositoryRemovedAdapter = actor.messageAdapter(
+            RepositoryRemoved.class, removed -> RemoveResult.apply(Either.left(removed)));
 
         final ActorRef<ErrorMessage> errorMessageAdapter = actor.messageAdapter(
-            ErrorMessage.class, error -> CreateResult.apply(Either.right(error)));
+            ErrorMessage.class, error -> RemoveResult.apply(Either.right(error)));
 
         final String entityId = Repository.createEntityId(
-            create.getNamespace(), create.getRepository());
+            remove.getNamespace(), remove.getRepository());
 
-        final CreateRepository wrappedMessage = create
-            .withReplyTo(repositoryCreatedAdapter)
+        final RemoveRepository wrappedMessage = remove
+            .withReplyTo(repositoryRemovedAdapter)
             .withErrorTo(errorMessageAdapter);
 
         repositories.tell(ShardingEnvelope.apply(entityId, wrappedMessage));
@@ -108,45 +103,45 @@ public final class CreateRepositorySaga {
             timers.startSingleTimer(Timeout.class, Timeout.apply(), Duration.ofSeconds(TIMEOUT_IN_SECONDS));
 
             return Behaviors
-                .receive(CreateRepositoryMessage.class)
+                .receive(RemoveRepositoryMessage.class)
                 .onMessage(
-                    CreateResult.class,
+                    RemoveResult.class,
                     (ctx, result) -> result.getValue().map(
-                        created -> {
-                            create.getReplyTo().tell(created);
+                        removed -> {
+                            remove.getReplyTo().tell(removed);
                             return Behaviors.stopped();
                         },
                         error -> {
-                            create.getErrorTo().tell(error);
-                            return rollingBack(ctx, registry, create);
+                            remove.getErrorTo().tell(error);
+                            return rollingBack(ctx, registry, remove);
                         }
                     ))
                 .onMessage(
                     Timeout.class,
                     (ctx, timeout) -> {
                         ctx.getLog().warning("CreateRepository request timed out. Rolling back registry ...");
-                        return rollingBack(ctx, registry, create);
+                        return rollingBack(ctx, registry, remove);
                     }
                 )
                 .build();
         });
     }
 
-    private static Behavior<CreateRepositoryMessage> rollingBack(
-        ActorContext<CreateRepositoryMessage> actor,
+    private static Behavior<RemoveRepositoryMessage> rollingBack(
+        ActorContext<RemoveRepositoryMessage> actor,
         ActorRef<ResourceRegistryCommand> registry,
-        CreateRepository create) {
+        RemoveRepository remove) {
 
-        ActorRef<Done> doneAdapter = actor.messageAdapter(Done.class, done -> RegisterRemoved.apply());
-        final ResourcePath toRegister = ResourcePath.apply(create.getNamespace(), create.getRepository());
-        registry.tell(RemoveResource.apply(toRegister, doneAdapter));
+        ActorRef<Boolean> doneAdapter = actor.messageAdapter(Boolean.class, done -> Registered.apply());
+        final ResourcePath toRegister = ResourcePath.apply(remove.getNamespace(), remove.getRepository());
+        registry.tell(RegisterResource.apply(toRegister, doneAdapter));
 
         return Behaviors.withTimers(timers -> {
             timers.startSingleTimer(Timeout.class, Timeout.apply(), Duration.ofSeconds(TIMEOUT_IN_SECONDS));
 
             return Behaviors
-                .receive(CreateRepositoryMessage.class)
-                .onMessage(RegisterRemoved.class, (ctx, removed) -> Behavior.stopped())
+                .receive(RemoveRepositoryMessage.class)
+                .onMessage(Registered.class, (ctx, removed) -> Behavior.stopped())
                 .onMessage(Timeout.class, (ctx, timeout) -> {
                     ctx.getLog().warning("Unsuccessful roll back, will now terminate saga ...");
                     return Behavior.stopped();
@@ -155,35 +150,33 @@ public final class CreateRepositorySaga {
         });
     }
 
-    public interface CreateRepositoryMessage {
+    public interface RemoveRepositoryMessage {
 
     }
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    private static class RegisterResult implements CreateRepositoryMessage {
-
-        private final boolean success;
+    private static class Registered implements RemoveRepositoryMessage {
 
     }
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    private static class RegisterRemoved implements CreateRepositoryMessage {
+    private static class RegisterRemoved implements RemoveRepositoryMessage {
 
     }
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    private static class CreateResult implements CreateRepositoryMessage {
+    private static class RemoveResult implements RemoveRepositoryMessage {
 
-        private final Either<RepositoryCreated, ErrorMessage> value;
+        private final Either<RepositoryRemoved, ErrorMessage> value;
 
     }
 
     @Value
     @AllArgsConstructor(staticName = "apply")
-    private static class Timeout implements CreateRepositoryMessage {
+    private static class Timeout implements RemoveRepositoryMessage {
 
     }
 

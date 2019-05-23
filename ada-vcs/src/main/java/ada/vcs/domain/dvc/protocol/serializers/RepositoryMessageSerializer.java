@@ -32,13 +32,13 @@ public final class RepositoryMessageSerializer extends MessageSerializer {
         m.put("commands/push/v1", Push.class);
         m.put("commands/remove/v1", RemoveRepository.class);
         m.put("commands/summary/v1", RepositorySummary.class);
-        m.put("commands/revoke/v1", RevokedAccessToRepository.class);
+        m.put("commands/revoke/v1", RevokedAccessFromRepository.class);
         m.put("commands/submit/v1", SubmitPushInRepository.class);
 
         m.put("events/created/v1", RepositoryCreated.class);
         m.put("events/granted/v1", GrantedAccessToRepository.class);
         m.put("events/removed/v1", RepositoryRemoved.class);
-        m.put("events/revoked/v1", RevokedAccessToRepository.class);
+        m.put("events/revoked/v1", RevokedAccessFromRepository.class);
         m.put("events/upserted/v1", VersionUpsertedInRepository.class);
         m.put("events/submitted/v1", SubmittedPushInRepository.class);
 

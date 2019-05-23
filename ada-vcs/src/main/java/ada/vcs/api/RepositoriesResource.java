@@ -8,7 +8,8 @@ import ada.vcs.domain.dvc.protocol.api.DataVersionControlMessage;
 import ada.vcs.domain.dvc.protocol.commands.*;
 import ada.vcs.domain.dvc.protocol.events.GrantedAccessToRepository;
 import ada.vcs.domain.dvc.protocol.events.RepositoryCreated;
-import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
+import ada.vcs.domain.dvc.protocol.events.RepositoryRemoved;
+import ada.vcs.domain.dvc.protocol.events.RevokedAccessFromRepository;
 import ada.vcs.domain.dvc.protocol.queries.*;
 import ada.vcs.domain.dvc.values.Authorization;
 import ada.vcs.domain.dvc.values.GrantedAuthorization;
@@ -78,6 +79,18 @@ public final class RepositoriesResource {
             .thenApply(GrantedAccessToRepository::getAuthorization);
     }
 
+    public CompletionStage<RepositoryRemoved> remove(
+        User user, ResourceName namespace, ResourceName repository) {
+
+        final String correlationId = Operators.hash();
+
+        return patterns
+            .ask(
+                repositories,
+                (ActorRef<RepositoryRemoved> replyTo, ActorRef<ErrorMessage> errorTo) ->
+                    RemoveRepository.apply(correlationId, user, namespace, repository, replyTo, errorTo));
+    }
+
     public CompletionStage<GrantedAuthorization> revoke(
         User user, ResourceName namespace, ResourceName repository, Authorization authorization) {
 
@@ -86,9 +99,9 @@ public final class RepositoriesResource {
         return patterns
             .ask(
                 repositories,
-                (ActorRef<RevokedAccessToRepository> replyTo, ActorRef<ErrorMessage> errorTo) ->
-                    RevokeAccessToRepository.apply(correlationId, user, namespace, repository, authorization, replyTo, errorTo))
-            .thenApply(RevokedAccessToRepository::getAuthorization);
+                (ActorRef<RevokedAccessFromRepository> replyTo, ActorRef<ErrorMessage> errorTo) ->
+                    RevokeAccessFromRepository.apply(correlationId, user, namespace, repository, authorization, replyTo, errorTo))
+            .thenApply(RevokedAccessFromRepository::getAuthorization);
     }
 
     public CompletionStage<RepositoriesResponse> listRepositories(User user) {

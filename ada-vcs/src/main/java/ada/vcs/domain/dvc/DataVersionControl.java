@@ -8,8 +8,10 @@ import ada.vcs.domain.dvc.entities.Repository;
 import ada.vcs.domain.dvc.protocol.api.DataVersionControlMessage;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.domain.dvc.protocol.commands.CreateRepository;
+import ada.vcs.domain.dvc.protocol.commands.RemoveRepository;
 import ada.vcs.domain.dvc.protocol.queries.RepositoriesRequest;
 import ada.vcs.domain.dvc.services.CreateRepositorySaga;
+import ada.vcs.domain.dvc.services.RemoveRepositorySaga;
 import ada.vcs.domain.dvc.services.RepositoriesQuery;
 import ada.vcs.domain.dvc.services.registry.ResourceRegistry;
 import ada.vcs.domain.dvc.services.registry.ResourceRegistryCommand;
@@ -39,8 +41,6 @@ public final class DataVersionControl extends AbstractBehavior<DataVersionContro
     private final ActorContext<DataVersionControlMessage> actor;
 
     private final ActorRef<ShardingEnvelope<RepositoryMessage>> repositories;
-
-    private final ActorRef<Replicator.Command> replicator;
 
     private final ActorRef<ResourceRegistryCommand> registry;
 
@@ -74,7 +74,7 @@ public final class DataVersionControl extends AbstractBehavior<DataVersionContro
             ClusterSingleton singleton = ClusterSingleton.createExtension(actor.getSystem());
             ActorRef<ResourceRegistryCommand> resourceRegistry = singleton.init(ResourceRegistry.createSingleton());
 
-            return new DataVersionControl(actor, repositoryShards, replicator, resourceRegistry, Sets.newHashSet());
+            return new DataVersionControl(actor, repositoryShards, resourceRegistry, Sets.newHashSet());
         });
     }
 
@@ -82,6 +82,7 @@ public final class DataVersionControl extends AbstractBehavior<DataVersionContro
     public Receive<DataVersionControlMessage> createReceive() {
         return newReceiveBuilder()
             .onMessage(CreateRepository.class, this::onCreate)
+            .onMessage(RemoveRepository.class, this::onRemove)
             .onMessage(RepositoryMessage.class, this::onForward)
             .onMessage(RegisteredResourcesUpdated.class, this::onInternalChanged)
             .onMessage(RepositoriesRequest.class, this::onRepositoriesRequest)
@@ -104,6 +105,14 @@ public final class DataVersionControl extends AbstractBehavior<DataVersionContro
 
     private Behavior<DataVersionControlMessage> onInternalChanged(RegisteredResourcesUpdated changed) {
         this.resources = changed.msg.dataValue().getElements();
+        return this;
+    }
+
+    private Behavior<DataVersionControlMessage> onRemove(RemoveRepository remove) {
+        actor.spawn(
+            RemoveRepositorySaga.createBehavior(repositories, registry, remove),
+            String.format("remove-%s-%s", remove.getId(), Operators.hash()));
+
         return this;
     }
 

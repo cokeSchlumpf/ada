@@ -43,6 +43,10 @@ public final class Server extends HttpApp {
                                                 onSuccess(
                                                     repositories.revoke(user, namespace, repository, authorization),
                                                     directives::complete))))),
+                                delete(() ->
+                                    onSuccess(
+                                        repositories.remove(user, namespace, repository),
+                                        directives::complete)),
                                 put(() ->
                                     onSuccess(
                                         repositories.createRepository(user, namespace, repository),

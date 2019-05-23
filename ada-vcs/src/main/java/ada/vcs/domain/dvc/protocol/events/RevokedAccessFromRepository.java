@@ -11,7 +11,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class RevokedAccessToRepository implements RepositoryEvent {
+public final class RevokedAccessFromRepository implements RepositoryEvent {
 
     private final String id;
 
@@ -22,13 +22,13 @@ public final class RevokedAccessToRepository implements RepositoryEvent {
     private final GrantedAuthorization authorization;
 
     @JsonCreator
-    public static RevokedAccessToRepository apply(
+    public static RevokedAccessFromRepository apply(
         @JsonProperty("id") String id,
         @JsonProperty("namespace") ResourceName namespace,
         @JsonProperty("repository") ResourceName repository,
         @JsonProperty("authorization") GrantedAuthorization authorization) {
 
-        return new RevokedAccessToRepository(id, namespace, repository, authorization);
+        return new RevokedAccessFromRepository(id, namespace, repository, authorization);
     }
 
 }

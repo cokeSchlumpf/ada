@@ -3,22 +3,17 @@ package ada.vcs.domain.dvc.entities;
 import ada.commons.util.FQResourceName;
 import ada.commons.util.ResourceName;
 import ada.vcs.adapters.cli.commands.context.CommandContext;
+import ada.vcs.domain.dvc.entities.repository.RepositoryUninitialized;
+import ada.vcs.domain.dvc.entities.repository.State;
 import ada.vcs.domain.dvc.protocol.api.RepositoryEvent;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
 import ada.vcs.domain.dvc.protocol.commands.*;
-import ada.vcs.domain.dvc.protocol.errors.RefSpecAlreadyExistsError;
-import ada.vcs.domain.dvc.protocol.errors.RefSpecNotFoundError;
 import ada.vcs.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.vcs.domain.dvc.protocol.events.*;
-import ada.vcs.domain.dvc.protocol.queries.*;
-import ada.vcs.domain.dvc.values.*;
-import ada.vcs.domain.legacy.repository.api.RefSpec;
-import ada.vcs.domain.legacy.repository.api.RepositorySinkMemento;
-import ada.vcs.domain.legacy.repository.api.RepositorySourceMemento;
+import ada.vcs.domain.dvc.protocol.queries.Pull;
+import ada.vcs.domain.dvc.protocol.queries.RepositoryDetailsRequest;
+import ada.vcs.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.vcs.domain.legacy.repository.api.RepositoryStorageAdapter;
-import ada.vcs.domain.legacy.repository.api.version.VersionDetails;
-import ada.vcs.domain.legacy.repository.watcher.WatcherSinkMemento;
-import ada.vcs.domain.legacy.repository.watcher.WatcherSourceMemento;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
@@ -27,21 +22,11 @@ import akka.cluster.sharding.typed.javadsl.EventSourcedEntity;
 import akka.persistence.typed.javadsl.CommandHandler;
 import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EventHandler;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
-/*
- * TODO mw: Add scheduler after initialization to stop Actor when it is not initialized within a few seconds.
- */
-public final class Repository extends EventSourcedEntity<RepositoryMessage, RepositoryEvent, Repository.State> {
+public final class Repository extends EventSourcedEntity<RepositoryMessage, RepositoryEvent, State> {
 
     public static EntityTypeKey<RepositoryMessage> ENTITY_KEY = EntityTypeKey.create(RepositoryMessage.class, "repositories");
 
@@ -67,8 +52,8 @@ public final class Repository extends EventSourcedEntity<RepositoryMessage, Repo
         this.name = name;
     }
 
-    public static EventSourcedEntity<RepositoryMessage, RepositoryEvent, Repository.State> create(ActorContext<RepositoryMessage> actor, CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter,
-                                                                                                  ResourceName namespace, ResourceName name) {
+    public static EventSourcedEntity<RepositoryMessage, RepositoryEvent, State> create(ActorContext<RepositoryMessage> actor, CommandContext context, RepositoryStorageAdapter repositoryStorageAdapter,
+                                                                                       ResourceName namespace, ResourceName name) {
 
         String entityId = createEntityId(namespace, name);
         return new Repository(entityId, actor, context, repositoryStorageAdapter, namespace, name);
@@ -87,23 +72,41 @@ public final class Repository extends EventSourcedEntity<RepositoryMessage, Repo
 
     @Override
     public State emptyState() {
-        return State.apply(
-            Maps.newHashMap(), Maps.newHashMap(),
-            RepositoryAuthorizations.apply(namespace, name), new Date(), null, false);
+        return RepositoryUninitialized.apply(actor, Effect(), context, repositoryStorageAdapter, namespace, name);
     }
 
     @Override
     public CommandHandler<RepositoryMessage, RepositoryEvent, State> commandHandler() {
         return newCommandHandlerBuilder()
             .forAnyState()
-            .onCommand(CreateRepository.class, whenChecked(this::onCreate))
-            .onCommand(GrantAccessToRepository.class, whenChecked(this::onGrant))
-            .onCommand(Pull.class, whenChecked(this::onPull))
-            .onCommand(Push.class, whenChecked(this::onPush))
-            .onCommand(RepositoryDetailsRequest.class, whenChecked(this::onRepositoryDetailsRequest))
-            .onCommand(RepositorySummaryRequest.class, whenResponsible(this::onSummaryRequest))
-            .onCommand(RevokeAccessToRepository.class, whenChecked(this::onRevoke))
-            .onCommand(SubmitPushInRepository.class, whenChecked(this::onSubmit))
+            .onCommand(
+                CreateRepository.class,
+                whenChecked(cmd(state -> state::onCreate)))
+            .onCommand(
+                GrantAccessToRepository.class,
+                whenChecked(cmd(state -> state::onGrantAccess)))
+            .onCommand(
+                Pull.class,
+                whenChecked(cmd(state -> state::onPull)))
+            .onCommand(
+                Push.class,
+                whenChecked(cmd(state -> state::onPush)))
+            .onCommand(
+                RemoveRepository.class,
+                whenChecked(cmd(state -> state::onRemove))
+            )
+            .onCommand(
+                RepositoryDetailsRequest.class,
+                whenChecked(cmd(state -> state::onDetailsRequest)))
+            .onCommand(
+                RepositorySummaryRequest.class,
+                whenResponsible(cmd(state -> state::onSummaryRequest)))
+            .onCommand(
+                RevokeAccessFromRepository.class,
+                whenChecked(cmd(state -> state::onRevokeAccess)))
+            .onCommand(
+                SubmitPushInRepository.class,
+                whenChecked(cmd(state -> state::onSubmit)))
             .build();
     }
 
@@ -111,254 +114,34 @@ public final class Repository extends EventSourcedEntity<RepositoryMessage, Repo
     public EventHandler<State, RepositoryEvent> eventHandler() {
         return newEventHandlerBuilder()
             .forAnyState()
-            .onEvent(GrantedAccessToRepository.class, this::onGranted)
-            .onEvent(RevokedAccessToRepository.class, this::onRevoked)
-            .onEvent(RepositoryCreated.class, this::onCreated)
-            .onEvent(VersionUpsertedInRepository.class, this::onUpsert)
+            .onEvent(
+                GrantedAccessToRepository.class,
+                handle(state -> state::onGrantedAccess))
+            .onEvent(
+                RepositoryRemoved.class,
+                handle(state -> state::onRemoved))
+            .onEvent(
+                RevokedAccessFromRepository.class,
+                handle(state -> state::onRevokedAccess))
+            .onEvent(
+                RepositoryCreated.class,
+                handle(state -> state::onCreated))
+            .onEvent(
+                VersionUpsertedInRepository.class,
+                handle(state -> state::onUpserted))
             .build();
     }
 
-    /*
-     * Message handlers
-     */
-    private Effect<RepositoryEvent, State> onCreate(State state, CreateRepository create) {
-        if (state.initialized) {
-            RepositoryCreated created = RepositoryCreated
-                .apply(create.getId(), namespace, name, state.createdBy, state.created);
+    private <T extends RepositoryMessage> BiFunction<State, T, Effect<RepositoryEvent, State>> cmd(
+        Function<State, Function<T, Effect<RepositoryEvent, State>>> func) {
 
-            create.getReplyTo().tell(created);
-            return Effect().none();
-        } else {
-            RepositoryCreated created = RepositoryCreated
-                .apply(create.getId(), namespace, name, create.getExecutor().getUserId(), new Date());
-
-            return Effect()
-                .persist(created)
-                .thenRun(() -> create.getReplyTo().tell(created));
-        }
+        return (state, message) -> func.apply(state).apply(message);
     }
 
-    private State onCreated(State state, RepositoryCreated created) {
-        state.created = created.getCreated();
-        state.createdBy = created.getUserId();
-        state.initialized = true;
-        return state;
-    }
+    private <T extends RepositoryEvent> BiFunction<State, T, State> handle(
+        Function<State, Function<T, State>> func) {
 
-    private Effect<RepositoryEvent, State> onGrant(State state, GrantAccessToRepository grant) {
-        return state
-            .authorizations
-            .getAuthorizations()
-            .stream()
-            .filter(g -> g.getAuthorization().equals(grant.getAuthorization()))
-            .findFirst()
-            .map(granted -> {
-                grant
-                    .getReplyTo()
-                    .tell(GrantedAccessToRepository.apply(
-                        grant.getId(), grant.getNamespace(),
-                        grant.getRepository(), granted));
-
-                return Effect().none();
-            })
-            .orElseGet(() -> {
-                GrantedAuthorization granted = GrantedAuthorization.apply(grant.getExecutor(), new Date(), grant.getAuthorization());
-                GrantedAccessToRepository event = GrantedAccessToRepository.apply(
-                    grant.getId(), grant.getNamespace(),
-                    grant.getRepository(), granted);
-
-                return Effect()
-                    .persist(event)
-                    .thenRun(() -> grant.getReplyTo().tell(event));
-            });
-    }
-
-    private State onGranted(State state, GrantedAccessToRepository granted) {
-        state.authorizations = state.authorizations.add(granted.getAuthorization());
-        return state;
-    }
-
-    private Effect<RepositoryEvent, State> onPull(State state, Pull pull) {
-        RefSpec.VersionRef versionRef = refSpecToVersionRef(state, pull.getRefSpec());
-
-        if (versionRef != null) {
-            RepositorySourceMemento actualSourceMemento = repositoryStorageAdapter.pull(namespace, name, versionRef);
-            WatcherSourceMemento watcherSourceMemento = WatcherSourceMemento.apply(actualSourceMemento, actor.getSelf());
-
-            pull.getReplyTo().tell(watcherSourceMemento);
-        } else {
-            RefSpecNotFoundError response = RefSpecNotFoundError.apply(
-                pull.getId(),
-                pull.getNamespace(),
-                pull.getRepository(),
-                pull.getRefSpec());
-
-            pull.getErrorTo().tell(response);
-        }
-
-        return Effect().none();
-    }
-
-    private Effect<RepositoryEvent, State> onPush(State state, Push push) {
-        RefSpec.VersionRef versionRef = RefSpec.VersionRef.apply(push.getDetails().getId());
-
-        if (!state.versions.containsKey(versionRef)) {
-            VersionDetails details = context.factories().versionFactory().createDetails(push.getDetails());
-            RepositorySinkMemento actualSinkMemento = repositoryStorageAdapter.push(namespace, name, details);
-
-            WatcherSinkMemento watcherSinkMemento = WatcherSinkMemento.apply(actualSinkMemento, actor.getSelf());
-
-            VersionStatus status = VersionStatus.apply(details, VersionState.INITIALIZED, new Date());
-            VersionUpsertedInRepository event = VersionUpsertedInRepository.apply(push.getNamespace(), push.getRepository(), status);
-
-            return Effect()
-                .persist(event)
-                .thenRun(() -> push.getReplyTo().tell(watcherSinkMemento));
-        } else {
-            RefSpecAlreadyExistsError error = RefSpecAlreadyExistsError.apply(
-                push.getId(),
-                push.getNamespace(),
-                push.getRepository(),
-                versionRef);
-
-            push.getErrorTo().tell(error);
-
-            return Effect().none();
-        }
-    }
-
-    private Effect<RepositoryEvent, State> onRepositoryDetailsRequest(State state, RepositoryDetailsRequest request) {
-        List<VersionStatus> versionStatuses = Ordering
-            .natural()
-            .reverse()
-            .onResultOf(VersionStatus::getUpdated)
-            .sortedCopy(state.versions.values());
-
-        RepositoryDetailsResponse response = RepositoryDetailsResponse.apply(
-            request.getId(),
-            request.getNamespace(),
-            request.getRepository(),
-            getSummary(state),
-            state.authorizations,
-            versionStatuses);
-
-        request.getReplyTo().tell(response);
-
-        return Effect().none();
-    }
-
-    private Effect<RepositoryEvent, State> onSubmit(State state, SubmitPushInRepository submit) {
-        final VersionStatus currentStatus = state.versions.get(submit.getRefSpec());
-
-        if (currentStatus == null) {
-            RefSpecNotFoundError error = RefSpecNotFoundError.apply(
-                submit.getId(), submit.getNamespace(), submit.getRepository(),
-                submit.getRefSpec());
-
-            submit.getErrorTo().tell(error);
-
-            return Effect().none();
-        } else {
-            final VersionStatus newStatus = currentStatus
-                .withState(VersionState.PUSHED)
-                .withUpdated(new Date());
-
-            VersionUpsertedInRepository event = VersionUpsertedInRepository.apply(namespace, name, newStatus);
-
-            return Effect()
-                .persist(event)
-                .thenRun(() -> submit.getReplyTo().tell(newStatus));
-        }
-    }
-
-    private Effect<RepositoryEvent, State> onRevoke(State state, RevokeAccessToRepository revoke) {
-        return state
-            .authorizations
-            .getAuthorizations()
-            .stream()
-            .filter(g -> g.getAuthorization().equals(revoke.getAuthorization()))
-            .findFirst()
-            .map(granted -> {
-                RevokedAccessToRepository event = RevokedAccessToRepository.apply(
-                    revoke.getId(), revoke.getNamespace(), revoke.getRepository(), granted);
-
-                return Effect()
-                    .persist(event)
-                    .thenRun(() -> revoke.getReplyTo().tell(event));
-            })
-            .orElseGet(() -> {
-                GrantedAuthorization granted = GrantedAuthorization.apply(
-                    revoke.getExecutor(), new Date(), revoke.getAuthorization());
-
-                RevokedAccessToRepository event = RevokedAccessToRepository.apply(
-                    revoke.getId(), revoke.getNamespace(), revoke.getRepository(), granted);
-
-                revoke.getReplyTo().tell(event);
-
-                return Effect().none();
-            });
-    }
-
-    private State onRevoked(State state, RevokedAccessToRepository revoked) {
-        state.authorizations = state.authorizations.remove(revoked.getAuthorization().getAuthorization());
-        return state;
-    }
-
-    private Effect<RepositoryEvent, State> onSummaryRequest(State state, RepositorySummaryRequest request) {
-        boolean isAuthorized = state.authorizations.isAuthorized(request).orElse(false);
-        if (isAuthorized) {
-            RepositorySummary summary = getSummary(state);
-
-            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name, summary);
-            request.getReplyTo().tell(response);
-        } else {
-            RepositorySummaryResponse response = RepositorySummaryResponse.apply(request.getId(), namespace, name);
-            request.getReplyTo().tell(response);
-        }
-
-        return Effect().none();
-    }
-
-    private State onUpsert(State state, VersionUpsertedInRepository upserted) {
-        RefSpec.VersionRef versionRef = RefSpec.fromId(upserted.getStatus().getDetails().getId());
-        state.versions.put(versionRef, upserted.getStatus());
-        return state;
-    }
-
-    /*
-     * Helper functions
-     */
-
-    private RepositorySummary getSummary(State state) {
-        if (state.versions.isEmpty()) {
-            return RepositorySummary.apply(namespace, name, state.created, null);
-        } else {
-            List<VersionDetails> detailsList = state
-                .versions
-                .values()
-                .stream()
-                .map(status -> context.factories().versionFactory().createDetails(status.getDetails()))
-                .collect(Collectors.toList());
-
-            VersionDetails details = Ordering
-                .natural()
-                .reverse()
-                .onResultOf(VersionDetails::date)
-                .sortedCopy(detailsList)
-                .get(0);
-
-            return RepositorySummary.apply(namespace, name, details.date(), details.id());
-        }
-    }
-
-    private RefSpec.VersionRef refSpecToVersionRef(State state, RefSpec refSpec) {
-        if (refSpec instanceof RefSpec.VersionRef && state.versions.containsKey(refSpec)) {
-            return (RefSpec.VersionRef) refSpec;
-        } else if (refSpec instanceof RefSpec.TagRef) {
-            return state.tags.get(refSpec);
-        } else {
-            return null;
-        }
+        return (state, message) -> func.apply(state).apply(message);
     }
 
     private <T extends RepositoryMessage> BiFunction<State, T, Effect<RepositoryEvent, State>> whenChecked(
@@ -370,38 +153,23 @@ public final class Repository extends EventSourcedEntity<RepositoryMessage, Repo
     private <T extends RepositoryMessage> BiFunction<State, T, Effect<RepositoryEvent, State>> whenAuthorized(
         BiFunction<State, T, Effect<RepositoryEvent, State>> then) {
 
-        return (state, message) -> state.authorizations
-            .isAuthorized(message)
-            .map(authorized -> {
-                if (authorized) {
-                    return then.apply(state, message);
-                } else {
-                    actor.getLog().warning(
-                        "Refusing operation in repository '{}/{}' for user {}",
-                        message.getNamespace().getValue(),
-                        message.getRepository().getValue(),
-                        message.getExecutor());
-
-                    return Effect()
-                        .none()
-                        .thenRun(() -> message
-                            .getErrorTo()
-                            .tell(UserNotAuthorizedError.apply(message.getId(), message.getExecutor())));
-                }
-            })
-            .orElseGet(() -> {
+        return (state, message) -> {
+            if (state.isAuthorized(message)) {
+                return then.apply(state, message);
+            } else {
                 actor.getLog().warning(
-                    "No authorization result provided in repository '{}/{}' for operation {}",
+                    "Refusing operation in repository '{}/{}' for user {}",
                     message.getNamespace().getValue(),
                     message.getRepository().getValue(),
-                    message);
+                    message.getExecutor());
 
                 return Effect()
                     .none()
                     .thenRun(() -> message
                         .getErrorTo()
                         .tell(UserNotAuthorizedError.apply(message.getId(), message.getExecutor())));
-            });
+            }
+        };
     }
 
     private <T extends RepositoryMessage> BiFunction<State, T, Effect<RepositoryEvent, State>> whenResponsible(
@@ -422,22 +190,5 @@ public final class Repository extends EventSourcedEntity<RepositoryMessage, Repo
         };
     }
 
-    @Data
-    @AllArgsConstructor(staticName = "apply")
-    public static class State {
-
-        private Map<RefSpec.VersionRef, VersionStatus> versions;
-
-        private Map<RefSpec.TagRef, RefSpec.VersionRef> tags;
-
-        private RepositoryAuthorizations authorizations;
-
-        private Date created;
-
-        private UserId createdBy;
-
-        private boolean initialized;
-
-    }
 
 }

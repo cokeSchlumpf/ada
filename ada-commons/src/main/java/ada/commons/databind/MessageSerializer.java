@@ -45,6 +45,7 @@ public abstract class MessageSerializer extends SerializerWithStringManifest {
 
     @Override
     public byte[] toBinary(Object o) {
+        system.log().debug("Serialize message of type {}", o.getClass().getName());
         return Operators.suppressExceptions(() -> om.writeValueAsBytes(o));
     }
 
@@ -52,7 +53,7 @@ public abstract class MessageSerializer extends SerializerWithStringManifest {
     public Object fromBinary(byte[] bytes, String manifest) throws NotSerializableException {
         Class<?> target = manifestToClass.get().get(manifest);
 
-        system.log().info("Deserialize message for manifest {}", manifest);
+        system.log().debug("Deserialize message for manifest {}", manifest);
 
         if (target == null) {
             throw new NotSerializableException("Unknown manifest " + manifest);

@@ -5,14 +5,14 @@ import ada.commons.util.ResourceName;
 import ada.vcs.domain.dvc.values.Authorization;
 import ada.vcs.domain.dvc.values.User;
 import ada.vcs.domain.dvc.protocol.api.RepositoryMessage;
-import ada.vcs.domain.dvc.protocol.events.RevokedAccessToRepository;
+import ada.vcs.domain.dvc.protocol.events.RevokedAccessFromRepository;
 import akka.actor.typed.ActorRef;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public final class RevokeAccessToRepository implements RepositoryMessage {
+public final class RevokeAccessFromRepository implements RepositoryMessage {
 
     private final String id;
 
@@ -24,7 +24,7 @@ public final class RevokeAccessToRepository implements RepositoryMessage {
 
     private final Authorization authorization;
 
-    private final ActorRef<RevokedAccessToRepository> replyTo;
+    private final ActorRef<RevokedAccessFromRepository> replyTo;
 
     private final ActorRef<ErrorMessage> errorTo;
 

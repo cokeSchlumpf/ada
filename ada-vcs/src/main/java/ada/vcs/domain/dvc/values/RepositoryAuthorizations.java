@@ -51,8 +51,8 @@ public final class RepositoryAuthorizations implements ValueObject {
     }
 
     @JsonIgnore
-    public Optional<Boolean> isAuthorized(RepositoryMessage message) {
-        return Optional.of(isPublic() || isOwner(message) || isExecutedByAuthorizedUser(message));
+    public Boolean isAuthorized(RepositoryMessage message) {
+        return isPublic() || isOwner(message) || isExecutedByAuthorizedUser(message);
     }
 
     private boolean isExecutedByAuthorizedUser(RepositoryMessage create) {

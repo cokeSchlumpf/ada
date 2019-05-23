@@ -4,6 +4,7 @@ import ada.commons.util.Either;
 import ada.commons.util.Operators;
 import ada.vcs.adapters.client.ExceptionHandler;
 import ada.vcs.adapters.client.modifiers.RequestModifier;
+import ada.vcs.domain.dvc.protocol.events.RepositoryRemoved;
 import ada.vcs.domain.dvc.protocol.queries.RepositoryDetailsResponse;
 import ada.vcs.domain.dvc.values.Authorization;
 import ada.vcs.domain.dvc.values.GrantedAuthorization;
@@ -205,6 +206,16 @@ public final class RepositoryClient {
 
                     return Operators.suppressExceptions(() -> versionFactory.createDetails(is));
                 }));
+    }
+
+    public CompletionStage<RepositoryRemoved> remove() {
+        return modifier
+            .modifyClient(Http.get(system))
+            .singleRequest(modifier.modifyRequest(HttpRequest.DELETE(endpoint.toString())))
+            .thenCompose(exceptionHandler::handle)
+            .thenCompose(response -> Jackson
+                .unmarshaller(om, RepositoryRemoved.class)
+                .unmarshal(response.entity().withoutSizeLimit(), materializer));
     }
 
     public CompletionStage<GrantedAuthorization> revoke(Authorization authorization) {

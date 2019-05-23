@@ -61,6 +61,7 @@ public final class CommandFactory implements CommandLine.IFactory {
             Repository.apply(console, context),
             Repository$Grant.apply(console, context),
             Repository$Grants.apply(console),
+            Repository$Remove.apply(console, context),
             Repository$Revoke.apply(console, context),
             Repository$Schema.apply(console, context),
             Server.apply(context));

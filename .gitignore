@@ -132,3 +132,4 @@ gradle-app.setting
 journal/**/*
 
 **/*/.DS_Store
+public/**

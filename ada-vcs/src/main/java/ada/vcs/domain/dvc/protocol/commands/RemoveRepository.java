@@ -8,8 +8,10 @@ import ada.vcs.domain.dvc.protocol.events.RepositoryRemoved;
 import akka.actor.typed.ActorRef;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.experimental.Wither;
 
 @Value
+@Wither
 @AllArgsConstructor(staticName = "apply")
 public final class RemoveRepository implements RepositoryMessage {
 
