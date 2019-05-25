@@ -1,8 +1,8 @@
 package ada.adapters.cli.core.dataset;
 
-import ada.domain.legacy.converters.api.Monitor;
-import ada.domain.legacy.converters.api.ReadSummary;
-import ada.domain.legacy.converters.api.ReadableDataSource;
+import ada.adapters.cli.converters.api.Monitor;
+import ada.adapters.cli.converters.api.ReadSummary;
+import ada.adapters.cli.converters.api.ReadableDataSource;
 import ada.domain.legacy.repository.api.RefSpec;
 import ada.domain.legacy.repository.api.version.VersionDetails;
 import ada.commons.io.Writable;

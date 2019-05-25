@@ -1,10 +1,10 @@
 package ada.adapters.cli.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.converters.api.DataSink;
-import ada.domain.legacy.converters.api.DataSinkFactory;
-import ada.domain.legacy.converters.api.DataSource;
-import ada.domain.legacy.converters.api.DataSourceFactory;
+import ada.adapters.cli.converters.api.DataSink;
+import ada.adapters.cli.converters.api.DataSinkFactory;
+import ada.adapters.cli.converters.api.DataSource;
+import ada.adapters.cli.converters.api.DataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;

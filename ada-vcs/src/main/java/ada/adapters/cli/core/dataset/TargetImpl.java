@@ -1,7 +1,7 @@
 package ada.adapters.cli.core.dataset;
 
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.converters.api.DataSink;
+import ada.adapters.cli.converters.api.DataSink;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(staticName = "apply")

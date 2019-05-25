@@ -5,8 +5,8 @@ import ada.adapters.cli.exceptions.CommandNotInitializedException;
 import ada.commons.util.Either;
 import ada.commons.util.ResourceName;
 import ada.adapters.cli.commands.context.CommandContext;
-import ada.domain.legacy.converters.csv.CSVSink;
-import ada.domain.legacy.datatypes.BooleanFormat;
+import ada.adapters.cli.converters.csv.CSVSink;
+import ada.adapters.cli.datatypes.BooleanFormat;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
 

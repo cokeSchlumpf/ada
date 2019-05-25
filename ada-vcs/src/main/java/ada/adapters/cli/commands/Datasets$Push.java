@@ -4,7 +4,7 @@ import ada.adapters.cli.consoles.CommandLineConsole;
 import ada.adapters.cli.exceptions.NoUserConfiguredException;
 import ada.commons.util.ResourceName;
 import ada.adapters.cli.commands.context.CommandContext;
-import ada.domain.legacy.converters.internal.monitors.NoOpMonitor;
+import ada.adapters.cli.converters.internal.monitors.NoOpMonitor;
 import ada.adapters.cli.core.dataset.Dataset;
 import ada.adapters.cli.core.dataset.RemoteSource;
 import ada.adapters.cli.core.remotes.Remote;

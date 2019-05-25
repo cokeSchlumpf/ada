@@ -3,7 +3,7 @@ package ada.adapters.cli.commands;
 import ada.adapters.cli.consoles.CommandLineConsole;
 import ada.commons.util.ResourceName;
 import ada.adapters.cli.commands.context.CommandContext;
-import ada.domain.legacy.converters.csv.CSVSource;
+import ada.adapters.cli.converters.csv.CSVSource;
 import ada.adapters.cli.core.dataset.Dataset;
 import org.apache.commons.io.FilenameUtils;
 import picocli.CommandLine;
