@@ -2,10 +2,10 @@ package ada.domain.legacy.repository.fs;
 
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.repository.api.RefSpec;
-import ada.domain.legacy.repository.api.User;
-import ada.domain.legacy.repository.api.version.VersionDetails;
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.RefSpec;
+import ada.domain.dvc.values.repository.User;
+import ada.domain.dvc.values.repository.version.VersionDetails;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import ada.client.util.AbstractAdaTest;
 import ada.client.util.TestDataFactory;
 import akka.stream.javadsl.Sink;

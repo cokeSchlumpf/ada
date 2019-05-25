@@ -1,8 +1,9 @@
 package ada.domain.legacy.repository.api;
 
 import ada.commons.databind.ObjectMapperFactory;
-import ada.domain.legacy.repository.api.version.VersionDetails;
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.User;
+import ada.domain.dvc.values.repository.version.VersionDetails;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import org.junit.Test;
 
 public class VersionDetailsUTest {

@@ -1,9 +1,9 @@
 package ada.domain.dvc.protocol.queries;
 
 import ada.commons.util.ResourceName;
-import ada.domain.dvc.values.RepositoryAuthorizations;
-import ada.domain.dvc.values.RepositorySummary;
-import ada.domain.dvc.values.VersionStatus;
+import ada.domain.dvc.values.repository.RepositoryAuthorizations;
+import ada.domain.dvc.values.repository.RepositorySummary;
+import ada.domain.dvc.values.repository.VersionStatus;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;

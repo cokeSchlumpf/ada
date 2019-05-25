@@ -1,11 +1,11 @@
 package ada.adapters.cli.core.remotes;
 
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.repository.api.RefSpec;
+import ada.domain.dvc.values.repository.RefSpec;
 import ada.domain.legacy.repository.api.Repository;
-import ada.domain.legacy.repository.api.User;
-import ada.domain.legacy.repository.api.version.Tag;
-import ada.domain.legacy.repository.api.version.VersionDetails;
+import ada.domain.dvc.values.repository.User;
+import ada.domain.dvc.values.repository.version.Tag;
+import ada.domain.dvc.values.repository.version.VersionDetails;
 import akka.NotUsed;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;

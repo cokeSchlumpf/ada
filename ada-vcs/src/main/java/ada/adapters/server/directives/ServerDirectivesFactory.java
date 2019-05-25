@@ -1,6 +1,6 @@
 package ada.adapters.server.directives;
 
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 

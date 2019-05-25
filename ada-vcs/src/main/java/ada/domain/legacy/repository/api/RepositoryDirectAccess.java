@@ -1,6 +1,7 @@
 package ada.domain.legacy.repository.api;
 
-import ada.domain.legacy.repository.api.version.VersionDetails;
+import ada.domain.dvc.values.repository.RefSpec;
+import ada.domain.dvc.values.repository.version.VersionDetails;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;

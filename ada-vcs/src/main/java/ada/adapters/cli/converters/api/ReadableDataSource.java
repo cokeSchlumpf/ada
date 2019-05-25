@@ -1,6 +1,6 @@
 package ada.adapters.cli.converters.api;
 
-import ada.domain.legacy.repository.api.RefSpec;
+import ada.domain.dvc.values.repository.RefSpec;
 import akka.stream.javadsl.Source;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;

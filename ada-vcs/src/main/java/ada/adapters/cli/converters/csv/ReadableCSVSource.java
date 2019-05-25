@@ -4,7 +4,7 @@ import ada.adapters.cli.converters.api.Monitor;
 import ada.adapters.cli.converters.api.ReadSummary;
 import ada.adapters.cli.datatypes.DataTypeMatcher;
 import ada.adapters.cli.converters.api.ReadableDataSource;
-import ada.domain.legacy.repository.api.RefSpec;
+import ada.domain.dvc.values.repository.RefSpec;
 import akka.stream.javadsl.Source;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;

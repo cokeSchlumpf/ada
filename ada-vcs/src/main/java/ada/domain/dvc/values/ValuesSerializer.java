@@ -3,6 +3,10 @@ package ada.domain.dvc.values;
 import ada.commons.databind.MessageSerializer;
 import ada.commons.util.FQResourceName;
 import ada.commons.util.ResourcePath;
+import ada.domain.dvc.values.repository.RepositoryAuthorizations;
+import ada.domain.dvc.values.repository.RepositorySummary;
+import ada.domain.dvc.values.repository.VersionState;
+import ada.domain.dvc.values.repository.VersionStatus;
 import akka.actor.ExtendedActorSystem;
 import com.google.common.collect.Maps;
 

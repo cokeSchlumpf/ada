@@ -4,7 +4,7 @@ import ada.commons.databind.MessageSerializer;
 import ada.domain.dvc.protocol.commands.*;
 import ada.domain.dvc.protocol.events.*;
 import ada.domain.dvc.protocol.queries.*;
-import ada.domain.dvc.values.RepositorySummary;
+import ada.domain.dvc.values.repository.RepositorySummary;
 import akka.actor.ExtendedActorSystem;
 import com.google.common.collect.Maps;
 

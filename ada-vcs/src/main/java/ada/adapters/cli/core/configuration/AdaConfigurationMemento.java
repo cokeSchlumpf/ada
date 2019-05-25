@@ -2,7 +2,7 @@ package ada.adapters.cli.core.configuration;
 
 import ada.commons.util.ResourceName;
 import ada.adapters.cli.core.endpoints.EndpointMemento;
-import ada.domain.legacy.repository.api.User;
+import ada.domain.dvc.values.repository.User;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

@@ -2,7 +2,7 @@ package ada.adapters.cli.core.configuration;
 
 import ada.commons.io.Writable;
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.repository.api.User;
+import ada.domain.dvc.values.repository.User;
 import ada.adapters.cli.core.endpoints.Endpoint;
 
 import java.util.List;

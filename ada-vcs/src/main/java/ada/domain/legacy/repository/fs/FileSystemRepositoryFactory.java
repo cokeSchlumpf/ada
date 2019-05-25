@@ -1,7 +1,7 @@
 package ada.domain.legacy.repository.fs;
 
 import ada.commons.util.Operators;
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

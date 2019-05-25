@@ -1,7 +1,7 @@
 package ada.adapters.server.directives;
 
 import ada.commons.util.Operators;
-import ada.domain.legacy.repository.api.version.VersionDetails;
+import ada.domain.dvc.values.repository.version.VersionDetails;
 import akka.japi.function.Function;
 import lombok.AllArgsConstructor;
 

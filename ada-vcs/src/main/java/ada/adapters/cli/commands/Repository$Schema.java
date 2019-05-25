@@ -4,7 +4,7 @@ import ada.adapters.cli.consoles.CommandLineConsole;
 import ada.adapters.cli.exceptions.CommandNotInitializedException;
 import ada.commons.util.Operators;
 import ada.adapters.cli.commands.context.CommandContext;
-import ada.domain.dvc.values.VersionStatus;
+import ada.domain.dvc.values.repository.VersionStatus;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import picocli.CommandLine;

@@ -10,7 +10,7 @@ import ada.domain.dvc.protocol.queries.RepositoriesRequest;
 import ada.domain.dvc.protocol.queries.RepositoriesResponse;
 import ada.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.domain.dvc.protocol.queries.RepositorySummaryResponse;
-import ada.domain.dvc.values.RepositorySummary;
+import ada.domain.dvc.values.repository.RepositorySummary;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;

@@ -3,7 +3,7 @@ package ada.adapters.cli.core.configuration;
 import ada.adapters.cli.exceptions.EndpointNotExistingException;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.repository.api.User;
+import ada.domain.dvc.values.repository.User;
 import ada.adapters.cli.core.endpoints.Endpoint;
 import ada.adapters.cli.core.endpoints.EndpointMemento;
 import com.fasterxml.jackson.databind.ObjectMapper;

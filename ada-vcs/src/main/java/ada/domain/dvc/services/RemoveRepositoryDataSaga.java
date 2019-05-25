@@ -1,8 +1,8 @@
 package ada.domain.dvc.services;
 
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.repository.api.RefSpec;
-import ada.domain.legacy.repository.api.RepositoryStorageAdapter;
+import ada.domain.dvc.values.repository.RefSpec;
+import ada.domain.dvc.values.repository.RepositoryStorageAdapter;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;

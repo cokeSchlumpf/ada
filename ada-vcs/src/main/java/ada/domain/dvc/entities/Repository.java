@@ -13,7 +13,7 @@ import ada.domain.dvc.protocol.errors.UserNotAuthorizedError;
 import ada.domain.dvc.protocol.queries.Pull;
 import ada.domain.dvc.protocol.queries.RepositoryDetailsRequest;
 import ada.domain.dvc.protocol.queries.RepositorySummaryRequest;
-import ada.domain.legacy.repository.api.RepositoryStorageAdapter;
+import ada.domain.dvc.values.repository.RepositoryStorageAdapter;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;

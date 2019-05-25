@@ -1,6 +1,6 @@
 package ada.domain.legacy.repository.api.exceptions;
 
-import ada.domain.legacy.repository.api.RefSpec;
+import ada.domain.dvc.values.repository.RefSpec;
 
 public class VersionAlreadyExistsException extends RuntimeException {
 

@@ -1,6 +1,6 @@
 package ada.adapters.cli.core.dataset;
 
-import ada.domain.legacy.repository.api.version.VersionDetailsMemento;
+import ada.domain.dvc.values.repository.version.VersionDetailsMemento;
 import ada.adapters.cli.core.remotes.RemoteMemento;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

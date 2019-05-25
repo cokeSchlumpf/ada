@@ -1,5 +1,6 @@
 package ada.domain.legacy.repository.api;
 
+import ada.domain.dvc.values.repository.User;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;

@@ -4,7 +4,7 @@ import ada.adapters.client.repositories.RepositoriesClientFactory;
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.ResourceName;
 import ada.domain.legacy.repository.api.Repository;
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import ada.domain.legacy.repository.fs.FileSystemRepositoryFactory;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;

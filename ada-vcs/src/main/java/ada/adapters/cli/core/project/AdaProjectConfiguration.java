@@ -4,7 +4,7 @@ import ada.adapters.cli.core.AdaHome;
 import ada.adapters.cli.core.configuration.AdaConfiguration;
 import ada.commons.util.ProcessUtils;
 import ada.commons.util.ResourceName;
-import ada.domain.legacy.repository.api.User;
+import ada.domain.dvc.values.repository.User;
 import ada.adapters.cli.core.endpoints.Endpoint;
 import lombok.AllArgsConstructor;
 

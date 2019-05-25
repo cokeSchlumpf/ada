@@ -7,7 +7,7 @@ import ada.adapters.cli.core.AdaHome;
 import ada.adapters.cli.core.configuration.AdaConfiguration;
 import ada.adapters.cli.core.project.AdaProject;
 import ada.adapters.cli.exceptions.ExitWithErrorException;
-import ada.domain.legacy.repository.api.User;
+import ada.domain.dvc.values.repository.User;
 import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package ada.adapters.cli.core.dataset;
 
-import ada.domain.legacy.repository.api.version.VersionDetails;
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.version.VersionDetails;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import ada.adapters.cli.core.remotes.Remote;
 import ada.adapters.cli.core.remotes.RemotesFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;

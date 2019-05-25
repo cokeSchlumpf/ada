@@ -2,7 +2,7 @@ package ada.domain.dvc.protocol.events;
 
 import ada.commons.util.ResourceName;
 import ada.domain.dvc.protocol.api.RepositoryEvent;
-import ada.domain.dvc.values.VersionStatus;
+import ada.domain.dvc.values.repository.VersionStatus;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

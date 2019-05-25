@@ -4,7 +4,7 @@ import ada.adapters.client.ExceptionHandler;
 import ada.commons.util.Operators;
 import ada.adapters.client.modifiers.RequestModifier;
 import ada.adapters.client.modifiers.RequestModifiers;
-import ada.domain.legacy.repository.api.version.VersionFactory;
+import ada.domain.dvc.values.repository.version.VersionFactory;
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
 import com.fasterxml.jackson.databind.ObjectMapper;

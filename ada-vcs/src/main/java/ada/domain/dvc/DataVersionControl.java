@@ -15,7 +15,7 @@ import ada.adapters.cli.commands.context.CommandContext;
 import ada.domain.dvc.services.RepositoriesQuery;
 import ada.domain.dvc.services.registry.ResourceRegistry;
 import ada.domain.dvc.services.registry.ResourceRegistryCommand;
-import ada.domain.legacy.repository.api.RepositoryStorageAdapter;
+import ada.domain.dvc.values.repository.RepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
