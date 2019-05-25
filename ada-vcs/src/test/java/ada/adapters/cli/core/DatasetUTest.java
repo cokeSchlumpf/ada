@@ -5,7 +5,7 @@ import ada.adapters.cli.converters.api.ReadableDataSource;
 import ada.adapters.cli.converters.csv.CSVSource;
 import ada.adapters.cli.core.dataset.Dataset;
 import ada.adapters.cli.core.dataset.DatasetFactory;
-import ada.client.util.AbstractAdaTest;
+import ada.adapters.cli.util.AbstractAdaTest;
 import org.apache.avro.Schema;
 import org.junit.Ignore;
 import org.junit.Test;

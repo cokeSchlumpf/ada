@@ -2,7 +2,7 @@ package ada.domain.dvc.values.repository.fs;
 
 import ada.domain.dvc.values.repository.version.VersionDetailsMemento;
 import ada.domain.dvc.values.repository.RepositorySinkMemento;
-import ada.domain.legacy.repository.fs.FileSystemRepositorySettingsMemento;
+import ada.adapters.cli.repository.fs.FileSystemRepositorySettingsMemento;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;

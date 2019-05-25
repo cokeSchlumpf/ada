@@ -2,7 +2,7 @@ package ada.adapters.cli.core.remotes;
 
 import ada.commons.util.ResourceName;
 import ada.commons.io.Writable;
-import ada.domain.legacy.repository.api.Repository;
+import ada.adapters.cli.repository.api.Repository;
 
 public interface Remote
     extends Comparable<Remote>, Writable, Repository {

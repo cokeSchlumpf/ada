@@ -5,7 +5,7 @@ import ada.adapters.client.repositories.RepositoriesClient;
 import ada.commons.databind.ObjectMapperFactory;
 import ada.commons.util.Operators;
 import ada.commons.util.ResourceName;
-import ada.client.util.AbstractAdaTest;
+import ada.adapters.cli.util.AbstractAdaTest;
 import ada.domain.dvc.protocol.queries.RepositoriesResponse;
 import ada.domain.dvc.values.GrantedAuthorization;
 import ada.domain.dvc.values.UserAuthorization;

@@ -7,7 +7,7 @@ import ada.domain.dvc.values.repository.RepositorySinkMemento;
 import ada.domain.dvc.values.repository.RepositorySourceMemento;
 import ada.domain.dvc.values.repository.RepositoryStorageAdapter;
 import ada.domain.dvc.values.repository.version.VersionDetails;
-import ada.domain.legacy.repository.fs.FileSystemRepositorySettings;
+import ada.adapters.cli.repository.fs.FileSystemRepositorySettings;
 import akka.Done;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FileUtils;

@@ -1,7 +1,7 @@
 package ada.adapters.cli.core.remotes;
 
 import ada.commons.util.ResourceName;
-import ada.client.util.AbstractAdaTest;
+import ada.adapters.cli.util.AbstractAdaTest;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 

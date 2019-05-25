@@ -2,7 +2,7 @@ package ada.adapters.cli.core.remotes;
 
 import ada.commons.util.ResourceName;
 import ada.domain.dvc.values.repository.RefSpec;
-import ada.domain.legacy.repository.api.Repository;
+import ada.adapters.cli.repository.api.Repository;
 import ada.domain.dvc.values.repository.User;
 import ada.domain.dvc.values.repository.version.Tag;
 import ada.domain.dvc.values.repository.version.VersionDetails;

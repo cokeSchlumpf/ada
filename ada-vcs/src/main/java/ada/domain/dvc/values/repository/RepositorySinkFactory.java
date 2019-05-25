@@ -2,8 +2,8 @@ package ada.domain.dvc.values.repository;
 
 import ada.domain.dvc.values.repository.version.VersionDetails;
 import ada.domain.dvc.values.repository.version.VersionFactory;
-import ada.domain.legacy.repository.fs.FileSystemRepositorySettings;
-import ada.domain.legacy.repository.fs.FileSystemRepositorySettingsMemento;
+import ada.adapters.cli.repository.fs.FileSystemRepositorySettings;
+import ada.adapters.cli.repository.fs.FileSystemRepositorySettingsMemento;
 import ada.domain.dvc.values.repository.fs.FileSystemRepositorySink;
 import ada.domain.dvc.values.repository.fs.FileSystemRepositorySinkMemento;
 import ada.domain.dvc.values.repository.watcher.WatcherSink;

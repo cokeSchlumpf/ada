@@ -1,4 +1,4 @@
-package ada.adapters.cli.commands;
+package ada.adapters.cli;
 
 import ada.adapters.cli.features.ApplicationContext;
 import org.assertj.core.util.Files;
@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import java.nio.file.Path;
 
-public class InitITest {
+public class UseCaseTests {
 
     private Path dir;
 
@@ -30,6 +30,7 @@ public class InitITest {
     public void test() {
         ApplicationContext context = ApplicationContext.apply();
         context.run("init");
+        context.run("dataset", "foo", "targets");
         System.out.println(context.getOutput());
     }
 

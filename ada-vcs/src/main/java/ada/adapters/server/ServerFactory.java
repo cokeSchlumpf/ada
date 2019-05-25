@@ -6,7 +6,7 @@ import ada.api.RepositoriesResource;
 import ada.commons.util.ActorPatterns;
 import ada.domain.dvc.DataVersionControl;
 import ada.domain.dvc.protocol.api.DataVersionControlMessage;
-import ada.domain.legacy.repository.fs.FileSystemRepositorySettings;
+import ada.adapters.cli.repository.fs.FileSystemRepositorySettings;
 import ada.domain.dvc.values.repository.fs.FileSystemRepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;

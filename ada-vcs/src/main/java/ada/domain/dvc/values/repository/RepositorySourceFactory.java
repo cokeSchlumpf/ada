@@ -1,7 +1,7 @@
 package ada.domain.dvc.values.repository;
 
 import ada.domain.dvc.values.repository.version.VersionFactory;
-import ada.domain.legacy.repository.fs.FileSystemRepositorySettings;
+import ada.adapters.cli.repository.fs.FileSystemRepositorySettings;
 import ada.domain.dvc.values.repository.fs.FileSystemRepositorySource;
 import ada.domain.dvc.values.repository.fs.FileSystemRepositorySourceMemento;
 import ada.domain.dvc.values.repository.watcher.WatcherSource;

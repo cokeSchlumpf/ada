@@ -8,7 +8,7 @@ import ada.adapters.cli.converters.api.DataSinkFactory;
 import ada.adapters.cli.converters.api.DataSourceFactory;
 import ada.domain.dvc.values.repository.RepositorySinkFactory;
 import ada.domain.dvc.values.repository.version.VersionFactory;
-import ada.domain.legacy.repository.fs.FileSystemRepositoryFactory;
+import ada.adapters.cli.repository.fs.FileSystemRepositoryFactory;
 import ada.adapters.cli.core.endpoints.EndpointFactory;
 import ada.adapters.cli.core.AdaHome;
 import ada.adapters.cli.core.dataset.DatasetFactory;

@@ -1,9 +1,9 @@
 package ada.adapters.cli.commands;
 
 import ada.commons.util.FileSize;
-import ada.client.features.ApplicationContext;
-import ada.client.util.AbstractAdaTest;
-import ada.client.util.TestDataFactory;
+import ada.adapters.cli.features.ApplicationContext;
+import ada.adapters.cli.util.AbstractAdaTest;
+import ada.adapters.cli.util.TestDataFactory;
 import org.junit.Test;
 
 import java.nio.file.Path;
