@@ -4,8 +4,6 @@ import ada.domain.dvc.protocol.api.RepositoryEvent;
 import ada.domain.dvc.protocol.api.RepositoryMessage;
 import ada.domain.dvc.protocol.commands.*;
 import ada.domain.dvc.protocol.events.*;
-import ada.vcs.domain.dvc.protocol.commands.*;
-import ada.vcs.domain.dvc.protocol.events.*;
 import ada.domain.dvc.protocol.queries.Pull;
 import ada.domain.dvc.protocol.queries.RepositoryDetailsRequest;
 import ada.domain.dvc.protocol.queries.RepositorySummaryRequest;

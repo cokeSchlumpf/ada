@@ -5,9 +5,6 @@ import ada.domain.dvc.protocol.commands.*;
 import ada.domain.dvc.protocol.events.*;
 import ada.domain.dvc.protocol.queries.*;
 import ada.domain.dvc.values.RepositorySummary;
-import ada.vcs.domain.dvc.protocol.commands.*;
-import ada.vcs.domain.dvc.protocol.events.*;
-import ada.vcs.domain.dvc.protocol.queries.*;
 import akka.actor.ExtendedActorSystem;
 import com.google.common.collect.Maps;
 

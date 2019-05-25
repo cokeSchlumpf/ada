@@ -12,8 +12,6 @@ import ada.domain.dvc.protocol.queries.RepositorySummaryRequest;
 import ada.domain.dvc.protocol.queries.RepositorySummaryResponse;
 import ada.domain.dvc.values.RepositoryAuthorizations;
 import ada.domain.legacy.repository.api.RepositoryStorageAdapter;
-import ada.vcs.domain.dvc.protocol.commands.*;
-import ada.vcs.domain.dvc.protocol.events.*;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.persistence.typed.javadsl.Effect;
 import akka.persistence.typed.javadsl.EffectFactories;
