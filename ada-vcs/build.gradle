@@ -8,6 +8,14 @@ buildscript {
     }
 }
 
+repositories {
+
+    maven {
+        url 'https://repository.mulesoft.org/nexus/content/repositories/public/'
+    }
+
+}
+
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -17,16 +25,24 @@ dependencies {
     compile libs['jackson-datatype-jdk8']
 
     compile project(':ada-commons')
-    
+
+    compile 'com.github.TanUkkii007:akka-cluster-custom-downing:0.0.12', {
+        exclude group: 'com.typesafe.akka',
+                module: 'akka-actor_2.12'
+
+        exclude group: 'com.typesafe.akka',
+                module: 'akka-cluster_2.12'
+    }
+    compile 'com.lightbend.akka.discovery:akka-discovery-kubernetes-api_2.12:1.0.1'
+    compile 'com.lightbend.akka.management:akka-management-cluster-bootstrap_2.12:1.0.1'
     compile 'com.lightbend.akka:akka-stream-alpakka-csv_2.12:1.0.0'
     compile 'com.lightbend.akka:akka-stream-alpakka-file_2.12:1.0.0'
-    compile 'com.typesafe.akka:akka-cluster-sharding-typed_2.12:2.5.22'
-    compile 'com.typesafe.akka:akka-cluster-typed_2.12:2.5.22'
-    compile 'com.typesafe.akka:akka-actor-typed_2.12:2.5.22'
-    compile 'com.typesafe.akka:akka-cluster-typed_2.12:2.5.22'
+    compile 'com.typesafe.akka:akka-cluster-sharding-typed_2.12:2.5.21'
+    compile 'com.typesafe.akka:akka-cluster-typed_2.12:2.5.21'
+    compile 'com.typesafe.akka:akka-actor-typed_2.12:2.5.21'
     compile 'com.typesafe.akka:akka-http_2.12:10.1.8'
     compile 'com.typesafe.akka:akka-http-jackson_2.12:10.1.8'
-    compile 'com.typesafe.akka:akka-persistence-typed_2.12:2.5.22'
+    compile 'com.typesafe.akka:akka-persistence-typed_2.12:2.5.21'
     compile 'org.fusesource.leveldbjni:leveldbjni-all:1.8'
     compile 'org.ocpsoft.prettytime:prettytime:4.0.2.Final'
     compile 'org.slf4j:slf4j-nop:1.7.26'

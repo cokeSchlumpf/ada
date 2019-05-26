@@ -42,7 +42,7 @@ public final class CommandContext {
         ArrayList<Runnable> shutdownActions = Lists.newArrayList();
 
         Supplier<ActorSystem> system = Suppliers.memoize(() -> {
-            ActorSystem s = ActorSystem.create();
+            ActorSystem s = ActorSystem.create("ada");
             shutdownActions.add(s::terminate);
             return s;
         });

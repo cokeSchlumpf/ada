@@ -10,6 +10,8 @@ import ada.adapters.cli.repository.fs.FileSystemRepositorySettings;
 import ada.domain.dvc.values.repository.fs.FileSystemRepositoryStorageAdapter;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.javadsl.Adapter;
+import akka.management.cluster.bootstrap.ClusterBootstrap;
+import akka.management.javadsl.AkkaManagement;
 import lombok.AllArgsConstructor;
 
 import java.nio.file.Path;
@@ -20,6 +22,9 @@ public final class ServerFactory {
     private final CommandContext context;
 
     public Server create(Path repositoryRootDirectory) {
+        AkkaManagement.get(context.system()).start();
+        ClusterBootstrap.get(context.system()).start();
+
         final FileSystemRepositorySettings settings = context
             .factories()
             .repositoryFactory()

@@ -16,7 +16,7 @@ subprojects {
          */
         versions = [
                 'ada'  : System.getenv("BUILD_NUMBER") ?: '0.0.42',
-                'akka' : '2.5.22',
+                'akka' : '2.5.21',
                 'scala': '2.12'
         ]
 
