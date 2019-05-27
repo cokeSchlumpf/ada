@@ -11,4 +11,3 @@ COPY --from=builder /home/gradle/src/ada-vcs/build/libs/ada-vcs-0.0.42.jar /app/
 WORKDIR /app
 RUN mkdir journal
 CMD java -Dapp.environment="k8" -jar ada-vcs.jar server
-git s
