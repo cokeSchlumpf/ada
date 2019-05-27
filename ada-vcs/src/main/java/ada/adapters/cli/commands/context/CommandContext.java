@@ -1,11 +1,12 @@
 package ada.adapters.cli.commands.context;
 
-import ada.adapters.cli.exceptions.NoEndpointException;
-import ada.adapters.cli.exceptions.NoProjectException;
-import ada.commons.databind.ObjectMapperFactory;
 import ada.adapters.cli.core.AdaHome;
 import ada.adapters.cli.core.endpoints.Endpoint;
 import ada.adapters.cli.core.project.AdaProject;
+import ada.adapters.cli.exceptions.NoEndpointException;
+import ada.adapters.cli.exceptions.NoProjectException;
+import ada.commons.Configs;
+import ada.commons.databind.ObjectMapperFactory;
 import akka.Done;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
@@ -42,7 +43,7 @@ public final class CommandContext {
         ArrayList<Runnable> shutdownActions = Lists.newArrayList();
 
         Supplier<ActorSystem> system = Suppliers.memoize(() -> {
-            ActorSystem s = ActorSystem.create("ada");
+            ActorSystem s = ActorSystem.create("ada", Configs.application);
             shutdownActions.add(s::terminate);
             return s;
         });

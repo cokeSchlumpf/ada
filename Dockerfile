@@ -10,4 +10,5 @@ EXPOSE 8080
 COPY --from=builder /home/gradle/src/ada-vcs/build/libs/ada-vcs-0.0.42.jar /app/ada-vcs.jar
 WORKDIR /app
 RUN mkdir journal
-CMD java -jar ada-vcs.jar server
+CMD java -Dapp.environment="k8" -jar ada-vcs.jar server
+git s

@@ -3,6 +3,7 @@ package ada.adapters.server;
 import ada.adapters.cli.commands.context.CommandContext;
 import ada.adapters.server.directives.ServerDirectives;
 import ada.api.RepositoriesResource;
+import ada.commons.Configs;
 import ada.commons.util.ActorPatterns;
 import ada.domain.dvc.DataVersionControl;
 import ada.domain.dvc.protocol.api.DataVersionControlMessage;
@@ -22,8 +23,12 @@ public final class ServerFactory {
     private final CommandContext context;
 
     public Server create(Path repositoryRootDirectory) {
-        AkkaManagement.get(context.system()).start();
-        ClusterBootstrap.get(context.system()).start();
+        if (Configs.application.hasPath("akka.discovery.method") &&
+            !Configs.application.getString("akka.discovery.method").equals("<method>")) {
+
+            AkkaManagement.get(context.system()).start();
+            ClusterBootstrap.get(context.system()).start();
+        }
 
         final FileSystemRepositorySettings settings = context
             .factories()
