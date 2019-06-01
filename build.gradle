@@ -15,28 +15,49 @@ subprojects {
          * Versions should be equal in each sub-project
          */
         versions = [
-                'ada'  : System.getenv("BUILD_NUMBER") ?: '0.0.42',
-                'akka' : '2.5.21',
-                'scala': '2.12'
+                'ada'            : System.getenv("BUILD_NUMBER") ?: '0.0.42',
+                'akka'           : '2.5.21',
+                'akka-management': '1.0.1',
+                'jackson'        : '2.9.7',
+                'scala'          : '2.12'
         ]
 
         /*
          * Dependency Management
          */
         libs = [
-                'akka-actor-typed'       : "com.typesafe.akka:akka-actor-typed_${versions['scala']}:${versions['akka']}",
-                'akka-streams'           : "com.typesafe.akka:akka-stream-typed_${versions['scala']}:${versions['akka']}",
-                'assertj-core'           : 'org.assertj:assertj-core:3.9.1',
-                'avro'                   : 'org.apache.avro:avro:1.8.2',
-                'easymock'               : 'org.easymock:easymock:4.0.1',
-                'jackson-annotations'    : 'com.fasterxml.jackson.core:jackson-annotations:2.9.7',
-                'jackson-databind'       : 'com.fasterxml.jackson.core:jackson-databind:2.9.7',
-                'jackson-dataformat-yaml': 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.7',
-                'jackson-datatype-guava' : 'com.fasterxml.jackson.datatype:jackson-datatype-guava:2.9.7',
-                'jackson-datatype-jdk8'  : 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.7',
-                'jackson-datatype-sr310' : 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.7',
-                'reactive-streams'       : 'org.reactivestreams:reactive-streams:1.0.2',
-                'wiremock'               : 'com.github.tomakehurst:wiremock:2.19.0'
+                'akka-actor-typed'                 : "com.typesafe.akka:akka-actor-typed_${versions['scala']}:${versions['akka']}",
+                'akka-cluster-custom-downing'      : 'com.github.TanUkkii007:akka-cluster-custom-downing:0.0.12',
+                'akka-cluster-sharding-typed'      : "com.typesafe.akka:akka-cluster-sharding-typed_${versions['scala']}:${versions['akka']}",
+                'akka-cluster-typed'               : "com.typesafe.akka:akka-cluster-typed_${versions['scala']}:${versions['akka']}",
+                'akka-discovery-kubernetes-api'    : "com.lightbend.akka.discovery:akka-discovery-kubernetes-api_${versions['scala']}:${versions['akka-management']}",
+                'akka-http'                        : "com.typesafe.akka:akka-http_${versions['scala']}:10.1.8",
+                'akka-http-jackson'                : "com.typesafe.akka:akka-http-jackson_${versions['scala']}:10.1.8",
+                'akka-management-cluster-bootstrap': "com.lightbend.akka.management:akka-management-cluster-bootstrap_${versions['scala']}:${versions['akka-management']}",
+                'akka-peristence-inmemory'         : "com.github.dnvriend:akka-persistence-inmemory_${versions['scala']}:2.5.1.1",
+                'akka-persistence-typed'           : "com.typesafe.akka:akka-persistence-typed_${versions['scala']}:${versions['akka']}",
+                'akka-stream-alpakka-csv'          : "com.lightbend.akka:akka-stream-alpakka-csv_${versions['scala']}:1.0.0",
+                'akka-stream-alpakka-file'         : "com.lightbend.akka:akka-stream-alpakka-file_${versions['scala']}:1.0.0",
+                'akka-streams'                     : "com.typesafe.akka:akka-stream-typed_${versions['scala']}:${versions['akka']}",
+                'assertj-core'                     : 'org.assertj:assertj-core:3.9.1',
+                'avro'                             : 'org.apache.avro:avro:1.8.2',
+                'cucumber-java'                    : 'io.cucumber:cucumber-java:4.2.5',
+                'cucumber-picocontainer'           : 'io.cucumber:cucumber-picocontainer:4.2.6',
+                'easymock'                         : 'org.easymock:easymock:4.0.1',
+                'jackson-annotations'              : "com.fasterxml.jackson.core:jackson-annotations:${versions['jackson']}",
+                'jackson-databind'                 : "com.fasterxml.jackson.core:jackson-databind:${versions['jackson']}",
+                'jackson-dataformat-yaml'          : "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${versions['jackson']}",
+                'jackson-datatype-guava'           : "com.fasterxml.jackson.datatype:jackson-datatype-guava:${versions['jackson']}",
+                'jackson-datatype-jdk8'            : "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${versions['jackson']}",
+                'jackson-datatype-sr310'           : "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions['jackson']}",
+                'jtwig-core'                       : 'org.jtwig:jtwig-core:5.87.0.RELEASE',
+                'leveldbjni-all'                   : 'org.fusesource.leveldbjni:leveldbjni-all:1.8',
+                'lorem'                            : 'com.thedeanda:lorem:2.1',
+                'picocli'                          : 'info.picocli:picocli:3.5.1',
+                'prettytime'                       : 'org.ocpsoft.prettytime:prettytime:4.0.2.Final',
+                'reactive-streams'                 : 'org.reactivestreams:reactive-streams:1.0.2',
+                'slf4j-nop'                        : 'org.slf4j:slf4j-nop:1.7.26',
+                'wiremock'                         : 'com.github.tomakehurst:wiremock:2.19.0'
         ]
     }
 
@@ -49,7 +70,7 @@ subprojects {
     /*
      * Common properties
      */
-    group 'com.ibm.ada'
+    group 'ada'
     version versions['ada']
 
     sourceCompatibility = 1.8

@@ -9,4 +9,5 @@
 rootProject.name = 'ada'
 
 include 'ada-commons'
+include 'ada-shop'
 include 'ada-vcs'

@@ -20,42 +20,41 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 dependencies {
-    compile libs['akka-streams']
-    compile libs['jackson-annotations']
-    compile libs['jackson-datatype-jdk8']
-
     compile project(':ada-commons')
 
-    compile 'com.github.TanUkkii007:akka-cluster-custom-downing:0.0.12', {
+    compile libs['akka-cluster-custom-downing'], {
         exclude group: 'com.typesafe.akka',
                 module: 'akka-actor_2.12'
 
         exclude group: 'com.typesafe.akka',
                 module: 'akka-cluster_2.12'
     }
-    compile 'com.lightbend.akka.discovery:akka-discovery-kubernetes-api_2.12:1.0.1'
-    compile 'com.lightbend.akka.management:akka-management-cluster-bootstrap_2.12:1.0.1'
-    compile 'com.lightbend.akka:akka-stream-alpakka-csv_2.12:1.0.0'
-    compile 'com.lightbend.akka:akka-stream-alpakka-file_2.12:1.0.0'
-    compile 'com.typesafe.akka:akka-cluster-sharding-typed_2.12:2.5.21'
-    compile 'com.typesafe.akka:akka-cluster-typed_2.12:2.5.21'
-    compile 'com.typesafe.akka:akka-actor-typed_2.12:2.5.21'
-    compile 'com.typesafe.akka:akka-http_2.12:10.1.8'
-    compile 'com.typesafe.akka:akka-http-jackson_2.12:10.1.8'
-    compile 'com.typesafe.akka:akka-persistence-typed_2.12:2.5.21'
-    compile 'org.fusesource.leveldbjni:leveldbjni-all:1.8'
-    compile 'org.ocpsoft.prettytime:prettytime:4.0.2.Final'
-    compile 'org.slf4j:slf4j-nop:1.7.26'
-    compile 'info.picocli:picocli:3.5.1'
+
+    compile libs['akka-actor-typed']
+    compile libs['akka-discovery-kubernetes-api']
+    compile libs['akka-management-cluster-bootstrap']
+    compile libs['akka-cluster-sharding-typed']
+    compile libs['akka-cluster-typed']
+    compile libs['akka-http']
+    compile libs['akka-http-jackson']
+    compile libs['akka-persistence-typed']
+    compile libs['akka-stream-alpakka-file']
+    compile libs['akka-stream-alpakka-csv']
+    compile libs['akka-streams']
+    compile libs['jackson-annotations']
+    compile libs['jackson-datatype-jdk8']
+    compile libs['leveldbjni-all']
+    compile libs['picocli']
+    compile libs['prettytime']
+    compile libs['slf4j-nop']
 
     testCompile libs['assertj-core']
+    testCompile libs['akka-peristence-inmemory']
+    testCompile libs['cucumber-java']
+    testCompile libs['cucumber-picocontainer']
+    testCompile libs['jtwig-core']
+    testCompile libs['lorem']
     testCompile libs['wiremock']
-
-    testCompile 'com.thedeanda:lorem:2.1'
-    testCompile 'io.cucumber:cucumber-java:4.2.5'
-    testCompile 'io.cucumber:cucumber-picocontainer:4.2.6'
-    testCompile 'org.jtwig:jtwig-core:5.87.0.RELEASE'
-    testCompile 'com.github.dnvriend:akka-persistence-inmemory_2.12:2.5.1.1'
 }
 
 configurations {
